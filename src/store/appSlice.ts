@@ -1,10 +1,10 @@
 // import {type ErrorMessageOptions, generateErrorMessage} from 'zod-error'
 import {create, type StateCreator} from 'zustand'
 import {createJSONStorage, devtools, persist} from 'zustand/middleware'
-import {formatZodErrors} from '../helpers'
-import type {T_AppSlice} from '../types'
-import {InitDataContract} from '../zod'
-import {useConfiguration} from './configurationSlice'
+import {formatZodErrors} from '@/helpers'
+import {useConfiguration} from '@/store'
+import type {T_AppSlice} from '@/types'
+import {InitDataContract} from '@/zod'
 
 const store: StateCreator<T_AppSlice> = () => ({
 	requestInitData: async () => {
@@ -35,7 +35,16 @@ const store: StateCreator<T_AppSlice> = () => ({
 			}
 
 			// Set init data
+			useConfiguration.getState().setSteps(safeResponse.data.steps)
+			useConfiguration.getState().setStepsCount(safeResponse.data.stepsCount)
+			useConfiguration.getState().setFilters(safeResponse.data.filters)
+			useConfiguration
+				.getState()
+				.setCharacteristics(safeResponse.data.characteristics)
 			useConfiguration.getState().setBlackList(safeResponse.data.blacklists)
+			useConfiguration.getState().setTitles(safeResponse.data.titles)
+			useConfiguration.getState().setUnits(safeResponse.data.units)
+			useConfiguration.getState().setCombos(safeResponse.data.combos)
 		} catch (error) {
 			console.error(error)
 		}

@@ -7,8 +7,9 @@
 		"module": "ESNext",
 		"types": ["vite/client"],
 		"skipLibCheck": true,
+		"baseUrl": ".", // <-- добавляем базовую папку
 		"paths": {
-			"@/*": ["./src/*"]
+			"@/*": ["src/*"] // <-- TypeScript понимает @
 		},
 
 		/* Bundler mode */

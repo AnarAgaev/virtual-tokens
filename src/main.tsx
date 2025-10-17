@@ -1,6 +1,6 @@
 // import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
-import {App, ErrorBoundary} from './components'
+import {App, ErrorBoundary} from '@/components'
 import {Provider} from './components/ui/provider.tsx'
 
 const rootElement = document.getElementById('root')

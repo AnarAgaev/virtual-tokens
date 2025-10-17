@@ -7,7 +7,7 @@ import {
 	Heading,
 } from '@chakra-ui/react'
 import {Fragment, useEffect} from 'react'
-import {useApp} from '../store'
+import {useApp} from '@/store'
 
 const selects = [
 	{
