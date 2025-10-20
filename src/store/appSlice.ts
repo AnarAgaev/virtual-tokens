@@ -37,6 +37,9 @@ const store: StateCreator<T_AppSlice> = () => ({
 			// Set init data
 			useConfiguration.getState().setSteps(safeResponse.data.steps)
 			useConfiguration.getState().setStepsCount(safeResponse.data.stepsCount)
+			useConfiguration
+				.getState()
+				.setHardFilterSteps(safeResponse.data.hardFilterSteps)
 			useConfiguration.getState().setFilters(safeResponse.data.filters)
 			useConfiguration
 				.getState()
@@ -45,6 +48,10 @@ const store: StateCreator<T_AppSlice> = () => ({
 			useConfiguration.getState().setTitles(safeResponse.data.titles)
 			useConfiguration.getState().setUnits(safeResponse.data.units)
 			useConfiguration.getState().setCombos(safeResponse.data.combos)
+			useConfiguration.getState().setProducts(safeResponse.data.products)
+
+			// Создаем абстракцию с селектами/кнопками для удобства работы
+			useConfiguration.getState().createModifications()
 		} catch (error) {
 			console.error(error)
 		}

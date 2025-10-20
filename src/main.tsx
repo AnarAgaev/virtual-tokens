@@ -1,7 +1,8 @@
-// import {StrictMode} from 'react'
+import {ChakraProvider} from '@chakra-ui/react'
+import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
 import {App, ErrorBoundary} from '@/components'
-import {Provider} from './components/ui/provider.tsx'
+import {system} from '@/theme/config'
 
 const rootElement = document.getElementById('root')
 
@@ -10,11 +11,11 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
-	// <StrictMode>
-	<ErrorBoundary>
-		<Provider>
-			<App />
-		</Provider>
-	</ErrorBoundary>,
-	// </StrictMode>,
+	<StrictMode>
+		<ErrorBoundary>
+			<ChakraProvider value={system}>
+				<App />
+			</ChakraProvider>
+		</ErrorBoundary>
+	</StrictMode>,
 )

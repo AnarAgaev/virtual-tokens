@@ -5,27 +5,14 @@ import {
 	Grid,
 	GridItem,
 	Heading,
+	VStack,
 } from '@chakra-ui/react'
 import {Fragment, useEffect} from 'react'
-import {useApp} from '@/store'
-
-const selects = [
-	{
-		title: 'Тип монтажа',
-		buttons: ['Стандартный'],
-	},
-	{
-		title: 'Тип механизма',
-		buttons: ['Поворотный', 'Фиксированный'],
-	},
-	{
-		title: 'Степень защиты',
-		buttons: ['IP20', 'IP44'],
-	},
-]
+import {useApp, useConfiguration} from '@/store'
 
 export const App = () => {
 	const requestInitData = useApp((state) => state.requestInitData)
+	const modifications = useConfiguration((state) => state.modifications)
 
 	useEffect(() => {
 		requestInitData()
@@ -38,26 +25,37 @@ export const App = () => {
 				size="4xl"
 				letterSpacing="unset"
 				mb="12"
-				color="blue.500"
+				color="gray.800"
 			>
 				Модификации
 			</Heading>
-			<Grid templateColumns="auto 1fr" gap="6" alignItems="center">
-				{selects.map((select) => (
-					<Fragment key={select.title}>
-						<GridItem>{select.title}</GridItem>
-						<GridItem>
-							<Flex gap={4}>
-								{select.buttons.map((button) => (
-									<Button key={button} rounded="full">
-										{button}
-									</Button>
+
+			<VStack align="stretch" gap="10">
+				{modifications &&
+					Object.entries(modifications).map(([stepName, selectors]) => (
+						<VStack key={stepName} align="stretch">
+							<Heading size="xs" fontWeight="normal" color="gray.300">
+								{stepName}
+							</Heading>
+							<Grid templateColumns="auto 1fr" gap="6" alignItems="center">
+								{selectors.map((selector) => (
+									<Fragment key={selector.selectorName}>
+										<GridItem>{selector.selectorName}</GridItem>
+										<GridItem>
+											<Flex gap={4}>
+												{selector.selectorOptionsProducts.map((option) => (
+													<Button key={option.value} rounded="full">
+														{option.value}
+													</Button>
+												))}
+											</Flex>
+										</GridItem>
+									</Fragment>
 								))}
-							</Flex>
-						</GridItem>
-					</Fragment>
-				))}
-			</Grid>
+							</Grid>
+						</VStack>
+					))}
+			</VStack>
 		</Container>
 	)
 }

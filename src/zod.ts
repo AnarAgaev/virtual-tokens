@@ -6,9 +6,14 @@ const steps = z.record(
 	z.array(z.array(z.string().nullable())),
 )
 export type T_Steps = z.infer<typeof steps> | null
+type NonNullSteps = Exclude<T_Steps, null>
+export type T_StepArticle = NonNullSteps[string][number][number]
 
 const stepsCount = z.record(z.string(), z.number())
 export type T_StepsCount = z.infer<typeof stepsCount> | null
+
+const hardFilterSteps = z.array(z.string())
+export type T_HardFilterSteps = z.infer<typeof hardFilterSteps> | null
 
 const filters = z.record(z.string(), z.record(z.string(), z.string()))
 export type T_Filters = z.infer<typeof filters> | null
@@ -40,6 +45,32 @@ const combo = z.object({
 })
 const combos = z.array(combo)
 export type T_Combos = z.infer<typeof combos> | null
+
+const product = z.object({
+	id: z.number(),
+	article: z.string(),
+	title: z.string(),
+	ip_class: z.number().nullable(),
+	price: z.number(),
+	old_price: z.number(),
+	sale: z.boolean(),
+	image: z.string(),
+	available: z.boolean(),
+	height_in_assembly: z.number(),
+	color_rendering_index: z.union([z.number(), z.string()]).nullable(),
+	lamp_style: z.string().nullable(),
+	frame_type: z.string(),
+	armature_color: z.string(),
+	power: z.number().nullable(),
+	light_temperatures: z.string().nullable(),
+	light_angle: z.number().nullable(),
+	ugr: z.string(),
+	link: z.string(),
+})
+export type T_Product = z.infer<typeof product>
+
+const products = z.record(z.string(), product)
+export type T_Products = z.infer<typeof products> | null
 // #endregion
 
 // #region Initial data
@@ -48,13 +79,14 @@ export const InitDataContract = z.object({
 	height_calc_type: z.string(),
 	steps,
 	stepsCount,
-	hardFilterSteps: z.array(z.unknown()),
+	hardFilterSteps,
 	filters,
 	characteristics,
 	blacklists,
 	titles,
 	units,
 	combos,
+	products,
 })
 export type T_InitData = z.infer<typeof InitDataContract>
 // #endregion
