@@ -1,4 +1,5 @@
 import {
+	Box,
 	Button,
 	Container,
 	Flex,
@@ -13,6 +14,7 @@ import {useApp, useConfiguration} from '@/store'
 export const App = () => {
 	const requestInitData = useApp((state) => state.requestInitData)
 	const modifications = useConfiguration((state) => state.modifications)
+	const setSelectedOption = useConfiguration((state) => state.setSelectedOption)
 
 	useEffect(() => {
 		requestInitData()
@@ -30,32 +32,70 @@ export const App = () => {
 				Модификации
 			</Heading>
 
-			<VStack align="stretch" gap="10">
+			<Grid
+				templateColumns="auto 1fr"
+				rowGap="7"
+				columnGap="8"
+				alignItems="center"
+			>
 				{modifications &&
 					Object.entries(modifications).map(([stepName, selectors]) => (
-						<VStack key={stepName} align="stretch">
-							<Heading size="xs" fontWeight="normal" color="gray.300">
+						<Fragment key={stepName}>
+							<Heading
+								size="sm"
+								fontWeight="normal"
+								color="orange"
+								mb="-10"
+								gridColumn="1/-1"
+							>
 								{stepName}
 							</Heading>
-							<Grid templateColumns="auto 1fr" gap="6" alignItems="center">
-								{selectors.map((selector) => (
-									<Fragment key={selector.selectorName}>
-										<GridItem>{selector.selectorName}</GridItem>
-										<GridItem>
-											<Flex gap={4}>
-												{selector.selectorOptionsProducts.map((option) => (
-													<Button key={option.value} rounded="full">
-														{option.value}
-													</Button>
-												))}
-											</Flex>
-										</GridItem>
-									</Fragment>
-								))}
-							</Grid>
-						</VStack>
+							{selectors.map(({selectorId, selectorName, selectorOptions}) => (
+								<Fragment key={selectorId}>
+									<GridItem whiteSpace="nowrap">{selectorName}</GridItem>
+									<GridItem>
+										<Flex gap={3} wrap="wrap">
+											{selectorOptions.map((option) => (
+												<Button
+													key={option.id}
+													minW="150px"
+													rounded="full"
+													size="xl"
+													colorPalette={option.selected ? 'orange' : 'gray'}
+													pointerEvents={option.selected ? 'none' : 'auto'}
+													disabled={Boolean(option.blockedBy)}
+													onClick={() =>
+														setSelectedOption({
+															stepName,
+															selectorId,
+															optionId: option.id,
+														})
+													}
+												>
+													<VStack gap="0">
+														<Box as="span" fontWeight="medium">
+															{option.value}
+														</Box>
+														<Box
+															as="span"
+															fontSize="10px"
+															lineHeight="10px"
+															fontWeight="light"
+														>
+															{option.products
+																.map((product) => product.article)
+																.join(' • ')}
+														</Box>
+													</VStack>
+												</Button>
+											))}
+										</Flex>
+									</GridItem>
+								</Fragment>
+							))}
+						</Fragment>
 					))}
-			</VStack>
+			</Grid>
 		</Container>
 	)
 }

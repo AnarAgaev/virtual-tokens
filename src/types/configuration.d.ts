@@ -7,6 +7,7 @@ import type {
 	T_Product,
 	T_Products,
 	T_StepArticle,
+	T_StepName,
 	T_Steps,
 	T_StepsCount,
 	T_Titles,
@@ -48,17 +49,64 @@ export type T_ConfigurationSlice = {
 	createModifications: () => void
 
 	getProductByArticle: (article: T_StepArticle) => T_Product | null
+
+	setSelectedOption: (selected: {
+		stepName: T_StepName
+		selectorId: T_Id
+		optionId: T_Id
+	}) => void
+
+	shouldBlockOption: (payload: {
+		blockedArticles: T_Product['article'][]
+		maybeBlocked: T_Product['article'][]
+		blacklists: T_BlackList
+	}) =>
+		| {
+				blockingArticle: T_Product['article']
+				shouldBlockedArticle: T_Product['article']
+				blockListArray: Exclude<T_BlackList, null>[number]
+		  }[]
+		| false
+
+	getSelectorById: (payload: {selectorId: T_Id}) => T_Selector | null
+
+	getOptionById: (payload: {optionId: T_Id}) => T_Option | null
 }
 
-export type T_Modifications = Record<
-	string,
-	{
-		selectorName: string
-		selectorCode: keyof T_Product | null
-		selectorOptionsProducts: {
-			articles: T_Product[]
-			selected: boolean
-			value: string
-		}[]
-	}[]
->
+export type T_Id = string
+
+export type T_Option = {
+	id: T_Id
+	value: string
+	products: T_Product[]
+	selected: boolean
+	blockedBy?: {
+		// Опция заблокирована этим артикулом
+		article: string
+
+		// Список артикулов в массиве из опции которая заблокировала
+		// в том числе, содержит блокирующий article (предыдущее свойство)
+		optionArticles: string[]
+
+		// Заблокирован шагом
+		stepName: T_StepName
+
+		// Заблокирован селектом
+		selectorName: T_Selector['selectorName'] | null
+
+		// Заблокирована значением Option
+		optionValue: T_Option['value'] | null
+
+		// заблокирован этим блэк-листом
+		byBlocklist: Exclude<T_BlackList, null>[number]
+	}
+}
+
+export type T_Selector = {
+	selectorId: T_Id
+	selectorName: string
+	selectorCode: keyof T_Product | null
+	selectorOptions: T_Option[]
+}
+
+export type T_Modifications = Record<string, T_Selector[]>

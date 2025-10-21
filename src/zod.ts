@@ -8,6 +8,7 @@ const steps = z.record(
 export type T_Steps = z.infer<typeof steps> | null
 type NonNullSteps = Exclude<T_Steps, null>
 export type T_StepArticle = NonNullSteps[string][number][number]
+export type T_StepName = keyof NonNullSteps
 
 const stepsCount = z.record(z.string(), z.number())
 export type T_StepsCount = z.infer<typeof stepsCount> | null
@@ -52,8 +53,8 @@ const product = z.object({
 	title: z.string(),
 	ip_class: z.number().nullable(),
 	price: z.number(),
-	old_price: z.number(),
-	sale: z.boolean(),
+	old_price: z.union([z.number(), z.null()]),
+	sale: z.union([z.boolean(), z.null()]),
 	image: z.string(),
 	available: z.boolean(),
 	height_in_assembly: z.number(),

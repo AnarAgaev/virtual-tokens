@@ -1,6 +1,6 @@
 // import {type ErrorMessageOptions, generateErrorMessage} from 'zod-error'
 import {create, type StateCreator} from 'zustand'
-import {createJSONStorage, devtools, persist} from 'zustand/middleware'
+import {devtools} from 'zustand/middleware'
 import {formatZodErrors} from '@/helpers'
 import {useConfiguration} from '@/store'
 import type {T_AppSlice} from '@/types'
@@ -9,7 +9,8 @@ import {InitDataContract} from '@/zod'
 const store: StateCreator<T_AppSlice> = () => ({
 	requestInitData: async () => {
 		try {
-			const apiLink = 'mocks/dots.json'
+			// const apiLink = 'mocks/dots.json'
+			const apiLink = 'https://technolight.ru/api/dots/8'
 
 			if (!apiLink) {
 				throw new Error(
@@ -60,10 +61,7 @@ const store: StateCreator<T_AppSlice> = () => ({
 
 export const useApp = create<T_AppSlice>()(
 	devtools(
-		persist(store, {
-			name: 'app-storage',
-			storage: createJSONStorage(() => localStorage),
-		}),
+		store,
 		{name: 'App Store'}, // 👈 добавь имя стора чтобы в ReduxDevTools можно было на него переключиться
 	),
 )
