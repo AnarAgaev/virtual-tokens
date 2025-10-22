@@ -9,8 +9,31 @@ import {InitDataContract} from '@/zod'
 const store: StateCreator<T_AppSlice> = () => ({
 	requestInitData: async () => {
 		try {
+			//! Временная логика для тестирования --- START
+			const apiLinkFromGetParam = window.location.search
+				?.split('?')
+				?.filter(Boolean)[0]
+				?.split('&')
+				?.filter((getParm) => getParm.includes('url'))[0]
+				?.split('=')[1]
+
+			const normalizeUrl = (url: string) => {
+				if (!url) return null
+
+				// Если URL уже содержит протокол, возвращаем как есть
+				if (url.startsWith('http://') || url.startsWith('https://')) {
+					return url
+				}
+
+				// Добавляем протокол по умолчанию
+				return `https://${url}`
+			}
+
+			const apiLink =
+				normalizeUrl(apiLinkFromGetParam) ?? 'https://technolight.ru/api/dots/8'
+			//! Временная логика для тестирования --- END
+
 			// const apiLink = 'mocks/dots.json'
-			const apiLink = 'https://technolight.ru/api/dots/8'
 
 			if (!apiLink) {
 				throw new Error(
