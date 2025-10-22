@@ -57,6 +57,8 @@ export type T_ConfigurationSlice = {
 		isSelected: boolean
 	}) => void
 
+	resetAllSelector: (selected: {stepName: T_StepName; selectorId: T_Id}) => void
+
 	shouldBlockOption: (payload: {
 		blockingArticles: T_Product['article'][]
 		maybeBlocked: T_Product['article'][]
@@ -75,6 +77,8 @@ export type T_ConfigurationSlice = {
 	getOptionById: (payload: {optionId: T_Id}) => T_Option | null
 
 	getSiblingsOptionsByOptionId: (payload: {optionId: T_Id}) => T_Option[]
+
+	hasSomeSelectedOptionBySelectorId: (payload: {selectorId: T_Id}) => boolean
 }
 
 export type T_Id = string

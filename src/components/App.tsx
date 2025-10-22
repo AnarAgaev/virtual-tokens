@@ -9,7 +9,7 @@ import {
 	Icon,
 	VStack,
 } from '@chakra-ui/react'
-import {CircleX} from 'lucide-react'
+import {CircleX, Eraser} from 'lucide-react'
 import {Fragment, useEffect} from 'react'
 import {useApp, useConfiguration} from '@/store'
 
@@ -17,6 +17,10 @@ export const App = () => {
 	const requestInitData = useApp((state) => state.requestInitData)
 	const modifications = useConfiguration((state) => state.modifications)
 	const setSelectedOption = useConfiguration((state) => state.setSelectedOption)
+	const hasSomeSelectedOptionBySelectorId = useConfiguration(
+		(state) => state.hasSomeSelectedOptionBySelectorId,
+	)
+	const resetAllSelector = useConfiguration((state) => state.resetAllSelector)
 
 	useEffect(() => {
 		requestInitData()
@@ -37,8 +41,8 @@ export const App = () => {
 			<Grid
 				templateColumns="auto 1fr"
 				rowGap="7"
-				columnGap="8"
-				alignItems="center"
+				columnGap="5"
+				alignItems="flex-start"
 			>
 				{modifications &&
 					Object.entries(modifications).map(([stepName, selectors]) => (
@@ -46,7 +50,7 @@ export const App = () => {
 							<Heading
 								size="sm"
 								fontWeight="normal"
-								color="orange"
+								color="orange.500"
 								mb="-10"
 								gridColumn="1/-1"
 							>
@@ -55,9 +59,46 @@ export const App = () => {
 							{selectors.map(
 								({selectorId, selectorName, selectorOptions, selectorCode}) => (
 									<Fragment key={selectorId}>
-										<GridItem whiteSpace="nowrap">{selectorName}</GridItem>
+										<GridItem
+											display="flex"
+											alignItems="center"
+											whiteSpace="nowrap"
+											position="relative"
+											fontWeight="thin"
+											fontSize="lg"
+											height="48px"
+											pr="40px"
+										>
+											{selectorName}
+											{selectorCode &&
+												hasSomeSelectedOptionBySelectorId({selectorId}) && (
+													<Button
+														rounded="full"
+														size="xs"
+														colorPalette="orange"
+														aspectRatio="1"
+														p="0"
+														position="absolute"
+														top="50%"
+														right="0"
+														transform="translateY(-50%)"
+														_hover={{
+															color: 'gray.950',
+														}}
+														onClick={() =>
+															resetAllSelector({
+																stepName: stepName,
+																selectorId: selectorId,
+															})
+														}
+													>
+														<Icon as={Eraser} color="currentColor" />
+													</Button>
+												)}
+										</GridItem>
 										<GridItem>
 											<Flex gap={3} wrap="wrap">
+												{}
 												{selectorOptions.map((option) => (
 													<Button
 														key={option.id}

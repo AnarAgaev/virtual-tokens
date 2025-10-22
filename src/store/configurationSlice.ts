@@ -174,6 +174,16 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		)
 	},
 
+	hasSomeSelectedOptionBySelectorId: (payload) => {
+		const {selectorId} = payload
+
+		const selector = get().getSelectorById({selectorId})
+
+		if (!selector) return false
+
+		return selector.selectorOptions.some((option) => option.selected)
+	},
+
 	shouldBlockOption: (payload) => {
 		const {blockingArticles, maybeBlocked, blacklists, blockingSelector} =
 			payload
@@ -222,11 +232,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 	setSelectedOption: (selected) => {
 		let blockingArticles: T_Product['article'][] = []
 		const modifications = {...get().modifications}
-
 		const {isSelected} = selected
-		console.log('isSelected', isSelected)
-
-		if (!modifications) return
 
 		// #region Build blockingArticles Array
 		/**
@@ -350,6 +356,25 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		// #endregion
 
 		set({modifications})
+	},
+
+	resetAllSelector: (payload) => {
+		const modifications = {...get().modifications}
+
+		Object.values(modifications)
+			.flat()
+			.forEach((selector) => {
+				if (selector.selectorId === payload.selectorId) {
+					selector.selectorOptions.forEach((options) => {
+						get().setSelectedOption({
+							stepName: payload.stepName,
+							selectorId: payload.selectorId,
+							optionId: options.id,
+							isSelected: true,
+						})
+					})
+				}
+			})
 	},
 })
 
