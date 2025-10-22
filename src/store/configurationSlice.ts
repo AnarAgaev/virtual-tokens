@@ -17,6 +17,7 @@ import type {
 } from '@/zod'
 
 const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
+	// #region Temp
 	steps: null,
 	setSteps: (payload: T_Steps) => set({steps: payload}),
 
@@ -155,34 +156,65 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		return targetOption ?? null
 	},
+	// #endregion
+
+	getSiblingsOptionsByOptionId: (payload) => {
+		const selectors = Object.values({...get().modifications}).flat()
+
+		const targetSelector = selectors.find((selector) => {
+			const options = selector.selectorOptions
+			return options.some((option) => option.id === payload.optionId)
+		})
+
+		if (!targetSelector) return []
+
+		return targetSelector.selectorOptions.filter(
+			(option) => option.id !== payload.optionId,
+		)
+	},
 
 	shouldBlockOption: (payload) => {
-		const {blockedArticles, maybeBlocked, blacklists} = payload
+		const {blockingArticles, maybeBlocked, blacklists, blockingSelector} =
+			payload
 
 		if (!blacklists) return false
 
-		const results = blacklists.flatMap((group) => {
-			// Ищем артикулы, которые уже блокируют
-			const blocking = group.filter((a) => blockedArticles.includes(a))
-			// Ищем артикулы, которые потенциально должны быть заблокированы
-			const maybe = group.filter((a) => maybeBlocked.includes(a))
+		// если селектор есть — собираем все артикулы из него
+		const sameSelectorArticles =
+			blockingSelector?.selectorOptions.flatMap((opt) =>
+				opt.products.map((p) => p.article),
+			) ?? []
 
-			// Если артикул из maybeBlocked также является блокирующим — пропускаем
-			const filteredMaybe = maybe.filter((a) => !blockedArticles.includes(a))
+		const results = blacklists.flatMap((articleGroup) => {
+			// артикулы, которые блокируют
+			const blocking = articleGroup.filter((article) =>
+				blockingArticles.includes(article),
+			)
 
-			// Создаём комбинации для всех пар (blocking × filteredMaybe)
+			// артикулы, которые могут быть заблокированы
+			const maybe = articleGroup.filter((article) =>
+				maybeBlocked.includes(article),
+			)
+
+			// исключаем артикулы, если они принадлежат тому же селектору, что и blockingSelector
+			const filteredMaybe = maybe.filter(
+				(article) =>
+					!blockingArticles.includes(article) &&
+					!sameSelectorArticles.includes(article),
+			)
+
+			// создаём комбинации (blocking × filteredMaybe)
 			return blocking.length && filteredMaybe.length
 				? blocking.flatMap((blockingArticle) =>
 						filteredMaybe.map((shouldBlockedArticle) => ({
 							blockingArticle,
 							shouldBlockedArticle,
-							blockListArray: group,
+							blockListArray: articleGroup,
 						})),
 					)
 				: []
 		})
 
-		// Если массив пуст — блокировок нет
 		return results.length > 0 ? results : false
 	},
 
@@ -234,46 +266,80 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 						option.selected = option.id === selected.optionId
 					}
 
+					// Получаем данные блокирующего
+					const blockingSelector = get().getSelectorById({
+						selectorId: selected.selectorId,
+					})
+
+					const blockingOption = get().getOptionById({
+						optionId: selected.optionId,
+					})
+
 					// Блокируем опции согласно blockingArticles и blacklists
 					const maybeBlockingProductsArticles = option.products.map(
 						(product) => product.article,
 					)
 
 					const shouldBlockCurrentOption = get().shouldBlockOption({
-						blockedArticles: blockingArticles,
+						blockingArticles,
 						maybeBlocked: maybeBlockingProductsArticles,
 						blacklists: get().blacklist,
+						blockingSelector,
 					})
 
 					if (shouldBlockCurrentOption) {
-						console.log('shouldBlockCurrentOption', shouldBlockCurrentOption)
-
 						const {blockListArray, blockingArticle} =
 							shouldBlockCurrentOption[0]
-
-						const blockingSelector = get().getSelectorById({
-							selectorId: selected.selectorId,
-						})
-
-						const blockingOption = get().getOptionById({
-							optionId: selected.optionId,
-						})
-
-						console.log('blockingOption', blockingOption)
 
 						option.blockedBy = {
 							article: blockingArticle,
 							optionArticles: blockingArticles,
 							stepName: selected.stepName,
 							selectorName: blockingSelector?.selectorName ?? null,
+							selectorId: blockingSelector?.selectorId ?? null,
 							optionValue: blockingOption?.value ?? null,
+							optionId: blockingOption?.id ?? null,
 							byBlocklist: blockListArray,
 						}
 					}
 				})
 			})
 		})
+		// #endregion
 
+		// #region Unlocking previously blocked options
+		/**
+		 * Разблокируем опции которые были заблокированы ранее
+		 * опцией из того же селекта, что и кликнутая:
+		 *
+		 * 1. собираем список соседних опшенов из того же селекта, что и кликнутый
+		 * 2. проходимся по всем шагам -> по всем селектам -> по всем опшинам
+		 *    и если, этот опшен был заблокирован одним из опшенов из соседних
+		 *    с кликнутым, разблокируем его.
+		 */
+		const siblingsOptionsWithClicked = get().getSiblingsOptionsByOptionId({
+			optionId: selected.optionId,
+		})
+		const siblingsOptionsIds = siblingsOptionsWithClicked.map(
+			(option) => option.id,
+		)
+
+		Object.values(modifications).forEach((selectors) => {
+			selectors.forEach((selector) => {
+				const options = selector.selectorOptions
+
+				options.forEach((option) => {
+					if (!option.blockedBy) return
+
+					if (
+						option.blockedBy.optionId &&
+						siblingsOptionsIds.includes(option.blockedBy.optionId)
+					) {
+						delete option.blockedBy
+					}
+				})
+			})
+		})
 		// #endregion
 
 		set({modifications})

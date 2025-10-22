@@ -57,9 +57,10 @@ export type T_ConfigurationSlice = {
 	}) => void
 
 	shouldBlockOption: (payload: {
-		blockedArticles: T_Product['article'][]
+		blockingArticles: T_Product['article'][]
 		maybeBlocked: T_Product['article'][]
 		blacklists: T_BlackList
+		blockingSelector: T_Selector | null
 	}) =>
 		| {
 				blockingArticle: T_Product['article']
@@ -71,6 +72,8 @@ export type T_ConfigurationSlice = {
 	getSelectorById: (payload: {selectorId: T_Id}) => T_Selector | null
 
 	getOptionById: (payload: {optionId: T_Id}) => T_Option | null
+
+	getSiblingsOptionsByOptionId: (payload: {optionId: T_Id}) => T_Option[]
 }
 
 export type T_Id = string
@@ -93,9 +96,11 @@ export type T_Option = {
 
 		// Заблокирован селектом
 		selectorName: T_Selector['selectorName'] | null
+		selectorId: T_Selector['selectorId'] | null
 
 		// Заблокирована значением Option
 		optionValue: T_Option['value'] | null
+		optionId: T_Option['id'] | null
 
 		// заблокирован этим блэк-листом
 		byBlocklist: Exclude<T_BlackList, null>[number]
