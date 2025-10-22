@@ -59,15 +59,20 @@ const product = z.object({
 	available: z.boolean(),
 	height_in_assembly: z.number(),
 	color_rendering_index: z.union([z.number(), z.string()]).nullable(),
-	lamp_style: z.string().nullable(),
-	frame_type: z.string(),
+	lamp_style: z.string().nullable().optional(),
+	frame_type: z.string().optional(),
 	armature_color: z.string(),
 	power: z.number().nullable(),
 	light_temperatures: z.string().nullable(),
-	light_angle: z.number().nullable(),
+	light_angle: z.number().nullable().optional(),
 	ugr: z.string(),
 	link: z.string(),
+	input_voltage_v: z.union([z.number(), z.string()]).nullable().optional(),
+	komplektaciya: z.string().nullable().optional(),
+	tip_upravleniya: z.string().nullable().optional(),
+	form: z.string().nullable().optional(),
 })
+
 export type T_Product = z.infer<typeof product>
 
 const products = z.record(z.string(), product)

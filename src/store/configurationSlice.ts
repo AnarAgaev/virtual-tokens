@@ -17,7 +17,7 @@ import type {
 } from '@/zod'
 
 const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
-	// #region Temp
+	// #region Temp --- Hidden code!
 	steps: null,
 	setSteps: (payload: T_Steps) => set({steps: payload}),
 
@@ -59,6 +59,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		return products[article]
 	},
+	// #endregion
 
 	createModifications: () => {
 		const modifications: T_Modifications = {}
@@ -76,6 +77,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			const selectorSections = filters[stepName]
 
 			// Если в фильтрах нет текущего шага
+			// Унарный опшен - Да или Нет
 			if (!selectorSections) {
 				const selectorOptions = stepArticles.map(([code]) => {
 					const product = code ? get().getProductByArticle(code) : null
@@ -105,15 +107,15 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 					const key = code as keyof T_Product
 					const products = stepArticles
 						.flat()
-						.map((a) => get().getProductByArticle(a ?? ''))
-						.filter((p): p is T_Product => !!p)
+						.map((article) => get().getProductByArticle(article ?? ''))
+						.filter((product): product is T_Product => !!product)
 
 					return {
 						selectorId: nanoid(),
 						selectorName: name,
 						selectorCode: key,
 						selectorOptions: [
-							...new Set(products.map((p) => String(p[key] ?? ''))),
+							...new Set(products.map((product) => String(product[key] ?? ''))),
 						]
 							.filter(Boolean)
 							.map((value) => ({
@@ -121,7 +123,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 								value,
 								selected: false,
 								products: products.filter(
-									(p) => String(p[key] ?? '') === value,
+									(product) => String(product[key] ?? '') === value,
 								),
 							})),
 					}
@@ -156,7 +158,6 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		return targetOption ?? null
 	},
-	// #endregion
 
 	getSiblingsOptionsByOptionId: (payload) => {
 		const selectors = Object.values({...get().modifications}).flat()

@@ -78,8 +78,8 @@ export const App = () => {
 														</Box>
 														<Box
 															as="span"
-															fontSize="10px"
-															lineHeight="10px"
+															fontSize="9px"
+															lineHeight="9px"
 															fontWeight="light"
 														>
 															{option.products
