@@ -223,6 +223,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		let blockingArticles: T_Product['article'][] = []
 		const modifications = {...get().modifications}
 
+		const {isSelected} = selected
+		console.log('isSelected', isSelected)
+
 		if (!modifications) return
 
 		// #region Build blockingArticles Array
@@ -264,7 +267,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				options.forEach((option) => {
 					// Тогглим выбранную опцию
 					if (selector.selectorId === selected.selectorId) {
-						option.selected = option.id === selected.optionId
+						option.selected = option.id === selected.optionId && !isSelected
 					}
 
 					// Получаем данные блокирующего
@@ -318,11 +321,14 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		 *    и если, этот опшен был заблокирован одним из опшенов из соседних
 		 *    с кликнутым, разблокируем его.
 		 */
-		const siblingsOptionsWithClicked = get().getSiblingsOptionsByOptionId({
-			optionId: selected.optionId,
-		})
+
+		const siblingsOptionsWithClicked = isSelected
+			? [get().getOptionById({optionId: selected.optionId})]
+			: get().getSiblingsOptionsByOptionId({
+					optionId: selected.optionId,
+				})
 		const siblingsOptionsIds = siblingsOptionsWithClicked.map(
-			(option) => option.id,
+			(option) => option?.id,
 		)
 
 		Object.values(modifications).forEach((selectors) => {

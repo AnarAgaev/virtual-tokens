@@ -54,6 +54,7 @@ export type T_ConfigurationSlice = {
 		stepName: T_StepName
 		selectorId: T_Id
 		optionId: T_Id
+		isSelected: boolean
 	}) => void
 
 	shouldBlockOption: (payload: {
