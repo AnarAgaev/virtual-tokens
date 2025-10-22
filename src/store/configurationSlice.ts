@@ -1,7 +1,7 @@
 import {nanoid} from 'nanoid'
 import {create, type StateCreator} from 'zustand'
 import {devtools} from 'zustand/middleware'
-import type {T_ConfigurationSlice, T_Modifications} from '@/types'
+import type {T_ConfigurationSlice, T_Id, T_Modifications} from '@/types'
 import type {
 	T_BlackList,
 	T_Characteristics,
@@ -174,14 +174,14 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		)
 	},
 
-	hasSomeSelectedOptionBySelectorId: (payload) => {
+	hasSomeBlockedOptionBySelectorId: (payload) => {
 		const {selectorId} = payload
 
 		const selector = get().getSelectorById({selectorId})
 
 		if (!selector) return false
 
-		return selector.selectorOptions.some((option) => option.selected)
+		return selector.selectorOptions.some((option) => option.blockedBy)
 	},
 
 	shouldBlockOption: (payload) => {
@@ -358,23 +358,45 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		set({modifications})
 	},
 
-	resetAllSelector: (payload) => {
+	unblockAllSelector: (payload) => {
 		const modifications = {...get().modifications}
+
+		const blockingOptionIds: T_Id[] = []
+
+		/**
+		 * Проходим по всем шагам селектора в соответствии с полученным selectorId и делаем:
+		 * 1. снимаем блокировку у заблокированных опшенов
+		 * 2. сохраняем все ИД заблокировавших опшенов в массив блокираторов
+		 * 3. второй раз проходим по всем шагам из снимаем выбор со всех опшенов из массива блокираторов
+		 */
 
 		Object.values(modifications)
 			.flat()
 			.forEach((selector) => {
 				if (selector.selectorId === payload.selectorId) {
-					selector.selectorOptions.forEach((options) => {
-						get().setSelectedOption({
-							stepName: payload.stepName,
-							selectorId: payload.selectorId,
-							optionId: options.id,
-							isSelected: true,
-						})
+					selector.selectorOptions.forEach((option) => {
+						if (option.blockedBy?.optionId) {
+							// Сохраняем заблокировавший ИД в массив блокираторов
+							blockingOptionIds.push(option.blockedBy.optionId)
+
+							// Удаляем блокировку
+							delete option.blockedBy
+						}
 					})
 				}
 			})
+
+		Object.values(modifications)
+			.flat()
+			.forEach((selector) => {
+				selector.selectorOptions.forEach((option) => {
+					if (blockingOptionIds.includes(option.id)) {
+						option.selected = false
+					}
+				})
+			})
+
+		set({modifications})
 	},
 })
 

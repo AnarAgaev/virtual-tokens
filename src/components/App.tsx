@@ -9,7 +9,7 @@ import {
 	Icon,
 	VStack,
 } from '@chakra-ui/react'
-import {CircleX, Eraser} from 'lucide-react'
+import {CircleX, LockKeyhole, LockKeyholeOpen} from 'lucide-react'
 import {Fragment, useEffect} from 'react'
 import {useApp, useConfiguration} from '@/store'
 
@@ -17,10 +17,12 @@ export const App = () => {
 	const requestInitData = useApp((state) => state.requestInitData)
 	const modifications = useConfiguration((state) => state.modifications)
 	const setSelectedOption = useConfiguration((state) => state.setSelectedOption)
-	const hasSomeSelectedOptionBySelectorId = useConfiguration(
-		(state) => state.hasSomeSelectedOptionBySelectorId,
+	const hasSomeBlockedOptionBySelectorId = useConfiguration(
+		(state) => state.hasSomeBlockedOptionBySelectorId,
 	)
-	const resetAllSelector = useConfiguration((state) => state.resetAllSelector)
+	const unblockAllSelector = useConfiguration(
+		(state) => state.unblockAllSelector,
+	)
 
 	useEffect(() => {
 		requestInitData()
@@ -71,7 +73,7 @@ export const App = () => {
 										>
 											{selectorName}
 											{selectorCode &&
-												hasSomeSelectedOptionBySelectorId({selectorId}) && (
+												hasSomeBlockedOptionBySelectorId({selectorId}) && (
 													<Button
 														rounded="full"
 														size="xs"
@@ -82,17 +84,24 @@ export const App = () => {
 														top="50%"
 														right="0"
 														transform="translateY(-50%)"
-														_hover={{
-															color: 'gray.950',
-														}}
-														onClick={() =>
-															resetAllSelector({
-																stepName: stepName,
-																selectorId: selectorId,
-															})
-														}
+														title="Разблокировать"
+														onClick={() => unblockAllSelector({selectorId})}
+														className="group"
 													>
-														<Icon as={Eraser} color="currentColor" />
+														{/* Иконка закрытого замка */}
+														<Icon
+															as={LockKeyhole}
+															position="absolute"
+															_groupHover={{opacity: 0}} // скрывается при hover
+														/>
+
+														{/* Иконка открытого замка */}
+														<Icon
+															as={LockKeyholeOpen}
+															position="absolute"
+															opacity={0}
+															_groupHover={{opacity: 1}} // показывается при hover
+														/>
 													</Button>
 												)}
 										</GridItem>

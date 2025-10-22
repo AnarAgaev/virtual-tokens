@@ -29,11 +29,8 @@ const store: StateCreator<T_AppSlice> = () => ({
 				return `https://${url}`
 			}
 
-			const apiLink =
-				normalizeUrl(apiLinkFromGetParam) ?? 'https://technolight.ru/api/dots/8'
+			const apiLink = normalizeUrl(apiLinkFromGetParam) ?? 'mocks/dots.json'
 			//! Временная логика для тестирования --- END
-
-			// const apiLink = 'mocks/dots.json'
 
 			if (!apiLink) {
 				throw new Error(
