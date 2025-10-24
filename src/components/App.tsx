@@ -75,38 +75,37 @@ export const App = () => {
 											pr="40px"
 										>
 											{selectorName}
-											{selectorCode &&
-												hasSomeBlockedOptionBySelectorId({selectorId}) && (
-													<Button
-														rounded="full"
-														size="xs"
-														colorPalette="orange"
-														aspectRatio="1"
-														p="0"
+											{hasSomeBlockedOptionBySelectorId({selectorId}) && (
+												<Button
+													rounded="full"
+													size="xs"
+													colorPalette="orange"
+													aspectRatio="1"
+													p="0"
+													position="absolute"
+													top="50%"
+													right="0"
+													transform="translateY(-50%)"
+													title="Разблокировать"
+													onClick={() => unblockAllSelector({selectorId})}
+													className="group"
+												>
+													{/* Иконка закрытого замка */}
+													<Icon
+														as={LockKeyhole}
 														position="absolute"
-														top="50%"
-														right="0"
-														transform="translateY(-50%)"
-														title="Разблокировать"
-														onClick={() => unblockAllSelector({selectorId})}
-														className="group"
-													>
-														{/* Иконка закрытого замка */}
-														<Icon
-															as={LockKeyhole}
-															position="absolute"
-															_groupHover={{opacity: 0}} // скрывается при hover
-														/>
+														_groupHover={{opacity: 0}} // скрывается при hover
+													/>
 
-														{/* Иконка открытого замка */}
-														<Icon
-															as={LockKeyholeOpen}
-															position="absolute"
-															opacity={0}
-															_groupHover={{opacity: 1}} // показывается при hover
-														/>
-													</Button>
-												)}
+													{/* Иконка открытого замка */}
+													<Icon
+														as={LockKeyholeOpen}
+														position="absolute"
+														opacity={0}
+														_groupHover={{opacity: 1}} // показывается при hover
+													/>
+												</Button>
+											)}
 										</GridItem>
 										<GridItem>
 											<Flex gap={3} wrap="wrap">
