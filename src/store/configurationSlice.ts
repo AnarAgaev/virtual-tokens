@@ -200,6 +200,13 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		if (!targetOption) return false
 
+		/**
+		 * Не блокируем опшены/кнопки с пустыми массивами артикулов/продуктов.
+		 * Это опшены внутри селекторов Да/Нет
+		 *
+		 */
+		if (!targetOption.products.length) return false
+
 		// Блокируем опшен/кнопку если у нее заблокированы все артикулы/продукты
 		return targetOption.products.every((product) => product.blockedBy)
 	},
