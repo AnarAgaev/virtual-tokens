@@ -181,52 +181,48 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		if (!selector) return false
 
-		return selector.selectorOptions.some((option) => option.blockedBy)
+		const options = selector.selectorOptions
+
+		return options
+			.flatMap((option) => option.products.some((product) => product.blockedBy))
+			.includes(true)
 	},
 
-	shouldBlockOption: (payload) => {
-		const {blockingArticles, maybeBlocked, blacklists, blockingSelector} =
-			payload
+	shouldOptionBlocking: (payload) => {
+		const modifications = {...get().modifications}
+		const selectorsArr = Object.values(modifications).flat()
+		const optionsArr = selectorsArr.flatMap(
+			(selector) => selector.selectorOptions,
+		)
+		const targetOption = optionsArr.find(
+			(option) => option.id === payload.optionId,
+		)
+
+		if (!targetOption) return false
+
+		// Блокируем опшен/кнопку если у нее заблокированы все артикулы/продукты
+		return targetOption.products.every((product) => product.blockedBy)
+	},
+
+	shouldArticleBlocking: (payload) => {
+		const {blockingArticles, productArticle, blacklists} = payload
 
 		if (!blacklists) return false
 
-		// если селектор есть — собираем все артикулы из него
-		const sameSelectorArticles =
-			blockingSelector?.selectorOptions.flatMap((opt) =>
-				opt.products.map((p) => p.article),
-			) ?? []
+		for (const blacklistArticlesBlockingGroup of blacklists) {
+			if (!blacklistArticlesBlockingGroup.includes(productArticle)) continue
 
-		const results = blacklists.flatMap((articleGroup) => {
-			// артикулы, которые блокируют
-			const blocking = articleGroup.filter((article) =>
-				blockingArticles.includes(article),
-			)
+			for (const blockingArticle of blockingArticles) {
+				if (
+					blockingArticle !== productArticle &&
+					blacklistArticlesBlockingGroup.includes(blockingArticle)
+				) {
+					return {blockingArticle, blacklistArticlesBlockingGroup}
+				}
+			}
+		}
 
-			// артикулы, которые могут быть заблокированы
-			const maybe = articleGroup.filter((article) =>
-				maybeBlocked.includes(article),
-			)
-
-			// исключаем артикулы, если они принадлежат тому же селектору, что и blockingSelector
-			const filteredMaybe = maybe.filter(
-				(article) =>
-					!blockingArticles.includes(article) &&
-					!sameSelectorArticles.includes(article),
-			)
-
-			// создаём комбинации (blocking × filteredMaybe)
-			return blocking.length && filteredMaybe.length
-				? blocking.flatMap((blockingArticle) =>
-						filteredMaybe.map((shouldBlockedArticle) => ({
-							blockingArticle,
-							shouldBlockedArticle,
-							blockListArray: articleGroup,
-						})),
-					)
-				: []
-		})
-
-		return results.length > 0 ? results : false
+		return false
 	},
 
 	setSelectedOption: (selected) => {
@@ -237,18 +233,21 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		// #region Build blockingArticles Array
 		/**
 		 * Проходим по селектам кликнутой модификации
-		 * чтобы собрать список выбранных артикулов,
-		 * для блокировки опции при повторном прохождении.
+		 * чтобы собрать коллекцию выбранных артикулов
+		 * (на каждой кнопке/опшине несколько артикулов),
+		 * для блокировки ПРОДУКТА при повторном прохождении.
+		 *
+		 * Опция будут заблокирована, если у нее заблокированы все продукты.
 		 */
 		const selectors = modifications[selected.stepName]
 
-		const options = selectors.find(
+		const targetSelector = selectors.find(
 			(selector) => selector.selectorId === selected.selectorId,
 		)
 
-		if (!options) return
+		if (!targetSelector) return
 
-		const option = options.selectorOptions.find(
+		const option = targetSelector.selectorOptions.find(
 			(option) => option.id === selected.optionId,
 		)
 
@@ -258,11 +257,11 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		blockingArticles = option.products.map((product) => product.article)
 		// #endregion
 
-		// #region Toggle and Block option
+		// #region Toggle and Block option/button
 		/**
 		 * Проходим по всем модификациям (шагам), чтобы:
 		 * 1. тогглить выбранную опцию
-		 * 2. заблокировать опции в соответствии с
+		 * 2. заблокировать отдельные артикулы/продукты в соответствии с
 		 *     - blacklists (приходит с бэка, есть в текущем slice )
 		 *     - blockingArticles (сгенерировали на первом проходе)
 		 */
@@ -276,42 +275,52 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 						option.selected = option.id === selected.optionId && !isSelected
 					}
 
-					// Получаем данные блокирующего
+					// Получаем данные блокирующего селектора
 					const blockingSelector = get().getSelectorById({
 						selectorId: selected.selectorId,
 					})
 
+					// Получаем данные блокирующей опции/кнопки
 					const blockingOption = get().getOptionById({
 						optionId: selected.optionId,
 					})
 
-					// Блокируем опции согласно blockingArticles и blacklists
-					const maybeBlockingProductsArticles = option.products.map(
-						(product) => product.article,
-					)
+					/**
+					 * 1. Проходим по всем продуктам текущего опшена
+					 * 2. Чекаем каждый, нужно ли заблокировать текущий артикул/продукт через
+					 * 	   - blacklists (приходит с бэка, есть в текущем slice )
+					 *     - blockingArticles (сгенерировали на первом проходе)
+					 */
 
-					const shouldBlockCurrentOption = get().shouldBlockOption({
-						blockingArticles,
-						maybeBlocked: maybeBlockingProductsArticles,
-						blacklists: get().blacklist,
-						blockingSelector,
-					})
+					option.products.forEach((product) => {
+						const shouldBlockProduct =
+							// Если селектор кликнутого опшена такой же как селектор текущего продукта
+							// то не надо блокировать, чтобы не блокировались соседние с кликнутым
+							// опшены, находящиеся в одном блэк листе с кликнутым
+							selector.selectorId === blockingSelector?.selectorId
+								? false
+								: get().shouldArticleBlocking({
+										blockingArticles,
+										productArticle: product.article,
+										blacklists: get().blacklist,
+									})
 
-					if (shouldBlockCurrentOption) {
-						const {blockListArray, blockingArticle} =
-							shouldBlockCurrentOption[0]
+						if (shouldBlockProduct) {
+							const {blockingArticle, blacklistArticlesBlockingGroup} =
+								shouldBlockProduct
 
-						option.blockedBy = {
-							article: blockingArticle,
-							optionArticles: blockingArticles,
-							stepName: selected.stepName,
-							selectorName: blockingSelector?.selectorName ?? null,
-							selectorId: blockingSelector?.selectorId ?? null,
-							optionValue: blockingOption?.value ?? null,
-							optionId: blockingOption?.id ?? null,
-							byBlocklist: blockListArray,
+							product.blockedBy = {
+								blockingArticle,
+								blockingArticles,
+								stepName: selected.stepName,
+								selectorName: blockingSelector?.selectorName ?? null,
+								selectorId: blockingSelector?.selectorId ?? null,
+								optionValue: blockingOption?.value ?? null,
+								optionId: blockingOption?.id ?? null,
+								blacklistArticlesBlockingGroup,
+							}
 						}
-					}
+					})
 				})
 			})
 		})
@@ -319,12 +328,16 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		// #region Unlocking previously blocked options
 		/**
-		 * Разблокируем опции которые были заблокированы ранее
+		 * При смене опции в рамках того же селекта
+		 * (кликнули по кнопке рядом с выбранной),
+		 * разблокируем опции которые были заблокированы ранее
 		 * опцией из того же селекта, что и кликнутая:
 		 *
-		 * 1. собираем список соседних опшенов из того же селекта, что и кликнутый
-		 * 2. проходимся по всем шагам -> по всем селектам -> по всем опшинам
-		 *    и если, этот опшен был заблокирован одним из опшенов из соседних
+		 * 1. собираем список всех артикулов/продуктов из соседних
+		 *    опшенов из того же селекта, что и кликнутый.
+		 * 2. проходимся
+		 *    по всем шагам -> по всем селектам -> по всем опшинам -> по всем артикулам/продуктам
+		 *    и если, этот артикул/продукт был заблокирован одним из артикулов/продуктов из соседних
 		 *    с кликнутым, разблокируем его.
 		 */
 
@@ -333,23 +346,32 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			: get().getSiblingsOptionsByOptionId({
 					optionId: selected.optionId,
 				})
-		const siblingsOptionsIds = siblingsOptionsWithClicked.map(
-			(option) => option?.id,
-		)
+
+		const productsArticlesOfSiblingsOptions =
+			siblingsOptionsWithClicked.flatMap((option) => {
+				return option?.products
+					? option.products.map((product) => product.article)
+					: []
+			})
 
 		Object.values(modifications).forEach((selectors) => {
 			selectors.forEach((selector) => {
 				const options = selector.selectorOptions
 
 				options.forEach((option) => {
-					if (!option.blockedBy) return
+					const products = option.products
 
-					if (
-						option.blockedBy.optionId &&
-						siblingsOptionsIds.includes(option.blockedBy.optionId)
-					) {
-						delete option.blockedBy
-					}
+					products.forEach((product) => {
+						if (!product.blockedBy) return
+
+						if (
+							productsArticlesOfSiblingsOptions.includes(
+								product.blockedBy.blockingArticle,
+							)
+						) {
+							delete product.blockedBy
+						}
+					})
 				})
 			})
 		})
@@ -360,14 +382,14 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 	unblockAllSelector: (payload) => {
 		const modifications = {...get().modifications}
-
-		const blockingOptionIds: T_Id[] = []
+		const blockingOptionIds = new Set<T_Id>()
 
 		/**
-		 * Проходим по всем шагам селектора в соответствии с полученным selectorId и делаем:
-		 * 1. снимаем блокировку у заблокированных опшенов
-		 * 2. сохраняем все ИД заблокировавших опшенов в массив блокираторов
-		 * 3. второй раз проходим по всем шагам из снимаем выбор со всех опшенов из массива блокираторов
+		 * Проходим по всем опшинам селектора в соответствии с полученным selectorId и:
+		 * 1. проходим по всем артикулам/продуктам текущего опшена и снимаем блокировку
+		 * 2. сохраняем все ИД заблокировавших опшенов/кнопок в массив блокираторов
+		 * 3. второй раз проходим по всем шагам и снимаем выбор со всех
+		 *    опшенов/кнопок если его ИД есть в массиве блокираторов
 		 */
 
 		Object.values(modifications)
@@ -375,13 +397,15 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			.forEach((selector) => {
 				if (selector.selectorId === payload.selectorId) {
 					selector.selectorOptions.forEach((option) => {
-						if (option.blockedBy?.optionId) {
-							// Сохраняем заблокировавший ИД в массив блокираторов
-							blockingOptionIds.push(option.blockedBy.optionId)
+						option.products.forEach((product) => {
+							if (product.blockedBy?.optionId) {
+								// Сохраняем заблокировавший артикул в массив блокираторов
+								blockingOptionIds.add(product.blockedBy.optionId)
 
-							// Удаляем блокировку
-							delete option.blockedBy
-						}
+								// Удаляем блокировку
+								delete product.blockedBy
+							}
+						})
 					})
 				}
 			})
@@ -390,7 +414,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			.flat()
 			.forEach((selector) => {
 				selector.selectorOptions.forEach((option) => {
-					if (blockingOptionIds.includes(option.id)) {
+					if (blockingOptionIds.has(option.id)) {
 						option.selected = false
 					}
 				})

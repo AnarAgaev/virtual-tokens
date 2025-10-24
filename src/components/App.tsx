@@ -23,6 +23,9 @@ export const App = () => {
 	const unblockAllSelector = useConfiguration(
 		(state) => state.unblockAllSelector,
 	)
+	const shouldOptionBlocking = useConfiguration(
+		(state) => state.shouldOptionBlocking,
+	)
 
 	useEffect(() => {
 		requestInitData()
@@ -117,13 +120,15 @@ export const App = () => {
 														justifyContent="space-between"
 														colorPalette={option.selected ? 'orange' : 'gray'}
 														pointerEvents={option.selected ? 'none' : 'auto'}
-														disabled={Boolean(option.blockedBy)}
+														disabled={shouldOptionBlocking({
+															optionId: option.id,
+														})}
 														onClick={() =>
 															setSelectedOption({
 																stepName,
 																selectorId,
 																optionId: option.id,
-																isSelected: Boolean(option.selected),
+																isSelected: option.selected,
 															})
 														}
 													>
@@ -133,7 +138,7 @@ export const App = () => {
 															</Box>
 															<Box
 																as="span"
-																fontSize="9px"
+																fontSize="16px"
 																lineHeight="9px"
 																fontWeight="light"
 															>
@@ -142,7 +147,7 @@ export const App = () => {
 																	.join(' • ')}
 															</Box>
 														</VStack>
-														{selectorCode && Boolean(option.selected) && (
+														{selectorCode && option.selected && (
 															<Icon
 																pointerEvents="auto"
 																as={CircleX}
