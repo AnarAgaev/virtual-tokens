@@ -185,7 +185,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		return options
 			.flatMap((option) =>
-				option.products.every((product) => product.blockedBy),
+				!option.products.length
+					? false
+					: option.products.every((product) => product.blockedBy),
 			)
 			.includes(true)
 	},
