@@ -29,7 +29,7 @@ const store: StateCreator<T_AppSlice> = () => ({
 				return `https://${url}`
 			}
 
-			let apiLink = normalizeUrl(apiLinkFromGetParam) ?? 'mocks/dots.json'
+			const apiLink = normalizeUrl(apiLinkFromGetParam) ?? 'mocks/dots.json'
 			//! Временная логика для тестирования --- END
 
 			if (!apiLink) {
@@ -38,7 +38,7 @@ const store: StateCreator<T_AppSlice> = () => ({
 				)
 			}
 
-			apiLink = 'mocks/dots_2.json'
+			// apiLink = 'mocks/dots_2.json'
 			const res = await fetch(apiLink)
 
 			if (!res.ok) {

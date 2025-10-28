@@ -74,10 +74,10 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			const filters = get().filters
 			if (!filters) continue
 
-			const selectorSections = filters[stepName]
+			const selectors = filters[stepName]
 
 			// Если в фильтрах нет текущего шага — унарный опшен (Да / Нет)
-			if (!selectorSections) {
+			if (!selectors) {
 				const selectorOptions = stepArticles.map(([code]) => {
 					const product = code ? get().getProductByArticle(code) : null
 
@@ -103,12 +103,14 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				continue
 			}
 
-			// Обычный опшен
-			modifications[stepName] = Object.entries(selectorSections).map(
+			// Стандартный опшен
+			modifications[stepName] = Object.entries(selectors).map(
 				([code, name]) => {
 					const key = code as keyof T_Product
+
 					const products = stepArticles
-						.flat()
+						//! Если в массиве с артикулами шага больше одного артикула, берем только первый
+						.flatMap((articleArr) => articleArr[0])
 						.map((article) => get().getProductByArticle(article ?? ''))
 						.filter((product): product is T_Product => !!product)
 
