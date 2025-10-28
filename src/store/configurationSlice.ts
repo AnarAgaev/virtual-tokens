@@ -106,13 +106,27 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			// Стандартный опшен
 			modifications[stepName] = Object.entries(selectors).map(
 				([code, name]) => {
-					const key = code as keyof T_Product
-
 					const products = stepArticles
-						//! Если в массиве с артикулами шага больше одного артикула, берем только первый
-						.flatMap((articleArr) => articleArr[0])
-						.map((article) => get().getProductByArticle(article ?? ''))
+						.map((articleArr) => {
+							//! На тот случай если в массиве артикулов более одного,
+							//! в качестве основного берем только первый
+							const baseArticle = get().getProductByArticle(articleArr[0])
+
+							//! Второй артикул, если он есть, сохраняем в авто-добавляемые
+							const autoAddedArticle = articleArr[1]
+							if (autoAddedArticle) {
+								const product = get().getProductByArticle(autoAddedArticle)
+
+								if (baseArticle && product) {
+									baseArticle.autoAddedArticle = product
+								}
+							}
+
+							return baseArticle
+						})
 						.filter((product): product is T_Product => !!product)
+
+					const key = code as keyof T_Product
 
 					return {
 						stepName,
@@ -122,14 +136,15 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 						selectorOptions: [
 							...new Set(products.map((product) => String(product[key] ?? ''))),
 						]
-							.filter(Boolean)
+							.filter(Boolean) // ts type guard
 							.map((value) => ({
 								id: nanoid(),
 								value,
 								selected: false,
-								// ✅ клонируем каждый продукт, чтобы `blockedBy` не передавался между селекторами
 								products: products
 									.filter((product) => String(product[key] ?? '') === value)
+
+									// ✅ клонируем каждый продукт, чтобы `blockedBy` не передавался между селекторами
 									.map((product) => ({...product})),
 							})),
 					}

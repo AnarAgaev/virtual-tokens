@@ -48,7 +48,7 @@ export type T_ConfigurationSlice = {
 	modifications?: T_Modifications
 	createModifications: () => void
 
-	getProductByArticle: (article: T_StepArticle) => T_Product | null
+	getProductByArticle: (article: T_StepArticle) => T_ProductExtended | null
 
 	setSelectedOption: (selected: {
 		stepName: T_StepName
@@ -106,6 +106,7 @@ export type T_ProductExtended = T_Product & {
 
 		blacklistArticlesBlockingGroup: Exclude<T_BlackList, null>[number]
 	}
+	autoAddedArticle?: T_ProductExtended
 }
 
 export type T_Option = {
