@@ -62,7 +62,6 @@ export type T_ConfigurationSlice = {
 	shouldArticleBlocking: (payload: {
 		blockingArticles: T_Product['article'][]
 		productArticle: T_Product['article']
-		blacklists: T_BlackList
 	}) =>
 		| {
 				blockingArticle: T_Product['article']
@@ -117,6 +116,7 @@ export type T_Option = {
 }
 
 export type T_Selector = {
+	stepName: string
 	selectorId: T_Id
 	selectorName: string
 	selectorCode: keyof T_Product | null
