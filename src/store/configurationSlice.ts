@@ -22,7 +22,7 @@ import type {
 } from '@/zod'
 
 const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
-	// #region Temp --- Hidden code!
+	// #region Initial values and Setters
 	steps: null,
 	setSteps: (payload: T_Steps) => set({steps: payload}),
 
@@ -54,16 +54,6 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 	products: null,
 	setProducts: (payload: T_Products) => set({products: payload}),
-
-	getProductByArticle: (article) => {
-		if (!article) return null
-
-		const products = get().products
-
-		if (!products) return null
-
-		return products[article]
-	},
 	// #endregion
 
 	createModifications: () => {
@@ -171,6 +161,16 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		set({modifications})
 	},
 
+	getProductByArticle: (article) => {
+		if (!article) return null
+
+		const products = get().products
+
+		if (!products) return null
+
+		return products[article]
+	},
+
 	getSelectorById: (payload) => {
 		const modifications = get().modifications
 
@@ -274,10 +274,10 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		return false
 	},
 
-	setSelectedOption: (selected) => {
+	setSelectedOption: (payload) => {
 		let blockingArticles: T_Product['article'][] = []
 		const modifications = {...get().modifications}
-		const {isSelected} = selected
+		const {isSelected} = payload
 
 		// #region Build blockingArticles Array
 		/**
@@ -295,7 +295,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			selectors.flatMap((selector) => selector.selectorOptions),
 		)
 
-		const option = allOptions.find((option) => option.id === selected.optionId)
+		const option = allOptions.find((option) => option.id === payload.optionId)
 
 		if (!option) return
 
@@ -320,18 +320,18 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 					 * Тогглим выбранную опцию
 					 * Работаем с опшенами/кнопками только в рамках одного селекта
 					 */
-					if (selector.selectorId === selected.selectorId) {
-						option.selected = option.id === selected.optionId && !isSelected
+					if (selector.selectorId === payload.selectorId) {
+						option.selected = option.id === payload.optionId && !isSelected
 					}
 
 					// Получаем данные блокирующего селектора
 					const blockingSelector = get().getSelectorById({
-						selectorId: selected.selectorId,
+						selectorId: payload.selectorId,
 					})
 
 					// Получаем данные блокирующей опции/кнопки
 					const blockingOption = get().getOptionById({
-						optionId: selected.optionId,
+						optionId: payload.optionId,
 					})
 
 					/**
@@ -359,7 +359,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 							product.blockedBy = {
 								blockingArticle,
 								blockingArticles,
-								stepName: selected.stepName,
+								stepName: payload.stepName,
 								selectorName: blockingSelector?.selectorName ?? null,
 								selectorId: blockingSelector?.selectorId ?? null,
 								optionValue: blockingOption?.value ?? null,
@@ -389,9 +389,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		 */
 
 		const siblingsOptionsWithClicked = isSelected
-			? [get().getOptionById({optionId: selected.optionId})]
+			? [get().getOptionById({optionId: payload.optionId})]
 			: get().getSiblingsOptionsByOptionId({
-					optionId: selected.optionId,
+					optionId: payload.optionId,
 				})
 
 		const productsArticlesOfSiblingsOptions =

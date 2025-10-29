@@ -15,6 +15,7 @@ import type {
 } from '@/zod'
 
 export type T_ConfigurationSlice = {
+	// #region Initial values and Setters
 	steps: T_Steps
 	setSteps: (payload: T_Steps) => void
 
@@ -44,20 +45,20 @@ export type T_ConfigurationSlice = {
 
 	products: T_Products
 	setProducts: (payload: T_Products) => void
+	// #endregion
 
 	modifications?: T_Modifications
 	createModifications: () => void
 
 	getProductByArticle: (article: T_StepArticle) => T_ProductExtended | null
 
-	setSelectedOption: (selected: {
-		stepName: T_StepName
-		selectorId: T_Id
-		optionId: T_Id
-		isSelected: boolean
-	}) => void
+	getSelectorById: (payload: {selectorId: T_Id}) => T_Selector | null
 
-	unblockAllSelector: (selected: {selectorId: T_Id}) => void
+	getOptionById: (payload: {optionId: T_Id}) => T_Option | null
+
+	getSiblingsOptionsByOptionId: (payload: {optionId: T_Id}) => T_Option[]
+
+	hasSomeBlockedOptionBySelectorId: (payload: {selectorId: T_Id}) => boolean
 
 	shouldArticleBlocking: (payload: {
 		blockingArticles: T_Product['article'][]
@@ -71,13 +72,14 @@ export type T_ConfigurationSlice = {
 
 	shouldOptionBlocking: (payload: {optionId: T_Option['id']}) => boolean
 
-	getSelectorById: (payload: {selectorId: T_Id}) => T_Selector | null
+	setSelectedOption: (payload: {
+		stepName: T_StepName
+		selectorId: T_Id
+		optionId: T_Id
+		isSelected: boolean
+	}) => void
 
-	getOptionById: (payload: {optionId: T_Id}) => T_Option | null
-
-	getSiblingsOptionsByOptionId: (payload: {optionId: T_Id}) => T_Option[]
-
-	hasSomeBlockedOptionBySelectorId: (payload: {selectorId: T_Id}) => boolean
+	unblockAllSelector: (payload: {selectorId: T_Id}) => void
 }
 
 export type T_Id = string
