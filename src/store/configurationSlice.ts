@@ -1,7 +1,12 @@
 import {nanoid} from 'nanoid'
 import {create, type StateCreator} from 'zustand'
 import {devtools} from 'zustand/middleware'
-import type {T_ConfigurationSlice, T_Id, T_Modifications} from '@/types'
+import type {
+	T_ConfigurationSlice,
+	T_Id,
+	T_Modifications,
+	T_ProductExtended,
+} from '@/types'
 import type {
 	T_BlackList,
 	T_Characteristics,
@@ -78,17 +83,28 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 			// Если в фильтрах нет текущего шага — унарный опшен (Да / Нет)
 			if (!selectors) {
-				const selectorOptions = stepArticles.map(([code]) => {
-					const product = code ? get().getProductByArticle(code) : null
+				const positiveProducts: T_ProductExtended[] = []
 
-					return {
-						id: nanoid(),
-						value: code ? 'Да' : 'Нет',
-						// ✅ создаём клон продукта, чтобы у каждой кнопки был свой экземпляр
-						products: product ? [{...product}] : [],
-						selected: !code,
-					}
+				stepArticles.forEach(([article]) => {
+					const product = get().getProductByArticle(article)
+					if (product) positiveProducts.push(product)
 				})
+
+				const selectorOptions = [
+					{
+						id: nanoid(),
+						value: 'Да',
+						// ✅ создаём клон продукта, чтобы у каждой кнопки был свой экземпляр
+						products: positiveProducts.map((product) => ({...product})),
+						selected: false,
+					},
+					{
+						id: nanoid(),
+						value: 'Нет',
+						products: [],
+						selected: true,
+					},
+				]
 
 				modifications[stepName] = [
 					{
@@ -232,11 +248,6 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		 */
 		if (!targetOption.products.length) return false
 
-		/**
-		 * Не блокировать опшены/кнопки если они выбраны (selected: true)
-		 */
-		// console.log('targetOption', targetOption)
-
 		// Блокируем опшен/кнопку если у нее заблокированы все артикулы/продукты
 		return targetOption.products.every((product) => product.blockedBy)
 	},
@@ -297,7 +308,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		 * Проходим по всем модификациям (шагам) и селекторам в них, чтобы:
 		 * 1. тогглить выбранную опцию
 		 * 2. заблокировать отдельные артикулы/продукты в соответствии с
-		 *     - blacklists (приходит с бэка, есть в текущем slice )
+		 *     - blacklists (приходит с бэка, есть в текущем slice, используем в shouldArticleBlocking)
 		 *     - blockingArticles (сгенерировали на первом проходе)
 		 */
 		Object.values(modifications).forEach((selectors) => {
