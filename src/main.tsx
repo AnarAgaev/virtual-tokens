@@ -11,11 +11,12 @@ if (!rootElement) {
 }
 
 createRoot(rootElement).render(
-	// <StrictMode>
-	<ErrorBoundary>
-		<ChakraProvider value={system}>
-			<App />
-		</ChakraProvider>
-	</ErrorBoundary>,
-	// </StrictMode>,
+	<StrictMode>
+		<ErrorBoundary>
+			<ChakraProvider value={system}>
+				<App />
+			</ChakraProvider>
+		</ErrorBoundary>
+		,
+	</StrictMode>,
 )
