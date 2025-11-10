@@ -1,6 +1,7 @@
 import {nanoid} from 'nanoid'
 import {create, type StateCreator} from 'zustand'
 import {devtools} from 'zustand/middleware'
+import {useComposition} from '@/store'
 import type {
 	T_ConfigurationSlice,
 	T_Id,
@@ -159,6 +160,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		}
 
 		set({modifications})
+		useComposition.getState().handleModificationsChange()
 	},
 
 	getProductByArticle: (article) => {
@@ -425,6 +427,8 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		// #endregion
 
 		set({modifications})
+
+		useComposition.getState().handleModificationsChange()
 	},
 
 	unblockAllSelector: (payload) => {
@@ -468,6 +472,8 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			})
 
 		set({modifications})
+
+		useComposition.getState().handleModificationsChange()
 	},
 })
 

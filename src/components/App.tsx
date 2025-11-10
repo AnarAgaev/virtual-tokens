@@ -7,13 +7,15 @@ import {
 	GridItem,
 	Heading,
 	Icon,
+	Text,
 	VStack,
 } from '@chakra-ui/react'
 import {CircleX, LockKeyhole, LockKeyholeOpen} from 'lucide-react'
 import {Fragment, useEffect} from 'react'
-import {useApp, useConfiguration} from '@/store'
+import {useApp, useComposition, useConfiguration} from '@/store'
 
 export const App = () => {
+	const selectedProducts = useComposition((state) => state.selectedProducts)
 	const requestInitData = useApp((state) => state.requestInitData)
 	const modifications = useConfiguration((state) => state.modifications)
 	const setSelectedOption = useConfiguration((state) => state.setSelectedOption)
@@ -163,6 +165,53 @@ export const App = () => {
 							)}
 						</Fragment>
 					))}
+			</Grid>
+
+			<Grid
+				mt="20"
+				columnGap="3"
+				rowGap="2"
+				templateColumns="repeat(auto-fill, minmax(150px, 1fr))"
+			>
+				{Object.entries(selectedProducts).map(
+					([stepName, {selector, option, product}]) => {
+						return (
+							<GridItem key={stepName}>
+								<Flex
+									direction="column"
+									px="3"
+									py="2"
+									rounded="10px"
+									bgColor="gray.100"
+									height="full"
+								>
+									<Heading size="xs" fontWeight="medium" color="orange.500">
+										{stepName}
+									</Heading>
+
+									{option === 'Нет' || option === 'Да' ? (
+										product ? (
+											<Text fontSize="sm">{product.article}</Text>
+										) : (
+											<Text color="gray.400" fontSize="xs">
+												Не выбрано
+											</Text>
+										)
+									) : (
+										<>
+											<Text color="gray.400" fontSize="xs">
+												{selector}: {option}
+											</Text>
+											<Text fontSize="sm">
+												{product ? product.article : 'Не выбрано'}
+											</Text>
+										</>
+									)}
+								</Flex>
+							</GridItem>
+						)
+					},
+				)}
 			</Grid>
 		</Container>
 	)

@@ -199,10 +199,7 @@ export type T_Products = z.infer<typeof products> | null
 // #region Initial data
 export const InitDataContract = z
 	.object({
-		id: z
-			.number()
-			.int()
-			.positive('ID конфигуратора должен быть положительным числом'),
+		id: z.number('Не указан ID конфигуратора'),
 		height_calc_type: z
 			.string()
 			.min(1, 'Тип расчета высоты не может быть пустым'),
