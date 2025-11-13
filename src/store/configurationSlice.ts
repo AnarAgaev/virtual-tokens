@@ -414,6 +414,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		 *    по всем шагам -> по всем селектам -> по всем опшинам -> по всем артикулам/продуктам
 		 *    и если, этот артикул/продукт был заблокирован одним из артикулов/продуктов из соседних
 		 *    с кликнутым, разблокируем его.
+		 *
+		 *    Также, если текущий продукт/артикул был зафильтрован одной из опцией,
+		 *    расфильтруем её (удаляем соответствующий объект в filteredBy)
 		 */
 
 		const siblingsOptionsWithClicked = isSelected
@@ -421,6 +424,10 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			: get().getSiblingsOptionsByOptionId({
 					optionId: payload.optionId,
 				})
+
+		const optionIdsOfSiblingOptions = siblingsOptionsWithClicked.map(
+			(option) => option?.id,
+		)
 
 		const productsArticlesOfSiblingsOptions =
 			siblingsOptionsWithClicked.flatMap((option) => {
@@ -437,14 +444,23 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 					const products = option.products
 
 					products.forEach((product) => {
-						if (!product.blockedBy) return
+						if (product.blockedBy) {
+							if (
+								productsArticlesOfSiblingsOptions.includes(
+									product.blockedBy.blockingArticle,
+								)
+							) {
+								delete product.blockedBy
+							}
+						}
 
-						if (
-							productsArticlesOfSiblingsOptions.includes(
-								product.blockedBy.blockingArticle,
+						if (product.filteredBy?.length) {
+							product.filteredBy = product.filteredBy.filter(
+								(filteredObj) =>
+									!optionIdsOfSiblingOptions.includes(
+										filteredObj.selectedOptionId,
+									),
 							)
-						) {
-							delete product.blockedBy
 						}
 					})
 				})
@@ -571,6 +587,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			})
 		}
 		// #endregion
+
 		set({modifications})
 
 		useComposition.getState().handleModificationsChange()
