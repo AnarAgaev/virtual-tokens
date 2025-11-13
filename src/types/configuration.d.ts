@@ -64,6 +64,7 @@ export type T_ConfigurationSlice = {
 		selectorName: T_Selector['selectorName']
 		selectorCode: T_Selector['selectorCode']
 		selectedValue: T_Option['value']
+		selectedOptionId: T_Option['id']
 	} | null
 
 	hasSomeBlockedOptionBySelectorId: (payload: {selectorId: T_Id}) => boolean
@@ -127,6 +128,7 @@ export type T_ProductExtended = T_Product & {
 
 		// Выбранное значение
 		selectedValue: T_Option['value']
+		selectedOptionId: T_Option['id']
 	}[]
 
 	autoAddedArticle?: T_ProductExtended

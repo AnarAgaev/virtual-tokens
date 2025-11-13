@@ -228,6 +228,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			selectorCode: selector.selectorCode,
 			selectorName: selector.selectorName,
 			selectedValue: selectedOption[0].value,
+			selectedOptionId: selectedOption[0].id,
 		}
 	},
 
@@ -576,12 +577,22 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 	},
 
 	unblockAllSelector: (payload) => {
+		/**
+		 * Разблокировка состоит из двух частей
+		 *  1.
+		 *    - разблокировать заблокированные продукты/артикулы (убрать свойство blockedBy)
+		 *    - разфильтровать зафильтрованные продукты/артикулы (убрать свойство filteredBy)
+		 *
+		 *  2.
+		 *    - снимаем выбор со всех опшенов/кнопок которые были инициаторами БЛОКИРОВКИ
+		 *    - снимаем выбор со всех опшенов/кнопок которые были инициаторами ФИЛЬТРАЦИИ
+		 */
 		const modifications = {...get().modifications}
 		const blockingOptionIds = new Set<T_Id>()
 
 		/**
 		 * Проходим по всем опшинам селектора в соответствии с полученным selectorId и:
-		 * 1. проходим по всем артикулам/продуктам текущего опшена и снимаем блокировку
+		 * 1. проходим по всем артикулам/продуктам текущего опшена и снимаем блокировку и фильтр
 		 * 2. сохраняем все ИД заблокировавших опшенов/кнопок в массив блокираторов
 		 * 3. второй раз проходим по всем шагам и снимаем выбор со всех
 		 *    опшенов/кнопок если его ИД есть в массиве блокираторов
@@ -599,6 +610,16 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 								// Удаляем блокировку
 								delete product.blockedBy
+							}
+
+							if (product.filteredBy?.length) {
+								// Сохраняем фильтрующий артикул в массив блокираторов
+								product.filteredBy?.forEach((filter) => {
+									blockingOptionIds.add(filter.selectedOptionId)
+								})
+
+								// Удаляем блокировку
+								delete product.filteredBy
 							}
 						})
 					})
