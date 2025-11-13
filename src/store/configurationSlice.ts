@@ -464,7 +464,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			clickedStepSelectors.forEach((selector) => {
 				selector.selectorOptions.forEach((option) => {
 					option.products.forEach((product) => {
-						delete product.filteredBy
+						product.filteredBy = [] // Инициализируем пустым массивом вместо delete
 					})
 				})
 			})
@@ -487,7 +487,10 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				...selector,
 				selectorOptions: selector.selectorOptions.map((option) => ({
 					...option,
-					products: option.products.map((product) => ({...product})),
+					products: option.products.map((product) => ({
+						...product,
+						filteredBy: product.filteredBy ? [...product.filteredBy] : [],
+					})),
 				})),
 			}))
 
@@ -515,7 +518,11 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 								product[selectedData.selectorCode] !==
 									selectedData.selectedValue
 							) {
-								product.filteredBy = selectedData
+								// Добавляем фильтр в массив вместо перезаписи
+								if (!product.filteredBy) {
+									product.filteredBy = []
+								}
+								product.filteredBy.push(selectedData)
 							}
 						})
 					})
@@ -547,15 +554,15 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 						if (!virtualProduct) return
 
-						if (virtualProduct.filteredBy) {
-							product.filteredBy = virtualProduct.filteredBy
-						}
+						// Заменяем весь массив filteredBy
+						product.filteredBy = virtualProduct.filteredBy
+							? [...virtualProduct.filteredBy]
+							: []
 					})
 				})
 			})
 		}
 		// #endregion
-
 		set({modifications})
 
 		useComposition.getState().handleModificationsChange()

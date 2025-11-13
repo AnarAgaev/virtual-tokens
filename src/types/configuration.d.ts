@@ -126,8 +126,8 @@ export type T_ProductExtended = T_Product & {
 		selectorCode: T_Selector['selectorCode']
 
 		// Выбранное значение
-		selectedValue: T_Option["value"]
-	}
+		selectedValue: T_Option['value']
+	}[]
 
 	autoAddedArticle?: T_ProductExtended
 }
