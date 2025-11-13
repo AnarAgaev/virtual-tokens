@@ -213,6 +213,24 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		)
 	},
 
+	getSelectedOptionValue: (payload) => {
+		const {selector} = payload
+
+		const selectedOption = selector.selectorOptions.filter(
+			(option) => option.selected,
+		)
+
+		if (!selectedOption.length) return null
+
+		return {
+			stepName: selector.stepName,
+			selectorId: selector.selectorId,
+			selectorCode: selector.selectorCode,
+			selectorName: selector.selectorName,
+			selectedValue: selectedOption[0].value,
+		}
+	},
+
 	hasSomeBlockedOptionBySelectorId: (payload) => {
 		const {selectorId} = payload
 
@@ -281,9 +299,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		const modifications = {...get().modifications}
 		const {isSelected} = payload
 
-		// #region Build blockingArticles Array
+		// #region Собираем массив блокирующих артикулов с кликнутой кнопки/опшена
 		/**
-		 * Проходим по всем опшинам/кнопкам и фильтруем кликнуты
+		 * Проходим по всем опшинам/кнопкам и фильтруем кликнутые
 		 * Собираем все артикулы/продукты с кликнутого опшена/кнопки
 		 * в массив блокирующих артикулов для блокировки ПРОДУКТА
 		 * при повторном прохождении.
@@ -305,11 +323,11 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		blockingArticles = option.products.map((product) => product.article)
 		// #endregion
 
-		// #region Toggle and Block option/button
+		// #region Меняем состояние кликнутой кнопки/опшена + блокируем
 		/**
 		 * Проходим по всем модификациям (шагам) и селекторам в них, чтобы:
-		 * 1. тогглить выбранную опцию
-		 * 2. заблокировать отдельные артикулы/продукты в соответствии с
+		 * 1. тогглим выбранную опцию
+		 * 2. блокируем отдельные артикулы/продукты в соответствии с
 		 *     - blacklists (приходит с бэка, есть в текущем slice, используем в shouldArticleBlocking)
 		 *     - blockingArticles (сгенерировали на первом проходе)
 		 */
@@ -375,12 +393,12 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		})
 		// #endregion
 
-		// #region Unlocking previously blocked options
+		// #region Если кнопка отжимается, разблокируем, заблокированные ранее этой продукты/артикулы
 		/**
 		 * При смене опции в рамках того же селекта
 		 * (кликнули по кнопке рядом с выбранной),
 		 * разблокируем опции которые были заблокированы ранее
-		 * опцией из того же селекта, что и кликнутая:
+		 * соседней опцией из того же селекта, что и кликнутая:
 		 *
 		 * 1. собираем список всех артикулов/продуктов из соседних
 		 *    опшенов из того же селекта, что и кликнутый.
@@ -424,6 +442,118 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				})
 			})
 		})
+		// #endregion
+
+		// #region Блокируем опшены/кнопки в рамках одного шага
+		/**
+		 * Если на шаге в каком-либо опшине/кнопке есть более одного артикула
+		 * следовательно, мы не может получить один и только один артикул на шаге
+		 * имея единственный селектор. Селекторов должно быть несколько.
+		 *
+		 * 1. Получаем весь шаг со всеми селектами и опшенами/кнопками от кликнутого опшена/кнопки
+		 * 2. Если на шаге несколько селекторов, создаем ШЕЛЛОУ копию списка селектов ("виртуальный" массив селектов)
+		 * 3. Сортируем селекты в копии, перемещая селекторы с кликнутыми/выбранными ошенами/кнопками, наверх
+		 * 4. Проходим по всей шеллоу копии и рекурсивно фильтруем (определяем артикулы которые нужно заблокировать
+		 *    и заполняем свойство-блокиратор на оригинальном продукте/артикуле)
+		 */
+
+		const clickedStepSelectors = modifications[payload.stepName]
+
+		if (clickedStepSelectors.length > 1) {
+			// Сбрасываем все filteredBy на текущем шаге перед началом новой фильтрации
+			clickedStepSelectors.forEach((selector) => {
+				selector.selectorOptions.forEach((option) => {
+					option.products.forEach((product) => {
+						delete product.filteredBy
+					})
+				})
+			})
+
+			// Создаем поверхностную копию массива селекторов
+			const shallowCopySelectors = [...clickedStepSelectors]
+
+			// Сортируем копию: селекторы с выбранными опциями идут первыми
+			shallowCopySelectors.sort((a, b) => {
+				const aHasSelected = a.selectorOptions.some((option) => option.selected)
+				const bHasSelected = b.selectorOptions.some((option) => option.selected)
+
+				if (aHasSelected === bHasSelected) return 0
+				if (aHasSelected) return -1
+				return 1
+			})
+
+			// Создаем глубокую копию продуктов для работы
+			const virtualSelectors = shallowCopySelectors.map((selector) => ({
+				...selector,
+				selectorOptions: selector.selectorOptions.map((option) => ({
+					...option,
+					products: option.products.map((product) => ({...product})),
+				})),
+			}))
+
+			virtualSelectors.forEach((selector, idx, selectors) => {
+				// Получаем выбранное значение текущего/итерируемого селектора
+				const selectedData = get().getSelectedOptionValue({selector})
+
+				if (!selectedData) return
+
+				/**
+				 * Получаем подмассив после текущего индекса
+				 * для блокировки в нем продуктов с отличными
+				 * свойствами от выбранных (selectedValue)
+				 *
+				 * Откидываем все селекты до текущего, для того
+				 * чтобы дважды не блокировать уже выбранные селекты
+				 */
+				const filteringSelectors = selectors.slice(idx + 1)
+
+				filteringSelectors.forEach((selector) => {
+					selector.selectorOptions.forEach((option) => {
+						option.products.forEach((product) => {
+							if (
+								selectedData.selectorCode &&
+								product[selectedData.selectorCode] !==
+									selectedData.selectedValue
+							) {
+								product.filteredBy = selectedData
+							}
+						})
+					})
+				})
+			})
+
+			/**
+			 * Синхронизируем отфильтрованные продукты из virtualSelectors
+			 * с продуктами внутри modifications (добавляем свойство filteredBy)
+			 */
+			modifications[payload.stepName].forEach((selector) => {
+				const virtualSelector = virtualSelectors.find(
+					(s) => s.selectorId === selector.selectorId,
+				)
+
+				if (!virtualSelector) return
+
+				selector.selectorOptions.forEach((option) => {
+					const virtualOption = virtualSelector.selectorOptions.find(
+						(vo) => vo.id === option.id,
+					)
+
+					if (!virtualOption) return
+
+					option.products.forEach((product) => {
+						const virtualProduct = virtualOption.products.find(
+							(p) => p.id === product.id,
+						)
+
+						if (!virtualProduct) return
+
+						if (virtualProduct.filteredBy) {
+							product.filteredBy = virtualProduct.filteredBy
+						}
+					})
+				})
+			})
+		}
 		// #endregion
 
 		set({modifications})

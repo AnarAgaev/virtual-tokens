@@ -58,6 +58,14 @@ export type T_ConfigurationSlice = {
 
 	getSiblingsOptionsByOptionId: (payload: {optionId: T_Id}) => T_Option[]
 
+	getSelectedOptionValue: (payload: {selector: T_Selector}) => {
+		stepName: T_Selector['stepName']
+		selectorId: T_Selector['selectorId']
+		selectorName: T_Selector['selectorName']
+		selectorCode: T_Selector['selectorCode']
+		selectedValue: T_Option['value']
+	} | null
+
 	hasSomeBlockedOptionBySelectorId: (payload: {selectorId: T_Id}) => boolean
 
 	shouldArticleBlocking: (payload: {
@@ -91,23 +99,36 @@ export type T_ProductExtended = T_Product & {
 
 		// Список артикулов в массиве из опции которая заблокировала
 		// в том числе, содержит блокирующий article (предыдущее свойство)
-
 		blockingArticles: T_Product['article'][]
+
 		// Заблокирован шагом
-
 		stepName: T_StepName
-		// Заблокирован селектом
 
+		// Заблокирован селектом
 		selectorName: T_Selector['selectorName'] | null
 		selectorId: T_Selector['selectorId'] | null
-		// Заблокирована значением Option
 
+		// Заблокирована значением Option
 		optionValue: T_Option['value'] | null
 		optionId: T_Option['id'] | null
-		// заблокирован этим блэк-листом
 
+		// заблокирован этим блэк-листом
 		blacklistArticlesBlockingGroup: Exclude<T_BlackList, null>[number]
 	}
+
+	filteredBy?: {
+		// Заблокирован шагом
+		stepName: T_StepName
+
+		// Заблокирован селектом
+		selectorId: T_Selector['selectorId']
+		selectorName: T_Selector['selectorName']
+		selectorCode: T_Selector['selectorCode']
+
+		// Выбранное значение
+		selectedValue: T_Option["value"]
+	}
+
 	autoAddedArticle?: T_ProductExtended
 }
 
