@@ -1,11 +1,13 @@
 export type T_CompositionSlice = {
 	selectedProducts: {
 		// В имени свойства - имя шага
-		[key: string]: {
-			selector: T_Selector['selectorName']
-			option: T_Option['T_Option']
-			product: T_Product
-		}
+		[key: string]:
+			| {
+					selector: T_Selector['selectorName'] | null
+					option: T_Option['T_Option'] | null
+					product: T_Product | null
+			  }
+			| Array<T_Selector['selectorName']>
 	}
 
 	/**
@@ -14,5 +16,7 @@ export type T_CompositionSlice = {
 	 */
 	handleModificationsChange: () => void
 
-	getSelectedSingleOption: (payload: {selectorOptions: T_Option[]}) => T_Option | null
+	getSelectedSingleOption: (payload: {
+		selectorOptions: T_Option[]
+	}) => T_Option | null
 }

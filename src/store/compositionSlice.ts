@@ -27,15 +27,63 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 					selectorOptions,
 				})
 
-				if (selectedOption) {
-					selectedProducts[stepName] = {
-						selector: selectorName,
-						option: selectedOption.value,
-						product: selectedOption.products[0],
-					}
+				selectedProducts[stepName] = {
+					selector: selectorName,
+					option: selectedOption ? selectedOption.value : null,
+					product: selectedOption ? selectedOption.products[0] : null,
 				}
 			} else {
-				// Для каскадного селектора с фильтрацией
+				const unSelected = selectors
+					.filter(
+						(selector) =>
+							!selector.selectorOptions.some((option) => option.selected),
+					)
+					.map((selector) => selector.selectorName)
+
+				if (unSelected.length) {
+					selectedProducts[stepName] = unSelected
+				} else {
+					// Находим общие продукты для всех выбранных опций
+					const allSelectedOptions = selectors
+						.map((selector) =>
+							selector.selectorOptions.find((option) => option.selected),
+						)
+						.filter(Boolean)
+
+					if (allSelectedOptions.length === selectors.length) {
+						// Получаем массивы продуктов из каждой выбранной опции
+						const productArrays = allSelectedOptions.map((option) =>
+							option ? option.products : [],
+						)
+
+						// Находим пересечение по id продуктов
+						const commonProducts = productArrays.reduce(
+							(intersection, currentProducts) => {
+								return intersection.filter((product) =>
+									currentProducts.some(
+										(currentProduct) => currentProduct.id === product.id,
+									),
+								)
+							},
+							productArrays[0],
+						)
+
+						if (commonProducts.length > 1)
+							console.log(
+								'\x1b[31m%s\x1b[0m',
+								'На пересечении выбранных Опшенов нашли несколько артикулов',
+								commonProducts,
+							)
+
+						if (commonProducts.length > 0) {
+							selectedProducts[stepName] = {
+								selector: null,
+								option: null,
+								product: commonProducts[0],
+							}
+						}
+					}
+				}
 			}
 
 			set({selectedProducts})
