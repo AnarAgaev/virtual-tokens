@@ -444,14 +444,13 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 					const products = option.products
 
 					products.forEach((product) => {
-						if (product.blockedBy) {
-							if (
-								productsArticlesOfSiblingsOptions.includes(
-									product.blockedBy.blockingArticle,
-								)
-							) {
-								delete product.blockedBy
-							}
+						if (
+							product.blockedBy &&
+							productsArticlesOfSiblingsOptions.includes(
+								product.blockedBy.blockingArticle,
+							)
+						) {
+							delete product.blockedBy
 						}
 
 						if (product.filteredBy?.length) {
