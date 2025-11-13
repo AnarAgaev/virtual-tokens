@@ -98,8 +98,8 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 })
 
 export const useComposition = create<T_CompositionSlice>()(
-	devtools(
-		store,
-		{name: 'Composition Store'}, // 👈 добавь имя стора чтобы в ReduxDevTools можно было на него переключиться
-	),
+	devtools(store, {
+		name: 'Composition Store', // 👈 добавь имя стора чтобы в ReduxDevTools можно было на него переключиться
+		enabled: true, // включаем Redux devTools для продакшена
+	}),
 )

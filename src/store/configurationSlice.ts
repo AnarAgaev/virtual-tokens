@@ -659,8 +659,8 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 })
 
 export const useConfiguration = create<T_ConfigurationSlice>()(
-	devtools(
-		store,
-		{name: 'Configuration Store', trace: true}, // 👈 добавь имя стора чтобы в ReduxDevTools можно было на него переключиться
-	),
+	devtools(store, {
+		name: 'Configuration Store', // 👈 добавь имя стора чтобы в ReduxDevTools можно было на него переключиться
+		enabled: true, // включаем Redux devTools для продакшена
+	}),
 )
