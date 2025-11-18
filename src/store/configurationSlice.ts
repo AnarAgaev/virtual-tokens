@@ -401,12 +401,11 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		})
 		// #endregion
 
-		// #region Если кнопка отжимается, разблокируем, заблокированные ранее этой продукты/артикулы
+		// #region Если кнопка отжимается, разблокируем, заблокированные ранее этой кнопкой продукты/артикулы
 		/**
-		 * При смене опции в рамках того же селекта
-		 * (кликнули по кнопке рядом с выбранной),
-		 * разблокируем опции которые были заблокированы ранее
-		 * соседней опцией из того же селекта, что и кликнутая:
+		 * При смене опции в рамках того же селекта (кликнули по кнопке рядом с выбранной),
+		 * разблокируем опции которые были заблокированы ранее соседней опцией из того же селекта,
+		 * что и кликнутая:
 		 *
 		 * 1. собираем список всех артикулов/продуктов из соседних
 		 *    опшенов из того же селекта, что и кликнутый.
@@ -596,63 +595,76 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 	unblockAllSelector: (payload) => {
 		/**
-		 * Разблокировка состоит из двух частей
-		 *  1.
-		 *    - разблокировать заблокированные продукты/артикулы (убрать свойство blockedBy)
-		 *    - разфильтровать зафильтрованные продукты/артикулы (убрать свойство filteredBy)
+		 * ! Шаг 1.
+		 * Проходим по селектору который нужно разблокировать и:
+		 * - Определяем всех инициаторов блокировки - [сохраняем в массив блокираторов]
+		 * - Определяем всех инициаторов фильтрации - [сохраняем в массив блокираторов]
 		 *
-		 *  2.
-		 *    - снимаем выбор со всех опшенов/кнопок которые были инициаторами БЛОКИРОВКИ
-		 *    - снимаем выбор со всех опшенов/кнопок которые были инициаторами ФИЛЬТРАЦИИ
+		 * ! Шаг 2.
+		 * Проходим по всем Модификациям и выполняем:
+		 * 1. Смотрим в каждый продукт, и если, он был заблокирован
+		 *    или зафильтрован кем-то из массива блокираторов, снимаем его блокировку
+		 *    и блокирующую фильтрацию (убираем свойства blockedBy и filteredBy)
+		 * 2. В том случае, если на очередной итерации - это блокирующая опция,
+		 *    снимаем выбор этой опции (свойство selected = false)
 		 */
+
 		const modifications = {...get().modifications}
-		const blockingOptionIds = new Set<T_Id>()
+		const allSelectors = Object.values(modifications).flat()
+		const blockingOptionsIds = new Set<T_Id>()
 
-		/**
-		 * Проходим по всем опшинам селектора в соответствии с полученным selectorId и:
-		 * 1. проходим по всем артикулам/продуктам текущего опшена и снимаем блокировку и фильтр
-		 * 2. сохраняем все ИД заблокировавших опшенов/кнопок в массив блокираторов
-		 * 3. второй раз проходим по всем шагам и снимаем выбор со всех
-		 *    опшенов/кнопок если его ИД есть в массиве блокираторов
-		 */
+		// #region Шаг 1.
+		const targetSelector = allSelectors.find(
+			(selector) => selector.selectorId === payload.selectorId,
+		)
 
-		Object.values(modifications)
-			.flat()
-			.forEach((selector) => {
-				if (selector.selectorId === payload.selectorId) {
-					selector.selectorOptions.forEach((option) => {
-						option.products.forEach((product) => {
-							if (product.blockedBy?.optionId) {
-								// Сохраняем заблокировавший артикул в массив блокираторов
-								blockingOptionIds.add(product.blockedBy.optionId)
+		if (!targetSelector) return
 
-								// Удаляем блокировку
-								delete product.blockedBy
-							}
+		const targetProducts = targetSelector.selectorOptions.flatMap(
+			(option) => option.products,
+		)
 
-							if (product.filteredBy?.length) {
-								// Сохраняем фильтрующий артикул в массив блокираторов
-								product.filteredBy?.forEach((filter) => {
-									blockingOptionIds.add(filter.selectedOptionId)
-								})
+		targetProducts.forEach((product) => {
+			if (product.blockedBy?.optionId) {
+				blockingOptionsIds.add(product.blockedBy?.optionId)
+			}
 
-								// Удаляем блокировку
-								delete product.filteredBy
-							}
-						})
-					})
+			if (product.filteredBy) {
+				product.filteredBy.forEach((filter) => {
+					blockingOptionsIds.add(filter.selectedOptionId)
+				})
+			}
+		})
+		// #endregion
+
+		// #region Шаг 2.
+		const allProducts = allSelectors
+			.flatMap((selector) => selector.selectorOptions)
+			.flatMap((option) => {
+				// Разблокируем опцию блокиратор
+				if (blockingOptionsIds.has(option.id)) {
+					option.selected = false
 				}
+
+				return option.products
 			})
 
-		Object.values(modifications)
-			.flat()
-			.forEach((selector) => {
-				selector.selectorOptions.forEach((option) => {
-					if (blockingOptionIds.has(option.id)) {
-						option.selected = false
+		allProducts.forEach((product) => {
+			const {blockedBy, filteredBy} = product
+
+			if (blockedBy?.optionId && blockingOptionsIds.has(blockedBy.optionId)) {
+				delete product.blockedBy
+			}
+
+			if (filteredBy?.length) {
+				filteredBy.forEach((filter) => {
+					if (blockingOptionsIds.has(filter.selectedOptionId)) {
+						delete product.filteredBy
 					}
 				})
-			})
+			}
+		})
+		// #endregion
 
 		set({modifications})
 
