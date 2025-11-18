@@ -33,61 +33,67 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 					product: selectedOption ? selectedOption.products[0] : null,
 				}
 			} else {
-				const unSelected = selectors
-					.filter(
-						(selector) =>
-							!selector.selectorOptions.some((option) => option.selected),
+				// Находим общие продукты для всех выбранных опций
+				const allSelectedOptions = selectors
+					.map((selector) =>
+						selector.selectorOptions.find((option) => option.selected),
 					)
-					.map((selector) => selector.selectorName)
+					.filter(Boolean)
 
-				if (unSelected.length) {
+				// Получаем массивы продуктов из каждой выбранной опции
+				const productArrays = allSelectedOptions.map((option) =>
+					option ? option.products : [],
+				)
+
+				// Находим пересечение по id продуктов
+				const commonProducts = productArrays.reduce(
+					(intersection, currentProducts) => {
+						return intersection.filter((product) =>
+							currentProducts.some(
+								(currentProduct) => currentProduct.id === product.id,
+							),
+						)
+					},
+					productArrays[0],
+				)
+
+				// Если еще ничего не выбрали
+				if (!commonProducts) {
+					selectedProducts[stepName] = selectors.map(
+						(selector) => selector.selectorName,
+					)
+					continue
+				}
+
+				// Если нашли в пересечениях несколько продуктов/артикулов
+				if (commonProducts.length > 1) {
+					const unSelected = selectors
+						.filter(
+							(selector) =>
+								!selector.selectorOptions.some((option) => option.selected),
+						)
+						.map((selector) => selector.selectorName)
+
 					selectedProducts[stepName] = unSelected
-				} else {
-					// Находим общие продукты для всех выбранных опций
-					const allSelectedOptions = selectors
-						.map((selector) =>
-							selector.selectorOptions.find((option) => option.selected),
-						)
-						.filter(Boolean)
+				}
 
-					if (allSelectedOptions.length === selectors.length) {
-						// Получаем массивы продуктов из каждой выбранной опции
-						const productArrays = allSelectedOptions.map((option) =>
-							option ? option.products : [],
-						)
-
-						// Находим пересечение по id продуктов
-						const commonProducts = productArrays.reduce(
-							(intersection, currentProducts) => {
-								return intersection.filter((product) =>
-									currentProducts.some(
-										(currentProduct) => currentProduct.id === product.id,
-									),
-								)
-							},
-							productArrays[0],
-						)
-
-						if (commonProducts.length > 1)
-							console.log(
-								'\x1b[31m%s\x1b[0m',
-								'На пересечении выбранных Опшенов нашли несколько артикулов',
-								commonProducts,
-							)
-
-						if (commonProducts.length > 0) {
-							selectedProducts[stepName] = {
-								selector: null,
-								option: null,
-								product: commonProducts[0],
-							}
-						}
+				// Если нашли один единственный артикул, то он и есть целевой
+				if (commonProducts.length === 1) {
+					selectedProducts[stepName] = {
+						/**
+						 * Так как продукт/артикул - один на пересечении нескольких селектов и опшенов,
+						 * то не понятной кокой из выбранных ставить в свойства selector и option.
+						 * Следовательно ставим их в null!
+						 */
+						selector: null,
+						option: null,
+						product: commonProducts[0],
 					}
 				}
 			}
-
-			set({selectedProducts})
 		}
+
+		set({selectedProducts})
 	},
 
 	getSelectedSingleOption: ({selectorOptions}) => {
