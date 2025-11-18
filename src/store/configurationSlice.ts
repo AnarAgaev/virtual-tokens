@@ -476,7 +476,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		 * 1. Получаем весь шаг со всеми селектами и опшенами/кнопками от кликнутого опшена/кнопки
 		 * 2. Если на шаге несколько селекторов, создаем ШЕЛЛОУ копию списка селектов ("виртуальный" массив селектов)
 		 * 3. Сортируем селекты в копии, перемещая селекторы с кликнутыми/выбранными ошенами/кнопками, наверх
-		 * 4. Проходим по всей шеллоу копии и рекурсивно фильтруем (определяем артикулы которые нужно заблокировать
+		 * 4. Проходим по всей шеллоу копии и фильтруем (определяем артикулы которые нужно заблокировать
 		 *    и заполняем свойство-блокиратор на оригинальном продукте/артикуле)
 		 */
 
@@ -538,8 +538,10 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 						option.products.forEach((product) => {
 							if (
 								selectedData.selectorCode &&
-								product[selectedData.selectorCode] !==
-									selectedData.selectedValue
+								product[selectedData.selectorCode]
+									?.toLocaleString()
+									.toLowerCase() !==
+									selectedData.selectedValue.toLocaleString().toLowerCase()
 							) {
 								// Добавляем фильтр в массив вместо перезаписи
 								if (!product.filteredBy) {
