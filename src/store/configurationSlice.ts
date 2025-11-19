@@ -72,30 +72,20 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 			const selectors = filters[stepName]
 
-			// Если в фильтрах нет текущего шага — унарный опшен (Да / Нет)
+			// Если в фильтрах нет текущего шага — опциональный селектор с возможностью выбора Нет
 			if (!selectors) {
-				const positiveProducts: T_ProductExtended[] = []
+				const products = stepArticles
+					.flat()
+					.filter(Boolean) // убираем null
+					.map((article) => get().getProductByArticle(article))
+					.filter((product): product is T_ProductExtended => !!product)
 
-				stepArticles.forEach(([article]) => {
-					const product = get().getProductByArticle(article)
-					if (product) positiveProducts.push(product)
-				})
-
-				const selectorOptions = [
-					{
-						id: nanoid(),
-						value: 'Да',
-						// ✅ создаём клон продукта, чтобы у каждой кнопки был свой экземпляр
-						products: positiveProducts.map((product) => ({...product})),
-						selected: false,
-					},
-					{
-						id: nanoid(),
-						value: 'Нет',
-						products: [],
-						selected: true,
-					},
-				]
+				const options = products.map((product) => ({
+					id: nanoid(),
+					value: product.article,
+					products: [structuredClone(product)],
+					selected: false,
+				}))
 
 				modifications[stepName] = [
 					{
@@ -103,7 +93,15 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 						selectorId: nanoid(),
 						selectorName: stepName,
 						selectorCode: null,
-						selectorOptions,
+						selectorOptions: [
+							...options,
+							{
+								id: nanoid(),
+								value: 'Нет',
+								products: [],
+								selected: true,
+							},
+						],
 					},
 				]
 
