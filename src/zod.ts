@@ -162,7 +162,10 @@ const product = z.object({
 	color_rendering_index: z.union([z.number(), z.string()]).nullable(),
 	lamp_style: z.string().nullable().optional(),
 	frame_type: z.string().optional(),
-	armature_color: z.string().min(1, 'Цвет арматуры не может быть пустым'),
+	armature_color: z
+		.string()
+		.min(1, 'Цвет арматуры не может быть пустым')
+		.nullable(),
 	power: z
 		.number()
 		.nonnegative('Мощность не может быть отрицательной')
