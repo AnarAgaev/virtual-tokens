@@ -113,21 +113,21 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				([code, name]) => {
 					const products = stepArticles
 						.map((articleArr) => {
-							//! На тот случай если в массиве артикулов более одного,
-							//! в качестве основного берем только первый
-							const baseArticle = get().getProductByArticle(articleArr[0])
+							const [baseArticle, ...additionalArticles] = articleArr
 
-							//! Второй артикул, если он есть, сохраняем в авто-добавляемые
-							const autoAddedArticle = articleArr[1]
-							if (autoAddedArticle) {
-								const product = get().getProductByArticle(autoAddedArticle)
+							// В качестве основного артикула, берем всегда только первый
+							const baseProduct = get().getProductByArticle(baseArticle)
 
-								if (baseArticle && product) {
-									baseArticle.autoAddedArticle = product
-								}
+							// Остальные артикулы, если они есть, сохраняем в авто-добавляемые
+							const autoAddedProducts = additionalArticles
+								.map((article) => get().getProductByArticle(article))
+								.filter((product): product is T_ProductExtended => !!product)
+
+							if (baseProduct && autoAddedProducts.length) {
+								baseProduct.autoAddedProducts = autoAddedProducts
 							}
 
-							return baseArticle
+							return baseProduct
 						})
 						.filter((product): product is T_Product => !!product)
 

@@ -5,7 +5,7 @@ export type T_CompositionSlice = {
 			| {
 					selector: T_Selector['selectorName'] | null
 					option: T_Option['T_Option'] | null
-					product: T_Product | null
+					products: T_Product[]
 			  }
 			| Array<T_Selector['selectorName']>
 	}

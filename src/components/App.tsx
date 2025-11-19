@@ -188,7 +188,8 @@ export const App = () => {
 									{stepName}
 								</Heading>
 
-								{Array.isArray(selectedData) ? (
+								{/* Для выбора из нескольких селекторов где нет целевого продукта */}
+								{Array.isArray(selectedData) && (
 									<>
 										<Text color="gray.400" fontSize="xs">
 											Не выбрано:
@@ -200,31 +201,21 @@ export const App = () => {
 											)}
 										</Text>
 									</>
-								) : selectedData.option === 'Нет' ||
-									selectedData.option === 'Да' ? (
-									selectedData.product ? (
-										<Text fontSize="sm">{selectedData.product.article}</Text>
+								)}
+
+								{/* Когда нашли или нет целевые продукты */}
+								{!Array.isArray(selectedData) &&
+									(selectedData.products.length ? (
+										selectedData.products.map((product) => (
+											<Text key={product.id} fontSize="sm">
+												{product.article}
+											</Text>
+										))
 									) : (
 										<Text color="gray.400" fontSize="xs">
 											Не выбрано
 										</Text>
-									)
-								) : (
-									<>
-										{selectedData.selector && selectedData.option ? (
-											<Text color="gray.400" fontSize="xs">
-												{selectedData.selector}: {selectedData.option}
-											</Text>
-										) : null}
-										{selectedData.product ? (
-											<Text fontSize="sm">{selectedData.product.article}</Text>
-										) : (
-											<Text color="gray.400" fontSize="xs">
-												Не выбрано
-											</Text>
-										)}
-									</>
-								)}
+									))}
 							</Flex>
 						</GridItem>
 					)

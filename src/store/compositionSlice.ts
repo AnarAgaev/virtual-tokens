@@ -27,10 +27,29 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 					selectorOptions,
 				})
 
+				// Если ничего не выбрали
+				if (!selectedOption) {
+					selectedProducts[stepName] = {
+						selector: selectorName,
+						option: null,
+						products: [],
+					}
+
+					continue
+				}
+
+				// Если есть выбор на шаге с одним селектором
 				selectedProducts[stepName] = {
 					selector: selectorName,
-					option: selectedOption ? selectedOption.value : null,
-					product: selectedOption ? selectedOption.products[0] : null,
+					option: selectedOption.value,
+					products:
+						selectedOption.products.length &&
+						selectedOption.products[0].autoAddedProducts
+							? [
+									selectedOption.products[0],
+									...selectedOption.products[0].autoAddedProducts,
+								]
+							: selectedOption.products,
 				}
 			} else {
 				// Находим общие продукты для всех выбранных опций
@@ -79,6 +98,12 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 
 				// Если нашли один единственный артикул, то он и есть целевой
 				if (commonProducts.length === 1) {
+					let products = commonProducts
+
+					if (products[0].autoAddedProducts) {
+						products = [...products, ...products[0].autoAddedProducts]
+					}
+
 					selectedProducts[stepName] = {
 						/**
 						 * Так как продукт/артикул - один на пересечении нескольких селектов и опшенов,
@@ -87,7 +112,7 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 						 */
 						selector: null,
 						option: null,
-						product: commonProducts[0],
+						products: products,
 					}
 				}
 			}

@@ -131,7 +131,7 @@ export type T_ProductExtended = T_Product & {
 		selectedOptionId: T_Option['id']
 	}[]
 
-	autoAddedArticle?: T_ProductExtended
+	autoAddedProducts?: T_ProductExtended[]
 }
 
 export type T_Option = {
