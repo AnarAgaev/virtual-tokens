@@ -480,20 +480,34 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		const clickedStepSelectors = modifications[payload.stepName]
 
 		if (clickedStepSelectors.length > 1) {
-			// Сбрасываем все filteredBy на текущем шаге перед началом новой фильтрации
+			/**
+			 * Сбрасываем все filteredBy на текущем шаге
+			 * перед началом новой фильтрации в ОРИГИНАЛЬНОМ продукте.
+			 */
+			// Сбрасываем все filteredBy на текущем шаге перед началом новой фильтрации в ОРИГИНАЛЬНОМ продукте
 			clickedStepSelectors.forEach((selector) => {
 				selector.selectorOptions.forEach((option) => {
 					option.products.forEach((product) => {
-						product.filteredBy = [] // Инициализируем пустым массивом вместо delete
+						/**
+						 * Чтобы не разблокировать продукты, зафильтрованные выбором,
+						 * сделанным на другом селекторе, исключаем из очистки
+						 * зафильтрованные продукты находящиеся в том же селекторе,
+						 * что и кликнутый.
+						 */
+						if (selector.selectorId === payload.selectorId) {
+							return
+						}
+
+						product.filteredBy = []
 					})
 				})
 			})
 
-			// Создаем поверхностную копию массива селекторов
-			const shallowCopySelectors = [...clickedStepSelectors]
+			// Создаем глубокую копию массива селекторов
+			const virtualClickedStepSelectors = structuredClone(clickedStepSelectors)
 
 			// Сортируем копию: селекторы с выбранными опциями идут первыми
-			shallowCopySelectors.sort((a, b) => {
+			virtualClickedStepSelectors.sort((a, b) => {
 				const aHasSelected = a.selectorOptions.some((option) => option.selected)
 				const bHasSelected = b.selectorOptions.some((option) => option.selected)
 
@@ -502,19 +516,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				return 1
 			})
 
-			// Создаем глубокую копию продуктов для работы
-			const virtualSelectors = shallowCopySelectors.map((selector) => ({
-				...selector,
-				selectorOptions: selector.selectorOptions.map((option) => ({
-					...option,
-					products: option.products.map((product) => ({
-						...product,
-						filteredBy: product.filteredBy ? [...product.filteredBy] : [],
-					})),
-				})),
-			}))
-
-			virtualSelectors.forEach((selector, idx, selectors) => {
+			virtualClickedStepSelectors.forEach((selector, idx, selectors) => {
 				// Получаем выбранное значение текущего/итерируемого селектора
 				const selectedData = get().getSelectedOptionValue({selector})
 
@@ -526,7 +528,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				 * свойствами от выбранных (selectedValue)
 				 *
 				 * Откидываем все селекты до текущего, для того
-				 * чтобы дважды не блокировать уже выбранные селекты
+				 * чтобы дважды не блокировать уже выбранные селекты.
+				 *
+				 * ! Каскадная фильтрация
 				 */
 				const filteringSelectors = selectors.slice(idx + 1)
 
@@ -540,10 +544,10 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 									.toLowerCase() !==
 									selectedData.selectedValue.toLocaleString().toLowerCase()
 							) {
-								// Добавляем фильтр в массив вместо перезаписи
 								if (!product.filteredBy) {
 									product.filteredBy = []
 								}
+
 								product.filteredBy.push(selectedData)
 							}
 						})
@@ -556,7 +560,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			 * с продуктами внутри modifications (добавляем свойство filteredBy)
 			 */
 			modifications[payload.stepName].forEach((selector) => {
-				const virtualSelector = virtualSelectors.find(
+				const virtualSelector = virtualClickedStepSelectors.find(
 					(s) => s.selectorId === selector.selectorId,
 				)
 
