@@ -471,120 +471,72 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		 * имея единственный селектор. Селекторов должно быть несколько.
 		 *
 		 * 1. Получаем весь шаг со всеми селектами и опшенами/кнопками от кликнутого опшена/кнопки
-		 * 2. Если на шаге несколько селекторов, создаем ШЕЛЛОУ копию списка селектов ("виртуальный" массив селектов)
-		 * 3. Сортируем селекты в копии, перемещая селекторы с кликнутыми/выбранными ошенами/кнопками, наверх
-		 * 4. Проходим по всей шеллоу копии и фильтруем (определяем артикулы которые нужно заблокировать
-		 *    и заполняем свойство-блокиратор на оригинальном продукте/артикуле)
+		 *
+		 * 3. Фильтрация:
+		 * - Проходим по каждому селектору
+		 * - Определяем есть ли выбора на текущем, итерируемом селекте.
+		 *   Если нет, то идем на следующую итерацию.
+		 *   Если есть, то:
+		 *     1. Получаем подмассив селекторов шага, исключив текущий итерируемый (с выбором);
+		 *     2. Проходим по подмассиву и, при необходимости, отфильтровываем продукты.
 		 */
 
 		const clickedStepSelectors = modifications[payload.stepName]
 
 		if (clickedStepSelectors.length > 1) {
 			/**
-			 * Сбрасываем все filteredBy на текущем шаге
-			 * перед началом новой фильтрации в ОРИГИНАЛЬНОМ продукте.
+			 * Перед началом новой фильтрации,
+			 * сбрасываем все filteredBy на всех продуктах.
 			 */
-			// Сбрасываем все filteredBy на текущем шаге перед началом новой фильтрации в ОРИГИНАЛЬНОМ продукте
-			clickedStepSelectors.forEach((selector) => {
-				selector.selectorOptions.forEach((option) => {
-					option.products.forEach((product) => {
-						/**
-						 * Чтобы не разблокировать продукты, зафильтрованные выбором,
-						 * сделанным на другом селекторе, исключаем из очистки
-						 * зафильтрованные продукты находящиеся в том же селекторе,
-						 * что и кликнутый.
-						 */
-						if (selector.selectorId === payload.selectorId) {
-							return
-						}
-
-						product.filteredBy = []
-					})
+			clickedStepSelectors
+				.flatMap((selector) =>
+					selector.selectorOptions.flatMap((option) => option.products),
+				)
+				.forEach((product) => {
+					product.filteredBy = []
 				})
-			})
 
-			// Создаем глубокую копию массива селекторов
-			const virtualClickedStepSelectors = structuredClone(clickedStepSelectors)
-
-			// Сортируем копию: селекторы с выбранными опциями идут первыми
-			virtualClickedStepSelectors.sort((a, b) => {
-				const aHasSelected = a.selectorOptions.some((option) => option.selected)
-				const bHasSelected = b.selectorOptions.some((option) => option.selected)
-
-				if (aHasSelected === bHasSelected) return 0
-				if (aHasSelected) return -1
-				return 1
-			})
-
-			virtualClickedStepSelectors.forEach((selector, idx, selectors) => {
-				// Получаем выбранное значение текущего/итерируемого селектора
-				const selectedData = get().getSelectedOptionValue({selector})
-
-				if (!selectedData) return
+			// Обходим все селекторы и фильтруем продукты, при необходимости.
+			clickedStepSelectors.forEach((currentSelector, _idx, selectors) => {
+				const selectedData = get().getSelectedOptionValue({
+					selector: currentSelector,
+				})
 
 				/**
-				 * Получаем подмассив после текущего индекса
-				 * для блокировки в нем продуктов с отличными
-				 * свойствами от выбранных (selectedValue)
-				 *
-				 * Откидываем все селекты до текущего, для того
-				 * чтобы дважды не блокировать уже выбранные селекты.
-				 *
-				 * ! Каскадная фильтрация
+				 * Если на текущем селекторе нет выбранных опшенов,
+				 * не фильтруем по этому селектору продукты
+				 * из других селекторов.
 				 */
-				const filteringSelectors = selectors.slice(idx + 1)
+				if (!selectedData) {
+					return
+				}
 
-				filteringSelectors.forEach((selector) => {
-					selector.selectorOptions.forEach((option) => {
-						option.products.forEach((product) => {
-							if (
-								selectedData.selectorCode &&
-								product[selectedData.selectorCode]
-									?.toLocaleString()
-									.toLowerCase() !==
-									selectedData.selectedValue.toLocaleString().toLowerCase()
-							) {
-								if (!product.filteredBy) {
-									product.filteredBy = []
-								}
-
-								product.filteredBy.push(selectedData)
-							}
-						})
-					})
-				})
-			})
-
-			/**
-			 * Синхронизируем отфильтрованные продукты из virtualSelectors
-			 * с продуктами внутри modifications (добавляем свойство filteredBy)
-			 */
-			modifications[payload.stepName].forEach((selector) => {
-				const virtualSelector = virtualClickedStepSelectors.find(
-					(s) => s.selectorId === selector.selectorId,
+				// Подмассив селекторов, за исключением текущего, итерируемого.
+				const otherSelectors = selectors.filter(
+					(s) => s.selectorId !== currentSelector.selectorId,
 				)
 
-				if (!virtualSelector) return
+				const otherSelectorsProducts = otherSelectors.flatMap((selector) =>
+					selector.selectorOptions.flatMap((option) => option.products),
+				)
 
-				selector.selectorOptions.forEach((option) => {
-					const virtualOption = virtualSelector.selectorOptions.find(
-						(vo) => vo.id === option.id,
-					)
-
-					if (!virtualOption) return
-
-					option.products.forEach((product) => {
-						const virtualProduct = virtualOption.products.find(
-							(p) => p.id === product.id,
-						)
-
-						if (!virtualProduct) return
-
-						// Заменяем весь массив filteredBy
-						product.filteredBy = virtualProduct.filteredBy
-							? [...virtualProduct.filteredBy]
-							: []
-					})
+				/**
+				 * Добавляем фильтратор, если выбранная опция текущего селекта,
+				 * отличается у текущего продукта
+				 */
+				otherSelectorsProducts.forEach((product) => {
+					if (
+						selectedData.selectorCode &&
+						product[selectedData.selectorCode]
+							?.toLocaleString()
+							.toLowerCase() !==
+							selectedData.selectedValue.toLocaleString().toLowerCase()
+					) {
+						if (!product.filteredBy) {
+							product.filteredBy = []
+						}
+						product.filteredBy.push(selectedData)
+					}
 				})
 			})
 		}
