@@ -115,7 +115,7 @@ export type T_ProductExtended = T_Product & {
 
 		// заблокирован этим блэк-листом
 		blacklistArticlesBlockingGroup: Exclude<T_BlackList, null>[number]
-	}
+	}[]
 
 	filteredBy?: {
 		// Заблокирован шагом
