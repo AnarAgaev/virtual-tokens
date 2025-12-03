@@ -5,9 +5,10 @@ import {haveCommonArticlesExact} from '@/helpers'
 import {useComposition} from '@/store'
 import type {
 	T_ConfigurationSlice,
-	T_Id,
 	T_Modifications,
 	T_ProductExtended,
+	T_SelectionPayload,
+	T_SelectorAndOptionPair,
 } from '@/types'
 import type {
 	T_BlackList,
@@ -332,12 +333,14 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			selectors.flatMap((selector) => selector.selectorOptions),
 		)
 
-		const option = allOptions.find((option) => option.id === payload.optionId)
+		const blockedOption = allOptions.find(
+			(option) => option.id === payload.optionId,
+		)
 
-		if (!option) return
+		if (!blockedOption) return
 
 		// Собираем массив блокирующих артикулов
-		blockingArticles = option.products.map((product) => product.article)
+		blockingArticles = blockedOption.products.map((product) => product.article)
 		// #endregion
 
 		// #region Тогглим кнопку/опшен + блокируем по блэк-листам и собранному массиву блокирующих артикулов
@@ -398,6 +401,11 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 								optionId: blockingOption?.id ?? null,
 								blacklistArticlesBlockingGroup,
 							})
+						}
+
+						if (!product.blockedBy?.length) {
+							// Если в массив блокировок ничего не добавили, удаляем его
+							delete product.blockedBy
 						}
 					})
 				})
@@ -471,6 +479,11 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				})
 
 				product.blockedBy = filteredBlockedBy
+
+				if (!product.blockedBy?.length) {
+					// Если в массив блокировок ничего не добавили, удаляем его
+					delete product.blockedBy
+				}
 			}
 
 			if (product.filteredBy?.length) {
@@ -511,7 +524,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 					selector.selectorOptions.flatMap((option) => option.products),
 				)
 				.forEach((product) => {
-					product.filteredBy = []
+					delete product.filteredBy
 				})
 
 			// Обходим все селекторы и фильтруем продукты, при необходимости.
@@ -565,27 +578,21 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		useComposition.getState().handleModificationsChange()
 	},
 
-	unblockAllSelector: (payload) => {
-		/**
-		 * ! Шаг 1.
-		 * Проходим по селектору который нужно разблокировать и:
-		 * - Определяем всех инициаторов блокировки - [сохраняем в массив блокираторов]
-		 * - Определяем всех инициаторов фильтрации - [сохраняем в массив блокираторов]
-		 *
-		 * ! Шаг 2.
-		 * Проходим по всем Модификациям и выполняем:
-		 * 1. Смотрим в каждый продукт, и если, он был заблокирован
-		 *    или зафильтрован кем-то из массива блокираторов, снимаем его блокировку
-		 *    и блокирующую фильтрацию (убираем свойства blockedBy и filteredBy)
-		 * 2. В том случае, если на очередной итерации - это блокирующая опция,
-		 *    снимаем выбор этой опции (свойство selected = false)
-		 */
-
-		const modifications = {...get().modifications}
+	unlockSelector: (payload) => {
+		const modifications = structuredClone({...get().modifications})
 		const allSelectors = Object.values(modifications).flat()
-		const blockingOptionsIds = new Set<T_Id>()
+		const blockingSelectorAndOptions = new Set<T_SelectorAndOptionPair>()
 
 		// #region Шаг 1.
+		/**
+		 * ! Задача 1.
+		 * Проходим по селектору который нужно разблокировать и собираем со всех
+		 * заблокированных или зафильтрованных продуктов инициаторов их блокировки
+		 * и фильтрации.
+		 *
+		 * ! Задача 2.
+		 * Снимаем блокировку и фильтрацию со всех продуктов целевого селектора
+		 */
 		const targetSelector = allSelectors.find(
 			(selector) => selector.selectorId === payload.selectorId,
 		)
@@ -597,48 +604,72 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		)
 
 		targetProducts.forEach((product) => {
-			if (product.blockedBy?.optionId) {
-				blockingOptionsIds.add(product.blockedBy?.optionId)
+			if (product.blockedBy) {
+				// Сохраняем блокиратора
+				product.blockedBy.forEach((blockedObj) => {
+					blockingSelectorAndOptions.add(
+						`${blockedObj.selectorId}___${blockedObj.optionId}`,
+					)
+				})
+
+				// Снимаем блокировку
+				delete product.blockedBy
 			}
 
 			if (product.filteredBy) {
+				// Сохраняем фильтратора
 				product.filteredBy.forEach((filter) => {
-					blockingOptionsIds.add(filter.selectedOptionId)
+					blockingSelectorAndOptions.add(
+						`${filter.selectorId}___${filter.selectedOptionId}`,
+					)
 				})
+
+				// Снимаем фильтрацию
+				delete product.filteredBy
 			}
 		})
 		// #endregion
 
+		/**
+		 * В этом массиве храним объекты которые в дальнейшем будем передавать
+		 * в метод setSelectedOption, для снятия блокировки и фильтрации
+		 * с опций который зависит от блокиратора разблокируемого селектора
+		 */
+		const unblockingOptions: T_SelectionPayload[] = []
+
 		// #region Шаг 2.
-		const allProducts = allSelectors
-			.flatMap((selector) => selector.selectorOptions)
-			.flatMap((option) => {
-				// Разблокируем опцию блокиратор
-				if (blockingOptionsIds.has(option.id)) {
-					option.selected = false
+		/**
+		 * Проходим по всем Опциям и определяем является ли текущая итерируемая опция
+		 * блокиратором того селекта который необходимо разблокировать.
+		 *
+		 * ! Задача:
+		 * Собрать в массив блокираторов Объекты, которые в дальнейшем будут переданы
+		 * в качестве аргумента в метод setSelectedOption для разблокировки всех
+		 * зависимых от неё продуктов.
+		 */
+		allSelectors.forEach((selector) => {
+			selector.selectorOptions.forEach((option) => {
+				const currentPair: T_SelectorAndOptionPair = `${selector.selectorId}___${option.id}`
+
+				if (blockingSelectorAndOptions.has(currentPair)) {
+					unblockingOptions.push({
+						stepName: selector.stepName,
+						selectorId: selector.selectorId,
+						optionId: option.id,
+						isSelected: true, // этот параметр говорит методу setSelectedOption, что кнопка нажата или опция выбрана
+					})
 				}
-
-				return option.products
 			})
-
-		allProducts.forEach((product) => {
-			const {blockedBy, filteredBy} = product
-
-			if (blockedBy?.optionId && blockingOptionsIds.has(blockedBy.optionId)) {
-				delete product.blockedBy
-			}
-
-			if (filteredBy?.length) {
-				filteredBy.forEach((filter) => {
-					if (blockingOptionsIds.has(filter.selectedOptionId)) {
-						delete product.filteredBy
-					}
-				})
-			}
 		})
 		// #endregion
 
 		set({modifications})
+
+		// Снятие зависимых блокировок проводим через имитацию
+		// отжатия опшена - параметр isSelected: true
+		unblockingOptions.forEach((selectionObj) => {
+			get().setSelectedOption(selectionObj)
+		})
 
 		useComposition.getState().handleModificationsChange()
 	},

@@ -22,9 +22,7 @@ export const App = () => {
 	const hasSomeBlockedOptionBySelectorId = useConfiguration(
 		(state) => state.hasSomeBlockedOptionBySelectorId,
 	)
-	const unblockAllSelector = useConfiguration(
-		(state) => state.unblockAllSelector,
-	)
+	const unlockSelector = useConfiguration((state) => state.unlockSelector)
 	const shouldOptionBlocking = useConfiguration(
 		(state) => state.shouldOptionBlocking,
 	)
@@ -89,7 +87,7 @@ export const App = () => {
 													right="0"
 													transform="translateY(-50%)"
 													title="Разблокировать"
-													onClick={() => unblockAllSelector({selectorId})}
+													onClick={() => unlockSelector({selectorId})}
 													className="group"
 												>
 													{/* Иконка закрытого замка */}

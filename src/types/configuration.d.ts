@@ -81,14 +81,9 @@ export type T_ConfigurationSlice = {
 
 	shouldOptionBlocking: (payload: {optionId: T_Option['id']}) => boolean
 
-	setSelectedOption: (payload: {
-		stepName: T_StepName
-		selectorId: T_Id
-		optionId: T_Id
-		isSelected: boolean
-	}) => void
+	setSelectedOption: (payload: T_SelectionPayload) => void
 
-	unblockAllSelector: (payload: {selectorId: T_Id}) => void
+	unlockSelector: (payload: {selectorId: T_Id}) => void
 }
 
 export type T_Id = string
@@ -150,3 +145,12 @@ export type T_Selector = {
 }
 
 export type T_Modifications = Record<string, T_Selector[]>
+
+export type T_SelectionPayload = {
+	stepName: T_StepName
+	selectorId: T_Id
+	optionId: T_Id
+	isSelected: boolean
+}
+
+export type T_SelectorAndOptionPair = `${T_Selector['selectorId']}___${T_Option['id']}`
