@@ -287,12 +287,16 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		if (!blacklistArr) return false
 
 		for (const blacklistArticlesBlockingGroup of blacklistArr) {
+			// Подтверждаем то, что в текущем блэклисте есть проверяемый артикул
 			if (!blacklistArticlesBlockingGroup.includes(productArticle)) continue
 
 			for (const blockingArticle of blockingArticles) {
 				if (
 					blockingArticle !== productArticle &&
-					blacklistArticlesBlockingGroup.includes(blockingArticle)
+					/**
+					 * ! Проверяем то что блокирующий артикул в блэклисте стоит НА ПЕРВОМ МЕСТЕ
+					 */
+					blacklistArticlesBlockingGroup[0] === blockingArticle
 				) {
 					return {blockingArticle, blacklistArticlesBlockingGroup}
 				}
@@ -323,10 +327,12 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		 * Собираем все артикулы/продукты с кликнутого опшена/кнопки
 		 * в массив блокирующих артикулов для блокировки ПРОДУКТА
 		 * при повторном прохождении.
-		 * Напоминаю: на каждой кнопке/опшине несколько артикулов!
 		 *
-		 * ! Важно: Опшен/кнопка будут заблокирована, если
-		 * ! у нее заблокированы все продукты.
+		 * * Напоминаю: на каждой кнопке/опшине несколько артикулов!
+		 *
+		 * ! Важно:
+		 * На интерфейсе Опшен/кнопка будут заблокирована,
+		 * если у нее заблокированы все продукты.
 		 */
 
 		const allOptions = Object.values(modifications).flatMap((selectors) =>
@@ -358,8 +364,11 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 				options.forEach((option) => {
 					/**
-					 * Тогглим выбранную опцию
-					 * Работаем с опшенами/кнопками только в рамках одного селекта
+					 * Тогглим выбранную опцию.
+					 *
+					 * Так как выбор одной опции в рамках селекта автоматически
+					 * снимает выбор с опции в том же селекте, работаем
+					 * с опшенами/кнопками только в рамках одного селекта
 					 */
 					if (selector.selectorId === payload.selectorId) {
 						option.selected = option.id === payload.optionId && !isSelected
@@ -373,9 +382,14 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 					 *      - blockingArticles (сгенерировали на первом проходе)
 					 */
 					option.products.forEach((product) => {
+						/**
+						 * Флаг отвечает за то, что селектор текущего итерируемого продукта
+						 * совпадает с селектором блокиратором (селектор кликнутой кнопки)
+						 */
 						const sameSelector =
 							selector.selectorId === blockingSelector?.selectorId
 
+						// Не блокируем продукты в рамках единого с блокиратором селектора
 						const shouldBlockProduct = sameSelector
 							? false
 							: get().shouldArticleBlocking({
