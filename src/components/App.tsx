@@ -26,6 +26,9 @@ export const App = () => {
 	const shouldOptionBlocking = useConfiguration(
 		(state) => state.shouldOptionBlocking,
 	)
+	const hasProductWithBuiltInDriver = useConfiguration(
+		(state) => state.hasProductWithBuiltInDriver,
+	)
 
 	useEffect(() => {
 		requestInitData()
@@ -33,6 +36,7 @@ export const App = () => {
 
 	return (
 		<Container py="10">
+			{/* Заголовок конфигуратора */}
 			<Heading
 				fontWeight="bold"
 				size="4xl"
@@ -43,6 +47,7 @@ export const App = () => {
 				Модификации
 			</Heading>
 
+			{/* Шаги */}
 			<Grid
 				templateColumns="auto 1fr"
 				rowGap="7"
@@ -51,120 +56,153 @@ export const App = () => {
 			>
 				{modifications &&
 					Object.entries(modifications).map(([stepName, selectors]) => (
+						// Имя шага
 						<Fragment key={stepName}>
-							<Heading
-								size="sm"
-								fontWeight="normal"
-								color="orange.500"
-								mb="-10"
-								gridColumn="1/-1"
-							>
-								{stepName}
-							</Heading>
-							{selectors.map(
-								({selectorId, selectorName, selectorOptions, selectorCode}) => (
-									<Fragment key={selectorId}>
-										<GridItem
-											display="flex"
-											alignItems="center"
-											whiteSpace="nowrap"
-											position="relative"
-											fontWeight="thin"
-											fontSize="lg"
-											height="48px"
-											pr="40px"
-										>
-											{selectorName}
-											{hasSomeBlockedOptionBySelectorId({selectorId}) && (
-												<Button
-													rounded="full"
-													size="xs"
-													colorPalette="orange"
-													aspectRatio="1"
-													p="0"
-													position="absolute"
-													top="50%"
-													right="0"
-													transform="translateY(-50%)"
-													title="Разблокировать"
-													onClick={() => unlockSelector({selectorId})}
-													className="group"
-												>
-													{/* Иконка закрытого замка */}
-													<Icon
-														as={LockKeyhole}
-														position="absolute"
-														_groupHover={{opacity: 0}} // скрывается при hover
-													/>
-
-													{/* Иконка открытого замка */}
-													<Icon
-														as={LockKeyholeOpen}
-														position="absolute"
-														opacity={0}
-														_groupHover={{opacity: 1}} // показывается при hover
-													/>
-												</Button>
-											)}
-										</GridItem>
-										<GridItem>
-											<Flex gap={3} wrap="wrap">
-												{}
-												{selectorOptions.map((option) => (
-													<Button
-														key={option.id}
-														minW="150px"
-														rounded="full"
-														size="xl"
-														justifyContent="space-between"
-														colorPalette={option.selected ? 'orange' : 'gray'}
-														pointerEvents={option.selected ? 'none' : 'auto'}
-														disabled={shouldOptionBlocking({
-															optionId: option.id,
-														})}
-														onClick={() =>
-															setSelectedOption({
-																stepName,
-																selectorId,
-																optionId: option.id,
-																isSelected: option.selected,
-															})
-														}
-													>
-														<VStack gap="0" w="full" align="flex-start">
-															<Box as="span" fontWeight="medium">
-																{option.value}
-															</Box>
-															<Box
-																as="span"
-																fontSize="16px"
-																lineHeight="9px"
-																fontWeight="light"
-															>
-																{option.products
-																	.map((product) => product.article)
-																	.join(' • ')}
-															</Box>
-														</VStack>
-														{selectorCode && option.selected && (
-															<Icon
-																pointerEvents="auto"
-																as={CircleX}
-																boxSize="20px"
-																_hover={{color: 'gray.950'}}
-															/>
-														)}
-													</Button>
-												))}
-											</Flex>
-										</GridItem>
-									</Fragment>
-								),
+							{stepName === 'Драйвер' ? (
+								!hasProductWithBuiltInDriver() ? (
+									<Heading
+										size="sm"
+										fontWeight="normal"
+										color="orange.500"
+										mb="-10"
+										gridColumn="1/-1"
+									>
+										{stepName}
+									</Heading>
+								) : null
+							) : (
+								<Heading
+									size="sm"
+									fontWeight="normal"
+									color="orange.500"
+									mb="-10"
+									gridColumn="1/-1"
+								>
+									{stepName}
+								</Heading>
 							)}
+
+							{selectors
+								.map(
+									({
+										selectorId,
+										selectorName,
+										selectorOptions,
+										selectorCode,
+									}) => (
+										<Fragment key={selectorId}>
+											<GridItem
+												display="flex"
+												alignItems="center"
+												whiteSpace="nowrap"
+												position="relative"
+												fontWeight="thin"
+												fontSize="lg"
+												height="48px"
+												pr="40px"
+											>
+												{selectorName}
+												{hasSomeBlockedOptionBySelectorId({selectorId}) && (
+													<Button
+														rounded="full"
+														size="xs"
+														colorPalette="orange"
+														aspectRatio="1"
+														p="0"
+														position="absolute"
+														top="50%"
+														right="0"
+														transform="translateY(-50%)"
+														title="Разблокировать"
+														onClick={() => unlockSelector({selectorId})}
+														className="group"
+													>
+														{/* Иконка закрытого замка */}
+														<Icon
+															as={LockKeyhole}
+															position="absolute"
+															_groupHover={{opacity: 0}} // скрывается при hover
+														/>
+
+														{/* Иконка открытого замка */}
+														<Icon
+															as={LockKeyholeOpen}
+															position="absolute"
+															opacity={0}
+															_groupHover={{opacity: 1}} // показывается при hover
+														/>
+													</Button>
+												)}
+											</GridItem>
+											<GridItem>
+												<Flex gap={3} wrap="wrap">
+													{}
+													{selectorOptions.map((option) => (
+														<Button
+															key={option.id}
+															minW="150px"
+															rounded="full"
+															size="xl"
+															justifyContent="space-between"
+															colorPalette={option.selected ? 'orange' : 'gray'}
+															pointerEvents={option.selected ? 'none' : 'auto'}
+															disabled={shouldOptionBlocking({
+																optionId: option.id,
+															})}
+															onClick={() =>
+																setSelectedOption({
+																	stepName,
+																	selectorId,
+																	optionId: option.id,
+																	isSelected: option.selected,
+																})
+															}
+														>
+															<VStack gap="0" w="full" align="flex-start">
+																<Box as="span" fontWeight="medium">
+																	{option.value}
+																</Box>
+																<Box
+																	as="span"
+																	fontSize="16px"
+																	lineHeight="9px"
+																	fontWeight="light"
+																>
+																	{option.products
+																		.map((product) => product.article)
+																		.join(' • ')}
+																</Box>
+															</VStack>
+															{selectorCode && option.selected && (
+																<Icon
+																	pointerEvents="auto"
+																	as={CircleX}
+																	boxSize="20px"
+																	_hover={{color: 'gray.950'}}
+																/>
+															)}
+														</Button>
+													))}
+												</Flex>
+											</GridItem>
+										</Fragment>
+									),
+								)
+								/**
+								 * Отфильтровываем шаг Драйвер, если пользователь
+								 * выбрал артикул со встроенным Драйвером.
+								 * Остальные шаги всегда показываем.
+								 */
+								.filter(() =>
+									stepName === 'Драйвер'
+										? !hasProductWithBuiltInDriver()
+										: true,
+								)}
 						</Fragment>
 					))}
 			</Grid>
 
+			{/* Виртуальный артикул */}
 			<Grid
 				mt="20"
 				columnGap="3"

@@ -63,6 +63,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		const modifications: T_Modifications = {}
 
 		const steps = get().steps
+
 		if (!steps) return
 
 		for (const stepName in steps) {
@@ -116,6 +117,32 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 					const products = stepArticles
 						.map((articleArr) => {
 							const [baseArticle, ...additionalArticles] = articleArr
+
+							// #region Фикс для шага Светодиодный модуль + Драйверы
+							/**
+							 * Для создания логики динамического шага выбора Драйвера
+							 * в список артикулов на шаге Светодиодный модуль, для артикулов
+							 * со встроенным драйвером, в админке добавили
+							 * второе значение в массиве - null
+							 *
+							 * Артикулы со встроенными драйверами сохраняем в отдельную
+							 * структуру данных productsWithBuiltInDriver
+							 *
+							 * Значения Null из списков артикулов, шага Светодиодный модуль,
+							 * будут вырезаны ниже по коду.
+							 *
+							 * https://bt24.ddns.net/company/personal/user/12820/tasks/task/view/53290/?from=rest_placement&from_app=app.68401607a3a4a2.97204499
+							 */
+							if (
+								stepName === 'Светодиодный модуль' &&
+								baseArticle &&
+								additionalArticles.includes(null)
+							) {
+								get().addProductAsWithBuiltInDriver({
+									productArticle: baseArticle,
+								})
+							}
+							// #endregion
 
 							// В качестве основного артикула, берем всегда только первый
 							const baseProduct = get().getProductByArticle(baseArticle)
@@ -294,7 +321,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				if (
 					blockingArticle !== productArticle &&
 					/**
-					 * ! Проверяем то что блокирующий артикул в блэклисте стоит НА ПЕРВОМ МЕСТЕ
+					 * ! Проверяем то, что блокирующий артикул в блэклисте стоит НА ПЕРВОМ МЕСТЕ
 					 */
 					blacklistArticlesBlockingGroup[0] === blockingArticle
 				) {
@@ -686,6 +713,36 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		})
 
 		useComposition.getState().handleModificationsChange()
+	},
+
+	productsWithBuiltInDriver: [],
+
+	addProductAsWithBuiltInDriver: (payload) => {
+		const {productArticle} = payload
+
+		const currentArr = structuredClone(get().productsWithBuiltInDriver)
+
+		if (!currentArr.includes(productArticle)) {
+			set({productsWithBuiltInDriver: [...currentArr, productArticle]})
+		}
+	},
+
+	hasProductWithBuiltInDriver: () => {
+		const productsWithBuiltInDriver = [...get().productsWithBuiltInDriver]
+		const modifications = {...get().modifications}
+
+		const selectedProducts = Object.values(modifications)
+			.flat()
+			.flatMap((selector) => selector.selectorOptions)
+			.filter((option) => option.selected)
+			.flatMap((option) => option.products)
+			.map((product) => product.article)
+
+		const isSelected = productsWithBuiltInDriver.some((productWithDriver) =>
+			selectedProducts.includes(productWithDriver),
+		)
+
+		return isSelected
 	},
 })
 
