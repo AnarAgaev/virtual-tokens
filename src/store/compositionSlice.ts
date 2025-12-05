@@ -1,5 +1,6 @@
 import {create, type StateCreator} from 'zustand'
 import {devtools} from 'zustand/middleware'
+import generateVirtualArticle from '@/combinations/virtual_article.js'
 import {useConfiguration} from '@/store'
 import type {T_CompositionSlice, T_Option} from '@/types'
 
@@ -116,6 +117,35 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 					}
 				}
 			}
+		}
+
+		const target = []
+
+		console.log('selectedProducts')
+
+		// for (const stepName in selectedProducts) {
+		// 	const targetObj = selectedProducts[stepName]
+
+		// 	console.log('stepName', stepName)
+		// }
+
+		Object.values(selectedProducts).forEach((obj) => {
+			if (!Array.isArray(obj)) {
+				obj.products.forEach((product) => {
+					target.push(product.article)
+				})
+			}
+		})
+
+		try {
+			if (target?.length) {
+				console.log('****Pushed to the generator data', target)
+				const res = generateVirtualArticle(target)
+				console.log('\x1b[32m%s\x1b[0m', "Wow we're getting results", res)
+			}
+		} catch (error) {
+			console.log(error)
+			console.log('\x1b[31m%s\x1b[0m', "I don't have enough articles")
 		}
 
 		set({selectedProducts})
