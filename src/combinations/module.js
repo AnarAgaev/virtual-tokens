@@ -16,7 +16,8 @@ export function formatLedModuleCode(combination) {
 	}
 	let powerDigits = '';
 	let temperaturePart = '';
-
+    
+	if (parts == null) return null;
 	// Определяем логику в зависимости от количества дефисов и наличия 220V
 	if (parts.length === 3 && has220V) {
 		// Формат: 44002-220V-3K
@@ -50,11 +51,11 @@ export function formatLedModuleCode(combination) {
 }
 
 const combination = {
-	"Декоративная рамка": "41005-BK",
+	/*"Декоративная рамка": "41005-BK",
 	"Двойная рамка": "41007-BK",
 	"Светодиодный модуль": "44002-DTW",
 	"Драйвер": "не выбран",
-	"Линза": "43002-50"
+	"Линза": "43002-50"*/
 };
 const result = formatLedModuleCode(combination);
 console.log(result);
