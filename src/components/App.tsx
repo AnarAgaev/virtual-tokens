@@ -263,15 +263,16 @@ export const App = () => {
 			<VStack mt="20" alignItems="flex-start">
 				<Heading>Артикул в сборе</Heading>
 				<Box direction="column" px="3" py="2" rounded="10px" bgColor="gray.100">
-					{!virtualArticle && (
+					{!!virtualArticle && virtualArticle?.filter(Boolean).length ? (
+						virtualArticle
+							?.map((article) => (article ? `${article}` : ` ••• `))
+							.map(
+								(article, idx) =>
+									`${article}${idx !== virtualArticle.length - 1 ? ' - ' : ''}`,
+							)
+					) : (
 						<Text>Недостаточно выбора для формирования Артикула</Text>
 					)}
-					{virtualArticle
-						?.map((article) => (article ? `${article}` : ` ••• `))
-						.map(
-							(article, idx) =>
-								`${article}${idx !== virtualArticle.length - 1 ? ' - ' : ''}`,
-						)}
 				</Box>
 			</VStack>
 		</Container>
