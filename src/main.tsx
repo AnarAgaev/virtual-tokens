@@ -17,6 +17,5 @@ createRoot(rootElement).render(
 				<App />
 			</ChakraProvider>
 		</ErrorBoundary>
-		,
 	</StrictMode>,
 )
