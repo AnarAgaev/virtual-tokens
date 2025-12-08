@@ -16,6 +16,7 @@ import {useApp, useComposition, useConfiguration} from '@/store'
 
 export const App = () => {
 	const selectedProducts = useComposition((state) => state.selectedProducts)
+	const virtualArticle = useComposition((state) => state.virtualArticle)
 	const requestInitData = useApp((state) => state.requestInitData)
 	const modifications = useConfiguration((state) => state.modifications)
 	const setSelectedOption = useConfiguration((state) => state.setSelectedOption)
@@ -35,7 +36,7 @@ export const App = () => {
 	}, [requestInitData])
 
 	return (
-		<Container py="10">
+		<Container py="10" scale={0.8} transformOrigin={'top center'}>
 			{/* Заголовок конфигуратора */}
 			<Heading
 				fontWeight="bold"
@@ -202,7 +203,7 @@ export const App = () => {
 					))}
 			</Grid>
 
-			{/* Виртуальный артикул */}
+			{/* Выбранные значения */}
 			<Grid
 				mt="20"
 				columnGap="3"
@@ -257,6 +258,22 @@ export const App = () => {
 					)
 				})}
 			</Grid>
+
+			{/* Виртуальный артикул */}
+			<VStack mt="20" alignItems="flex-start">
+				<Heading>Артикул в сборе</Heading>
+				<Box direction="column" px="3" py="2" rounded="10px" bgColor="gray.100">
+					{!virtualArticle && (
+						<Text>Недостаточно выбора для формирования Артикула</Text>
+					)}
+					{virtualArticle
+						?.map((article) => (article ? `${article}` : ` ••• `))
+						.map(
+							(article, idx) =>
+								`${article}${idx !== virtualArticle.length - 1 ? ' - ' : ''}`,
+						)}
+				</Box>
+			</VStack>
 		</Container>
 	)
 }

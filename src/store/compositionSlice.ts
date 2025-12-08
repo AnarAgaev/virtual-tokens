@@ -6,6 +6,7 @@ import type {T_CompositionSlice, T_Option} from '@/types'
 
 const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 	selectedProducts: {},
+	virtualArticle: null,
 
 	/**
 	 * Отслеживаем modifications в Слайсе useConfiguration [name: 'Configuration Store']
@@ -119,36 +120,45 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 			}
 		}
 
-		const target = []
+		/**
+		 * Генерируем виртуальные артикул (артикул дота в сборе)
+		 */
+		const articleArray: string[] = []
+		let virtualArticle: (string | null)[] | null = null
 
-		console.log('selectedProducts')
-
-		// for (const stepName in selectedProducts) {
-		// 	const targetObj = selectedProducts[stepName]
-
-		// 	console.log('stepName', stepName)
-		// }
-
-		Object.values(selectedProducts).forEach((obj) => {
-			if (!Array.isArray(obj)) {
-				obj.products.forEach((product) => {
-					target.push(product.article)
+		Object.values(selectedProducts).forEach((selectedStepData) => {
+			if (!Array.isArray(selectedStepData)) {
+				selectedStepData.products.forEach((product) => {
+					articleArray.push(product.article)
 				})
 			}
 		})
 
 		try {
-			if (target?.length) {
-				console.log('****Pushed to the generator data', target)
-				const res = generateVirtualArticle(target)
-				console.log('\x1b[32m%s\x1b[0m', "Wow we're getting results", res)
+			if (articleArray?.length) {
+				console.log(
+					'\x1b[34m%s\x1b[0m',
+					'Запрашиваем виртуальны артикул по списку выбранных',
+					articleArray,
+				)
+
+				const articleString = generateVirtualArticle(articleArray)
+				virtualArticle = articleString
+					.split('-')
+					.map((part) => (part === 'null' ? null : part))
+
+				console.log(
+					'\x1b[32m%s\x1b[0m',
+					'Получили виртуальный артикул',
+					virtualArticle,
+				)
 			}
 		} catch (error) {
-			console.log(error)
-			console.log('\x1b[31m%s\x1b[0m', "I don't have enough articles")
+			console.error(error)
+			virtualArticle = null
 		}
 
-		set({selectedProducts})
+		set({selectedProducts, virtualArticle})
 	},
 
 	getSelectedSingleOption: ({selectorOptions}) => {

@@ -10,6 +10,8 @@ export type T_CompositionSlice = {
 			| Array<T_Selector['selectorName']>
 	}
 
+	virtualArticle: (null | string)[] | null
+
 	/**
 	 * Отслеживаем modifications в Слайсе useConfiguration [name: 'Configuration Store']
 	 * Вызываем везде и сразу после изменения modifications во всех Слайсах
