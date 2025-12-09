@@ -3,7 +3,7 @@ import {createSystem, defaultConfig, defineConfig} from '@chakra-ui/react'
 const config = defineConfig({
 	globalCss: {
 		html: {
-			fontFamily: "'Open Sans', sans-serif",
+			fontFamily: "'Nunito Sans', sans-serif",
 		},
 	},
 	theme: {
@@ -11,10 +11,10 @@ const config = defineConfig({
 			colors: {},
 			fonts: {
 				body: {
-					value: "'Open Sans', sans-serif",
+					value: "'Nunito Sans', sans-serif",
 				},
 				heading: {
-					value: "'Open Sans', sans-serif",
+					value: "'Nunito Sans', sans-serif",
 				},
 			},
 		},
