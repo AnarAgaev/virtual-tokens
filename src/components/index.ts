@@ -1,4 +1,6 @@
 export * from './App'
 export * from './Configurator'
-export * from './Description'
+export * from './ConfiguratorPage'
+export * from './DescriptionPage'
 export * from './ErrorBoundary'
+export * from './Option'

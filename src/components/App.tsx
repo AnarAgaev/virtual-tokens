@@ -1,6 +1,6 @@
 import {Tabs, VStack} from '@chakra-ui/react'
 import {useEffect} from 'react'
-import {Configurator, Description} from '@/components'
+import {ConfiguratorPage, DescriptionPage} from '@/components'
 import {useApp} from '@/store'
 import '@/theme/app.css'
 
@@ -23,10 +23,10 @@ export const App = () => {
 					</Tabs.Trigger>
 				</Tabs.List>
 				<Tabs.Content value="configurator">
-					<Configurator />
+					<ConfiguratorPage />
 				</Tabs.Content>
 				<Tabs.Content value="description">
-					<Description />
+					<DescriptionPage />
 				</Tabs.Content>
 			</Tabs.Root>
 		</VStack>
