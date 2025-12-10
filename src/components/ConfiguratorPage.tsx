@@ -9,11 +9,11 @@ export const ConfiguratorPage = () => {
 			gap={{base: 5, lg: 10, xl: '126px'}}
 		>
 			<Flex
-				gap="5"
+				gap={{base: '5', lg: '4'}}
 				order={{lg: 1}}
 				direction={{lg: 'column'}}
 				align={{lg: 'center'}}
-				w={{lg: '25%'}}
+				w={{lg: '23.879%'}}
 				flexShrink={0}
 			>
 				<Box
@@ -45,6 +45,7 @@ export const ConfiguratorPage = () => {
 					size="sm"
 					color="white"
 					textStyle="sm"
+					maxW="991px"
 				>
 					<Text w="full">Сбросить настройки</Text>
 					<X />

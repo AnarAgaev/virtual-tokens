@@ -22,10 +22,10 @@ export const App = () => {
 						Описание
 					</Tabs.Trigger>
 				</Tabs.List>
-				<Tabs.Content value="configurator">
+				<Tabs.Content value="configurator" pt={{base: '5', lg: '10'}}>
 					<ConfiguratorPage />
 				</Tabs.Content>
-				<Tabs.Content value="description">
+				<Tabs.Content value="description" pt={{base: '5', lg: '10'}}>
 					<DescriptionPage />
 				</Tabs.Content>
 			</Tabs.Root>

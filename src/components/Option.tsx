@@ -25,11 +25,12 @@ export const Option = ({
 
 	return (
 		<Button
-			minW="141.2px"
+			minW={{base: '146px', lg: '138px'}}
 			h={{base: '40px', lg: '48px'}}
 			rounded="full"
 			variant="outline"
 			justifyContent="space-between"
+			px="5"
 			borderColor={isLocked ? 'gray.200' : 'gray.900'}
 			color={isLocked ? 'gray.400' : selected ? 'white' : 'gray.900'}
 			backgroundColor={isLocked ? 'gray.200' : selected ? 'gray.900' : 'white'}
