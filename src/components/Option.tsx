@@ -61,7 +61,8 @@ export const Option = ({
 					.join(' • ')}
 			</Box> */}
 			</VStack>
-			{/* Крестик - снять выделение */}
+
+			{/* Крестик - отжать опцию / снять выбор */}
 			{selectorCode && selected && (
 				<Icon
 					pointerEvents="auto"
