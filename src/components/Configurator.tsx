@@ -5,7 +5,6 @@ import {useComposition, useConfiguration} from '@/store'
 
 export const Configurator = () => {
 	const selectedProducts = useComposition((state) => state.selectedProducts)
-	const virtualArticle = useComposition((state) => state.virtualArticle)
 	const modifications = useConfiguration((state) => state.modifications)
 	const hasProductWithBuiltInDriver = useConfiguration(
 		(state) => state.hasProductWithBuiltInDriver,

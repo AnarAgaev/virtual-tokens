@@ -1,8 +1,11 @@
 import {Box, Button, Flex, Image, Text} from '@chakra-ui/react'
 import {X} from 'lucide-react'
 import {Configurator} from '@/components'
+import {useComposition} from '@/store'
 
 export const ConfiguratorPage = () => {
+	const virtualArticle = useComposition((state) => state.virtualArticle)
+
 	return (
 		<Flex
 			direction={{base: 'column', lg: 'row'}}
@@ -24,6 +27,7 @@ export const ConfiguratorPage = () => {
 				>
 					<Image
 						fit="cover"
+						loading="lazy"
 						src="https://shrunk.website.yandexcloud.net/images/1b/e7/1be7842d17131610374f9b4e1794afa0/570x570/0.webp"
 					/>
 				</Box>
@@ -31,8 +35,22 @@ export const ConfiguratorPage = () => {
 					<Text textStyle="sm" textAlign="center">
 						Виртуальный артикул:
 					</Text>
-					<Text textStyle="xl" fontWeight="light" textAlign="center">
-						44001-220V-3K
+					<Text
+						textStyle={{base: 'xs', sm: 'xl'}}
+						fontWeight="light"
+						textAlign="center"
+						lineHeight="1.2"
+						whiteSpace="pre-line"
+						textWrap={!virtualArticle ? 'balance' : 'nowrap'}
+					>
+						{!virtualArticle &&
+							`Недостаточно выбора${'\n'}для формирования Артикула`}
+						{virtualArticle
+							?.map((article) => (article ? `${article}` : `XXX`))
+							.map(
+								(article, idx) =>
+									`${article}${idx !== virtualArticle.length - 1 ? '-' : ''}`,
+							)}
 					</Text>
 				</Flex>
 			</Flex>
@@ -54,6 +72,3 @@ export const ConfiguratorPage = () => {
 		</Flex>
 	)
 }
-
-// #region Styles
-// #endregion
