@@ -59,20 +59,18 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 			}
 
 			// Set init data
-			useConfiguration.getState().setSteps(safeResponse.data.steps)
-			useConfiguration.getState().setStepsCount(safeResponse.data.stepsCount)
-			useConfiguration
-				.getState()
-				.setHardFilterSteps(safeResponse.data.hardFilterSteps)
-			useConfiguration.getState().setFilters(safeResponse.data.filters)
-			useConfiguration
-				.getState()
-				.setCharacteristics(safeResponse.data.characteristics)
-			useConfiguration.getState().setBlackList(safeResponse.data.blacklists)
-			useConfiguration.getState().setTitles(safeResponse.data.titles)
-			useConfiguration.getState().setUnits(safeResponse.data.units)
-			useConfiguration.getState().setCombos(safeResponse.data.combos)
-			useConfiguration.getState().setProducts(safeResponse.data.products)
+			useConfiguration.getState().setInitData({
+				steps: safeResponse.data.steps,
+				stepsCount: safeResponse.data.stepsCount,
+				hardFilterSteps: safeResponse.data.hardFilterSteps,
+				filters: safeResponse.data.filters,
+				characteristics: safeResponse.data.characteristics,
+				blacklist: safeResponse.data.blacklists,
+				titles: safeResponse.data.titles,
+				units: safeResponse.data.units,
+				combos: safeResponse.data.combos,
+				products: safeResponse.data.products,
+			})
 
 			// Определяем тип пользователя
 			if (safeResponse.data.is_admin) {

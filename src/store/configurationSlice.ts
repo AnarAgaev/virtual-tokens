@@ -10,53 +10,22 @@ import type {
 	T_SelectionPayload,
 	T_SelectorAndOptionPair,
 } from '@/types'
-import type {
-	T_BlackList,
-	T_Characteristics,
-	T_Combos,
-	T_Filters,
-	T_HardFilterSteps,
-	T_Product,
-	T_Products,
-	T_Steps,
-	T_StepsCount,
-	T_Titles,
-	T_Units,
-} from '@/zod'
+import type {T_Product} from '@/zod'
 
 const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
-	// #region Initial values and Setters
+	// #region Initial values and Setter
 	steps: null,
-	setSteps: (payload: T_Steps) => set({steps: payload}),
-
 	stepsCount: null,
-	setStepsCount: (payload: T_StepsCount) => set({stepsCount: payload}),
-
 	hardFilterSteps: null,
-	setHardFilterSteps: (payload: T_HardFilterSteps) =>
-		set({hardFilterSteps: payload}),
-
 	filters: null,
-	setFilters: (payload: T_Filters) => set({filters: payload}),
-
 	characteristics: null,
-	setCharacteristics: (payload: T_Characteristics) =>
-		set({characteristics: payload}),
-
 	blacklist: null,
-	setBlackList: (payload: T_BlackList) => set({blacklist: payload}),
-
 	titles: null,
-	setTitles: (payload: T_Titles) => set({titles: payload}),
-
 	units: null,
-	setUnits: (payload: T_Units) => set({units: payload}),
-
 	combos: null,
-	setCombos: (payload: T_Combos) => set({combos: payload}),
-
 	products: null,
-	setProducts: (payload: T_Products) => set({products: payload}),
+
+	setInitData: (payload) => set({...payload}),
 	// #endregion
 
 	createModifications: () => {
