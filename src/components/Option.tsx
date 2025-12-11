@@ -1,6 +1,6 @@
 import {Box, Button, Icon, VStack} from '@chakra-ui/react'
 import {X} from 'lucide-react'
-import {useConfiguration} from '@/store'
+import {useApp, useConfiguration} from '@/store'
 import type {T_Id, T_Option} from '@/types'
 
 interface I_Props {
@@ -22,6 +22,7 @@ export const Option = ({
 	)
 	const {id, selected, value} = option
 	const isLocked = shouldOptionBlocking({optionId: id})
+	const userStatus = useApp((state) => state.userStatus)
 
 	return (
 		<Button
@@ -51,16 +52,13 @@ export const Option = ({
 				<Box as="span" color="inherit" fontSize="sm">
 					{value}
 				</Box>
-				{/* <Box
-				as="span"
-				fontSize="xs"
-				lineHeight="8px"
-				fontWeight="light"
-			>
-				{option.products
-					.map((product) => product.article)
-					.join(' • ')}
-			</Box> */}
+
+				{/* Только для Админов, показываем артикулы на Опшинах */}
+				{userStatus === 'admin' && (
+					<Box as="span" fontSize="xs" lineHeight="8px" fontWeight="light">
+						{option.products.map((product) => product.article).join(' • ')}
+					</Box>
+				)}
 			</VStack>
 
 			{/* Крестик - отжать опцию / снять выбор */}

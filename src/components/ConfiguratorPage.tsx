@@ -1,9 +1,20 @@
-import {Box, Button, Flex, Image, Text} from '@chakra-ui/react'
+import {
+	Box,
+	Button,
+	Flex,
+	Grid,
+	GridItem,
+	Heading,
+	Image,
+	Text,
+} from '@chakra-ui/react'
 import {X} from 'lucide-react'
 import {Configurator} from '@/components'
-import {useComposition, useConfiguration} from '@/store'
+import {useApp, useComposition, useConfiguration} from '@/store'
 
 export const ConfiguratorPage = () => {
+	const userStatus = useApp((state) => state.userStatus)
+	const selectedProducts = useComposition((state) => state.selectedProducts)
 	const virtualArticle = useComposition((state) => state.virtualArticle)
 	const createModifications = useConfiguration(
 		(state) => state.createModifications,
@@ -72,6 +83,73 @@ export const ConfiguratorPage = () => {
 					<Text w="full">Сбросить настройки</Text>
 					<X />
 				</Button>
+
+				{/* Только для Админов, показываем Выбранные значения */}
+				{userStatus === 'admin' && (
+					<Grid gap="2" templateColumns="repeat(auto-fill, minmax(150px, 1fr))">
+						{Object.entries(selectedProducts).map(
+							([stepName, selectedData]) => {
+								return (
+									<GridItem key={stepName}>
+										<Flex
+											direction="column"
+											p="3"
+											bgColor="gray.100"
+											height="full"
+										>
+											<Heading
+												size="xs"
+												fontWeight="bold"
+												color="gray.700"
+												mb="1"
+											>
+												{stepName}
+											</Heading>
+
+											{/* Для выбора из нескольких селекторов где нет целевого продукта */}
+											{Array.isArray(selectedData) && (
+												<>
+													<Text color="gray.400" fontSize="xs">
+														Не выбрано:
+													</Text>
+													<Text
+														fontSize="sm"
+														color="gray.800"
+														fontWeight="light"
+													>
+														{selectedData.map(
+															(selectorName, idx) =>
+																`${selectorName}${idx !== selectedData.length - 1 ? ', ' : ''}`,
+														)}
+													</Text>
+												</>
+											)}
+
+											{/* Когда нашли или нет целевые продукты */}
+											{!Array.isArray(selectedData) &&
+												(selectedData.products.length ? (
+													selectedData.products.map((product) => (
+														<Text
+															key={product.id}
+															fontSize="sm"
+															color="gray.800"
+															fontWeight="light"
+														>
+															{product.article}
+														</Text>
+													))
+												) : (
+													<Text color="gray.400" fontSize="xs">
+														Не выбрано
+													</Text>
+												))}
+										</Flex>
+									</GridItem>
+								)
+							},
+						)}
+					</Grid>
+				)}
 			</Flex>
 		</Flex>
 	)

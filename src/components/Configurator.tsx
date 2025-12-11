@@ -1,10 +1,9 @@
 import {Flex, Text} from '@chakra-ui/react'
 import {useMemo} from 'react'
 import {Selector} from '@/components'
-import {useComposition, useConfiguration} from '@/store'
+import {useConfiguration} from '@/store'
 
 export const Configurator = () => {
-	const selectedProducts = useComposition((state) => state.selectedProducts)
 	const modifications = useConfiguration((state) => state.modifications)
 	const hasProductWithBuiltInDriver = useConfiguration(
 		(state) => state.hasProductWithBuiltInDriver,
