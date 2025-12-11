@@ -15,10 +15,10 @@ export const App = () => {
 		<VStack w="full">
 			<Tabs.Root defaultValue="configurator" variant="outline" w="full">
 				<Tabs.List>
-					<Tabs.Trigger {...tabButtonStyle} value="configurator">
+					<Tabs.Trigger {...tabButtonStyle} value="configurator" rounded="none">
 						Конфигуратор
 					</Tabs.Trigger>
-					<Tabs.Trigger {...tabButtonStyle} value="description">
+					<Tabs.Trigger {...tabButtonStyle} value="description" rounded="none">
 						Описание
 					</Tabs.Trigger>
 				</Tabs.List>
