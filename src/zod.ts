@@ -203,6 +203,7 @@ export type T_Products = z.infer<typeof products> | null
 export const InitDataContract = z
 	.object({
 		id: z.number('Не указан ID конфигуратора'),
+		is_admin: z.boolean().optional(),
 		height_calc_type: z
 			.string()
 			.min(1, 'Тип расчета высоты не может быть пустым'),

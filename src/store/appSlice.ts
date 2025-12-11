@@ -6,7 +6,9 @@ import {useConfiguration} from '@/store'
 import type {T_AppSlice} from '@/types'
 import {InitDataContract} from '@/zod'
 
-const store: StateCreator<T_AppSlice> = () => ({
+const store: StateCreator<T_AppSlice> = (set) => ({
+	userStatus: 'user',
+
 	requestInitData: async () => {
 		try {
 			//! Временная логика для тестирования --- START
@@ -71,6 +73,21 @@ const store: StateCreator<T_AppSlice> = () => ({
 			useConfiguration.getState().setUnits(safeResponse.data.units)
 			useConfiguration.getState().setCombos(safeResponse.data.combos)
 			useConfiguration.getState().setProducts(safeResponse.data.products)
+
+			// Определяем тип пользователя
+			if (safeResponse.data.is_admin) {
+				set({userStatus: 'admin'})
+			}
+
+			//! Временная логика для тестирования --- START
+			const userStatus = window.location.search
+				?.split('?')
+				?.filter(Boolean)[0]
+				?.split('&')
+				?.filter((getParm) => getParm.includes('status'))[0]
+				?.split('=')[1] as 'admin' | 'manager' | 'user'
+			if (userStatus) set({userStatus})
+			//! Временная логика для тестирования --- END
 
 			// Создаем абстракцию с селектами/кнопками для удобства работы
 			useConfiguration.getState().createModifications()
