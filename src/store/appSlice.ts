@@ -73,9 +73,9 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 			})
 
 			// Определяем тип пользователя
-			if (safeResponse.data.is_admin) {
-				set({userStatus: 'admin'})
-			}
+			// if (safeResponse.data.is_admin) {
+			// 	set({userStatus: 'admin'})
+			// }
 
 			//! Временная логика для тестирования --- START
 			const userStatus = window.location.search

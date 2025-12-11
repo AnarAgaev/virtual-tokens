@@ -10,8 +10,6 @@ export type T_CompositionSlice = {
 			| Array<T_Selector['selectorName']>
 	}
 
-	virtualArticle: (null | string)[] | null
-
 	/**
 	 * Отслеживаем modifications в Слайсе useConfiguration [name: 'Configuration Store']
 	 * Вызываем везде и сразу после изменения modifications во всех Слайсах
@@ -21,4 +19,32 @@ export type T_CompositionSlice = {
 	getSelectedSingleOption: (payload: {
 		selectorOptions: T_Option[]
 	}) => T_Option | null
+
+	virtualArticle: (null | string)[] | null
+
+	emptyResult: () => T_ResultData
+
+	getResultData: () => T_ResultData
+
+	collectSelectedArticles: (
+		selectedProducts: T_CompositionSlice['selectedProducts'],
+	) => T_SelectedArticles
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	comboMatches: (combo: any, selectedArticles: T_SelectedArticles) => void
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	getComboStepCount: (combo: any) => number
+
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	extractRelevantData: (combos: any[]) => T_ResultData
+}
+
+export type T_SelectedArticles = Record<string, string[]>
+
+export type T_ResultData = {
+	image: string | null
+	drawing: string | null
+	lightFlow: number | null
+	files: Array<{name: string; file: string}>
 }

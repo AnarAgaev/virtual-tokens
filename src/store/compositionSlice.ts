@@ -166,6 +166,87 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 
 		return !selectorOptions.length ? null : selectorOptions[0]
 	},
+
+	emptyResult: () => ({
+		image: null,
+		drawing: null,
+		lightFlow: null,
+		files: [],
+	}),
+
+	getResultData: () => {
+		const selectedProducts = get().selectedProducts
+		const combos = useConfiguration.getState().combos
+
+		// 1. Быстрая проверка
+		if (!selectedProducts || !combos) {
+			return get().emptyResult()
+		}
+
+		// 2. Собираем выбранные артикулы
+		const selectedArticlesByStep =
+			get().collectSelectedArticles(selectedProducts)
+
+		// 3. Находим и сортируем подходящие комбинации
+		const relevantCombos = combos
+			.filter((combo) => get().comboMatches(combo, selectedArticlesByStep))
+			.sort((a, b) => get().getComboStepCount(b) - get().getComboStepCount(a))
+
+		// 4. Извлекаем результат
+		return get().extractRelevantData(relevantCombos)
+	},
+
+	collectSelectedArticles: (selectedProducts) => {
+		const articles: Record<string, string[]> = {}
+
+		for (const [stepName, stepData] of Object.entries(selectedProducts)) {
+			if (stepName === 'virtualArticle') continue
+
+			if (Array.isArray(stepData)) {
+				articles[stepName] = stepData.filter(Boolean) as string[]
+			} else if (stepData?.products) {
+				articles[stepName] = stepData.products
+					.map((p) => p?.article)
+					.filter(Boolean) as string[]
+			}
+		}
+
+		return articles
+	},
+
+	comboMatches: (combo, selectedArticles) => {
+		if (!combo?.combo || typeof combo.combo !== 'object') return false
+
+		for (const [step, requiredArticles] of Object.entries(
+			combo.combo as Record<string, string[]>,
+		)) {
+			const userArticles = selectedArticles[step] || []
+			const hasMatch = (requiredArticles as string[]).some((req) =>
+				userArticles.includes(req),
+			)
+
+			if (!hasMatch) return false
+		}
+
+		return true
+	},
+
+	getComboStepCount: (combo) => Object.keys(combo.combo || {}).length,
+
+	extractRelevantData: (combos) => {
+		const result = get().emptyResult()
+
+		for (const combo of combos) {
+			if (!result.image && combo.final_image) result.image = combo.final_image
+			if (!result.drawing && combo.final_drawing)
+				result.drawing = combo.final_drawing
+			if (!result.lightFlow && combo.light_flow)
+				result.lightFlow = combo.light_flow
+			if (combo.files) result.files.push(...combo.files)
+		}
+
+		return result
+	},
 })
 
 export const useComposition = create<T_CompositionSlice>()(
