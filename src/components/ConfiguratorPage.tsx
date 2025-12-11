@@ -1,10 +1,13 @@
 import {Box, Button, Flex, Image, Text} from '@chakra-ui/react'
 import {X} from 'lucide-react'
 import {Configurator} from '@/components'
-import {useComposition} from '@/store'
+import {useComposition, useConfiguration} from '@/store'
 
 export const ConfiguratorPage = () => {
 	const virtualArticle = useComposition((state) => state.virtualArticle)
+	const createModifications = useConfiguration(
+		(state) => state.createModifications,
+	)
 
 	return (
 		<Flex
@@ -64,6 +67,7 @@ export const ConfiguratorPage = () => {
 					color="white"
 					textStyle="sm"
 					maxW="991px"
+					onClick={createModifications}
 				>
 					<Text w="full">Сбросить настройки</Text>
 					<X />
