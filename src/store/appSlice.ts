@@ -41,7 +41,7 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 				)
 			}
 
-			// apiLink = 'mocks/dots_2.json'
+			// apiLink = 'mocks/dot_3.json'
 			const res = await fetch(apiLink)
 
 			if (!res.ok) {

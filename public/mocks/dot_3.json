@@ -1,0 +1,623 @@
+{
+	"id": 3,
+	"height_calc_type": "sum",
+	"steps": {
+		"Декоративная рамка": [
+			[
+				"41041-BK",
+				"40003-89",
+				"42004-BK"
+			],
+			[
+				"41041-WH",
+				"40003-89",
+				"42004-BK"
+			]
+		],
+		"Светодиодный модуль": [
+			[
+				"44001-3K"
+			],
+			[
+				"44001-4K"
+			],
+			[
+				"44001-220V-3K",
+				null
+			],
+			[
+				"44001-220V-4K",
+				null
+			]
+		],
+		"Драйвер": [
+			[
+				"45000N-04"
+			],
+			[
+				"45000N-06"
+			],
+			[
+				"45001N-02"
+			]
+		],
+		"Линза": [
+			[
+				"43004-30"
+			],
+			[
+				"43004-50"
+			]
+		],
+		"Светофильтр": [
+			[
+				"46003-F1"
+			],
+			[
+				null
+			]
+		]
+	},
+	"stepsCount": {
+		"Декоративная рамка": 1,
+		"Светодиодный модуль": 1,
+		"Драйвер": 1,
+		"Линза": 1,
+		"Светофильтр": 1
+	},
+	"hardFilterSteps": [],
+	"filters": {
+		"Декоративная рамка": {
+			"armature_color": "Цвет рамки"
+		},
+		"Светодиодный модуль": {
+			"light_temperatures": "Цветовая температура",
+			"komplektaciya": "Комплектация"
+		},
+		"Драйвер": {
+			"tip_upravleniya": "Тип управления"
+		},
+		"Линза": {
+			"scattering_angle": "Угол рассеивания"
+		}
+	},
+	"characteristics": {
+		"Декоративная рамка": {
+			"armature_color": "Цвет",
+			"ip_class": "IP"
+		},
+		"Светодиодный модуль": {
+			"input_voltage_v": "Рабочее напряжение",
+			"power": "Мощность",
+			"light_temperatures": "Цветовая температура",
+			"color_rendering_index": "Индекс цветопередачи"
+		},
+		"Линза": {
+			"ugr": "UGR",
+			"scattering_angle": "Угол рассеивания"
+		}
+	},
+	"blacklists": [
+		[
+			"45000N-04",
+			"44001-220V-3K",
+			"44001-220V-4K"
+		],
+		[
+			"45000N-06",
+			"44001-220V-3K",
+			"44001-220V-4K"
+		],
+		[
+			"45001N-02",
+			"44001-220V-3K",
+			"44001-220V-4K"
+		]
+	],
+	"titles": {
+		"41041-BK": "Декоративная рамка Симпл мини круглая черная",
+		"41041-WH": "Декоративная рамка Симпл мини круглая белая",
+		"44001-220V-3K": "Светодиодный модуль 6Вт 3000К со встроенным драйвером TRIAC",
+		"44001-220V-4K": "Светодиодный модуль 6Вт 4000К со встроенным драйвером TRIAC",
+		"44001-3K": "Светодиодный модуль Атом 6Вт 3000К",
+		"44001-4K": "Светодиодный модуль Атом 6Вт 4000К",
+		"43004-30": "Линза Дарк 30° (Серия Зеро Мини)",
+		"43004-50": "Линза Дарк 50° (Серия Зеро Мини)",
+		"46003-F1": "Светофильтр Ханикомб 30",
+		"45001N-02": "Драйвер тока 6Вт 30-40В 130мА TRIAC диммируемый",
+		"40003-89": "Монтажный комплект мини",
+		"42004-BK": "Фиксирующее кольцо Поворотное",
+		"45000N-04": "Драйвер тока 6-20Вт 8-40В диммирование DALI",
+		"45000N-06": "Драйвер тока 6-15Вт 6-42В 100-700мА Zigbee"
+	},
+	"units": {
+		"color_rendering_index": "+",
+		"input_voltage_v": " B",
+		"ip_class": " IP",
+		"light_flow": " Лм",
+		"light_temperatures": " K",
+		"power": " Вт",
+		"scattering_angle": "°"
+	},
+	"combos": [
+		{
+			"combo": {
+				"Декоративная рамка": [
+					"41041-WH"
+				]
+			},
+			"final_image": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/images\/41041-wh.webp?v=1765459764",
+			"files": [
+				{
+					"name": "Модульные безрамочные светильники МИНИ.pdf",
+					"file": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/files\/mini-bezramocnye\/70\/Модульные безрамочные светильники МИНИ.pdf?v=1765459764"
+				}
+			]
+		},
+		{
+			"combo": {
+				"Декоративная рамка": [
+					"41041-BK"
+				]
+			},
+			"final_image": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/images\/41041-bk.webp?v=1765459764",
+			"files": [
+				{
+					"name": "Модульные безрамочные светильники МИНИ.pdf",
+					"file": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/files\/mini-bezramocnye\/71\/Модульные безрамочные светильники МИНИ.pdf?v=1765459764"
+				}
+			]
+		},
+		{
+			"combo": {
+				"Светодиодный модуль": [
+					"44001-3K",
+					"44001-4K"
+				]
+			},
+			"final_drawing": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/drawings\/mini-bezramocnye\/324.svg?v=1765459764"
+		},
+		{
+			"combo": {
+				"Светодиодный модуль": [
+					"44001-220V-3K"
+				]
+			},
+			"final_drawing": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/drawings\/mini-bezramocnye\/325.svg?v=1765459764"
+		},
+		{
+			"combo": {
+				"Декоративная рамка": [
+					"41041-BK",
+					"41041-WH"
+				]
+			},
+			"name": "Симпл Мини"
+		},
+		{
+			"combo": {
+				"Линза": [
+					"43004-30"
+				],
+				"Светодиодный модуль": [
+					"44001-220V-3K"
+				]
+			},
+			"name": "Фотометрические данные",
+			"light_flow": 409,
+			"files": [
+				{
+					"name": "Фотометрические данные 44001-220V-3K+43004-30.rar",
+					"file": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/files\/mini-bezramocnye\/922\/Фотометрические данные 44001-220V-3K+43004-30.rar?v=1765459764"
+				}
+			]
+		},
+		{
+			"combo": {
+				"Линза": [
+					"43004-50"
+				],
+				"Светодиодный модуль": [
+					"44001-220V-3K"
+				]
+			},
+			"name": "Фотометрические данные",
+			"light_flow": 397,
+			"files": [
+				{
+					"name": "Фотометрические данные 44001-220V-3K+43004-50.rar",
+					"file": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/files\/mini-bezramocnye\/923\/Фотометрические данные 44001-220V-3K+43004-50.rar?v=1765459764"
+				}
+			]
+		},
+		{
+			"combo": {
+				"Линза": [
+					"43004-30"
+				],
+				"Светодиодный модуль": [
+					"44001-3K"
+				]
+			},
+			"name": "Фотометрические данные",
+			"light_flow": 445,
+			"files": [
+				{
+					"name": "Фотометрические данные 44001-3K+43004-30.rar",
+					"file": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/files\/mini-bezramocnye\/924\/Фотометрические данные 44001-3K+43004-30.rar?v=1765459764"
+				}
+			]
+		},
+		{
+			"combo": {
+				"Линза": [
+					"43004-50"
+				],
+				"Светодиодный модуль": [
+					"44001-3K"
+				]
+			},
+			"name": "Фотометрические данные",
+			"light_flow": 453,
+			"files": [
+				{
+					"name": "Фотометрические данные 44001-3K+43004-50.rar",
+					"file": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/files\/mini-bezramocnye\/925\/Фотометрические данные 44001-3K+43004-50.rar?v=1765459764"
+				}
+			]
+		},
+		{
+			"combo": {
+				"Линза": [
+					"43004-30"
+				],
+				"Светодиодный модуль": [
+					"44001-4K"
+				]
+			},
+			"name": "Фотометрические данные",
+			"light_flow": 521,
+			"files": [
+				{
+					"name": "Фотометрические данные 44001-4K+43004-30.rar",
+					"file": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/files\/mini-bezramocnye\/926\/Фотометрические данные 44001-4K+43004-30.rar?v=1765459764"
+				}
+			]
+		},
+		{
+			"combo": {
+				"Линза": [
+					"43004-50"
+				],
+				"Светодиодный модуль": [
+					"44001-4K"
+				]
+			},
+			"name": "Фотометрические данные",
+			"light_flow": 526,
+			"files": [
+				{
+					"name": "Фотометрические данные 44001-4K+43004-50.rar",
+					"file": "https:\/\/aws.technolight.ru\/technolight\/public\/combo\/files\/mini-bezramocnye\/927\/Фотометрические данные 44001-4K+43004-50.rar?v=1765459764"
+				}
+			]
+		}
+	],
+	"videos": [],
+	"files": [
+		{
+			"name": "3D Модели",
+			"file": "https:\/\/aws.massive.ru\/widget-files\/uploads\/technolight_2024\/3D_Modules\/DOT220V_ALL.rar"
+		}
+	],
+	"products": {
+		"40003-89": {
+			"id": 718,
+			"article": "40003-89",
+			"title": "Монтажный комплект Зеро Мини",
+			"ip_class": 20,
+			"price": 1050,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/d8\/b0\/d8b036f9e78c1a509d3b372f42266420\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": "",
+			"height_in_assembly": 0,
+			"color_rendering_index": "",
+			"komplektaciya": "1 заглушка",
+			"tip_upravleniya": null,
+			"scattering_angle": 0,
+			"armature_color": "Белый",
+			"power": null,
+			"light_temperatures": "",
+			"ugr": "",
+			"link": "\/products\/interernyi-svet\/dot-220v\/montaznyi-komplekt-zero-mini\/40003-89"
+		},
+		"41041-BK": {
+			"id": 719,
+			"article": "41041-BK",
+			"title": "Рамка Симпл 50 круглая RAL 9005 черная",
+			"ip_class": 20,
+			"price": 270,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/fb\/b9\/fbb954ba7d4271044febb26d4251798e\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": "",
+			"height_in_assembly": 8,
+			"color_rendering_index": "",
+			"komplektaciya": null,
+			"tip_upravleniya": null,
+			"scattering_angle": 0,
+			"armature_color": "Чёрный",
+			"power": null,
+			"light_temperatures": "",
+			"ugr": "",
+			"link": "\/products\/interernyi-svet\/dot-220v\/ramka-simpl-50-kruglaia-mini\/41041-BK"
+		},
+		"41041-WH": {
+			"id": 720,
+			"article": "41041-WH",
+			"title": "Рамка Симпл 50 круглая RAL 9016 белая",
+			"ip_class": 20,
+			"price": 270,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/a8\/a3\/a8a37fd55892d69594ea5b3389a4571a\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": "",
+			"height_in_assembly": 8,
+			"color_rendering_index": "",
+			"komplektaciya": null,
+			"tip_upravleniya": null,
+			"scattering_angle": 0,
+			"armature_color": "Белый",
+			"power": null,
+			"light_temperatures": "",
+			"ugr": "",
+			"link": "\/products\/interernyi-svet\/dot-220v\/ramka-simpl-50-kruglaia-mini\/41041-WH"
+		},
+		"42004-BK": {
+			"id": 724,
+			"article": "42004-BK",
+			"title": "Фиксирующее кольцо поворотное Мини",
+			"ip_class": 20,
+			"price": 1260,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/bd\/cb\/bdcb700e8d4a467f0d2079aec0ec1a04\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": "",
+			"height_in_assembly": 32,
+			"color_rendering_index": "",
+			"komplektaciya": null,
+			"tip_upravleniya": null,
+			"scattering_angle": 0,
+			"armature_color": "Чёрный",
+			"power": null,
+			"light_temperatures": "",
+			"ugr": "",
+			"link": "\/products\/interernyi-svet\/dot-220v\/fiksiruiushhee-kolco-povorotnoe-50-mini\/42004-BK"
+		},
+		"43004-30": {
+			"id": 721,
+			"article": "43004-30",
+			"title": "Линза Дарк 30° для Атом 6 (Серия Зеро Мини)",
+			"ip_class": 20,
+			"price": 730,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/36\/54\/3654bbf24726054dbf562a4e3ae21b63\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": "",
+			"height_in_assembly": 10,
+			"color_rendering_index": "",
+			"komplektaciya": null,
+			"tip_upravleniya": null,
+			"scattering_angle": 30,
+			"armature_color": "Чёрный",
+			"power": null,
+			"light_temperatures": "",
+			"ugr": "<13",
+			"link": "\/products\/interernyi-svet\/dot-220v\/linzy-dark-mini\/43004-30"
+		},
+		"43004-50": {
+			"id": 722,
+			"article": "43004-50",
+			"title": "Линза Дарк 50° для Атом 6 (Серия Зеро Мини)",
+			"ip_class": 20,
+			"price": 730,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/16\/4e\/164e6f9aaab8c1e7af85f8b52f82b3dd\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": "",
+			"height_in_assembly": 10,
+			"color_rendering_index": "",
+			"komplektaciya": null,
+			"tip_upravleniya": null,
+			"scattering_angle": 50,
+			"armature_color": "Чёрный",
+			"power": null,
+			"light_temperatures": "",
+			"ugr": "<13",
+			"link": "\/products\/interernyi-svet\/dot-220v\/linzy-dark-mini\/43004-50"
+		},
+		"44001-220V-3K": {
+			"id": 723,
+			"article": "44001-220V-3K",
+			"title": "Светодиодный модуль Атом 6Вт 3000К со встроенным драйвером",
+			"ip_class": 20,
+			"price": 3690,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/a2\/52\/a25242046dd309d5779b2ef3efdabdc2\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": 220,
+			"height_in_assembly": 40,
+			"color_rendering_index": 93,
+			"komplektaciya": "с встроенным драйвером",
+			"tip_upravleniya": "TRIAC",
+			"scattering_angle": 0,
+			"armature_color": "Чёрный",
+			"power": 6,
+			"light_temperatures": "3000",
+			"ugr": "",
+			"link": "\/products\/interernyi-svet\/dot-220v\/svetodiodnyi-modul-atom-6-s-vstroennym-draiverom\/44001-220V-3K"
+		},
+		"44001-220V-4K": {
+			"id": 935,
+			"article": "44001-220V-4K",
+			"title": "Светодиодный модуль Атом 6Вт 4000К со встроенным драйвером",
+			"ip_class": 20,
+			"price": 3690,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/61\/de\/61de9d62135025329228e40bd9db8656\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": 220,
+			"height_in_assembly": 0,
+			"color_rendering_index": 93,
+			"komplektaciya": "с встроенным драйвером",
+			"tip_upravleniya": "TRIAC",
+			"scattering_angle": 0,
+			"armature_color": "Чёрный",
+			"power": 6,
+			"light_temperatures": "4000",
+			"ugr": "",
+			"link": "\/products\/interernyi-svet\/dot-220v\/svetodiodnyi-modul-atom-6-s-vstroennym-draiverom\/44001-220V-4K"
+		},
+		"44001-3K": {
+			"id": 670,
+			"article": "44001-3K",
+			"title": "Светодиодный модуль Атом 6 34В 130мА 6Вт 540лм 3000К 93+",
+			"ip_class": 20,
+			"price": 2270,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/39\/0a\/390adf2e79ad702f4414659bdb67c484\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": 34,
+			"height_in_assembly": 20,
+			"color_rendering_index": 93,
+			"komplektaciya": "без встроенного драйвера",
+			"tip_upravleniya": null,
+			"scattering_angle": 0,
+			"armature_color": "Чёрный",
+			"power": 6,
+			"light_temperatures": "3000",
+			"ugr": "",
+			"link": "\/products\/interernyi-svet\/dot-220v\/svetodiodnyi-modul-atom-6\/44001-3K"
+		},
+		"44001-4K": {
+			"id": 681,
+			"article": "44001-4K",
+			"title": "Светодиодный модуль Атом 6 34В 130мА 6Вт 560лм 4000К 93+",
+			"ip_class": 20,
+			"price": 2270,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/38\/50\/385040c17cfa95ecf63ff5b5ea7b747e\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": 34,
+			"height_in_assembly": 20,
+			"color_rendering_index": 93,
+			"komplektaciya": "без встроенного драйвера",
+			"tip_upravleniya": null,
+			"scattering_angle": 0,
+			"armature_color": "Чёрный",
+			"power": 6,
+			"light_temperatures": "4000",
+			"ugr": "",
+			"link": "\/products\/interernyi-svet\/dot-220v\/svetodiodnyi-modul-atom-6\/44001-4K"
+		},
+		"45000N-04": {
+			"id": 3532597,
+			"article": "45000N-04",
+			"title": "Драйвер тока 6-20Вт 8-40В диммирование DALI",
+			"ip_class": null,
+			"price": 4500,
+			"old_price": null,
+			"sale": null,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/fd\/64\/fd6462cbfba064edd2d3f6a8011f681c\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": "",
+			"height_in_assembly": 0,
+			"color_rendering_index": "",
+			"komplektaciya": null,
+			"tip_upravleniya": "DALI",
+			"scattering_angle": 0,
+			"armature_color": "Белый",
+			"power": null,
+			"light_temperatures": "",
+			"ugr": "",
+			"link": "\/products\/komponenty\/istocniki-pitaniia\/draiver-toka-dali\/45000N-04"
+		},
+		"45000N-06": {
+			"id": 6530231,
+			"article": "45000N-06",
+			"title": "Драйвер тока 6-15Вт 6-42В 100-700мА Zigbee",
+			"ip_class": null,
+			"price": 6350,
+			"old_price": null,
+			"sale": null,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/58\/e5\/58e58efb5ee8b42d6e5439d0273a53a5\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": 220,
+			"height_in_assembly": 0,
+			"color_rendering_index": "",
+			"komplektaciya": null,
+			"tip_upravleniya": "Zigbee",
+			"scattering_angle": 0,
+			"armature_color": null,
+			"power": null,
+			"light_temperatures": "",
+			"ugr": "",
+			"link": "\/products\/interernyi-svet\/dot-220v\/draiver-toka-zigbee\/45000N-06"
+		},
+		"45001N-02": {
+			"id": 701,
+			"article": "45001N-02",
+			"title": "Драйвер тока 6Вт 30-40В 130мА TRIAC для Атом 6 диммируемый",
+			"ip_class": 20,
+			"price": 1790,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/ec\/02\/ec02cae1abbab320370dfbac12f393d5\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": 220,
+			"height_in_assembly": 0,
+			"color_rendering_index": "",
+			"komplektaciya": null,
+			"tip_upravleniya": "TRIAC",
+			"scattering_angle": 0,
+			"armature_color": "Белый",
+			"power": 6,
+			"light_temperatures": "",
+			"ugr": "",
+			"link": "\/products\/komponenty\/istocniki-pitaniia\/draiver-toka-triac\/45001N-02"
+		},
+		"46003-F1": {
+			"id": 725,
+			"article": "46003-F1",
+			"title": "Светофильтр Ханикомб 30",
+			"ip_class": null,
+			"price": 290,
+			"old_price": 0,
+			"sale": false,
+			"image": "https:\/\/shrunk.website.yandexcloud.net\/images\/85\/33\/8533185d5f82856132264e32f6f1f69a\/570x570\/0.webp",
+			"available": true,
+			"input_voltage_v": "",
+			"height_in_assembly": 0,
+			"color_rendering_index": "",
+			"komplektaciya": null,
+			"tip_upravleniya": null,
+			"scattering_angle": 0,
+			"armature_color": "Чёрный",
+			"power": null,
+			"light_temperatures": "",
+			"ugr": "",
+			"link": "\/products\/interernyi-svet\/dot-220v\/svetofiltr-xanikomb-30\/46003-F1"
+		}
+	}
+}
