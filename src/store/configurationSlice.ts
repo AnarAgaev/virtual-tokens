@@ -46,36 +46,43 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 			// Если в фильтрах нет текущего шага — опциональный селектор с возможностью выбора Нет
 			if (!selectors) {
-				const products = stepArticles
-					.flat()
-					.filter(Boolean) // убираем null
-					.map((article) => get().getProductByArticle(article))
-					.filter((product): product is T_ProductExtended => !!product)
+				/**
+				 * Шаги с бинарным выбором являются не обязательными
+				 * и не влияют на итоговый Виртуальный артикул,
+				 * поэтом сразу пропускаем этот шаг.
+				 *
+				 * При необходимости, в дальнейшем, можно включить,
+				 * раскомментировав код ниже
+				 */
 
-				const options = products.map((product) => ({
-					id: nanoid(),
-					value: product.article,
-					products: [structuredClone(product)],
-					selected: false,
-				}))
-
-				modifications[stepName] = [
-					{
-						stepName,
-						selectorId: nanoid(),
-						selectorName: stepName,
-						selectorCode: null,
-						selectorOptions: [
-							...options,
-							{
-								id: nanoid(),
-								value: 'Нет',
-								products: [],
-								selected: true,
-							},
-						],
-					},
-				]
+				// const products = stepArticles
+				// 	.flat()
+				// 	.filter(Boolean) // убираем null
+				// 	.map((article) => get().getProductByArticle(article))
+				// 	.filter((product): product is T_ProductExtended => !!product)
+				// const options = products.map((product) => ({
+				// 	id: nanoid(),
+				// 	value: product.article,
+				// 	products: [structuredClone(product)],
+				// 	selected: false,
+				// }))
+				// modifications[stepName] = [
+				// 	{
+				// 		stepName,
+				// 		selectorId: nanoid(),
+				// 		selectorName: stepName,
+				// 		selectorCode: null,
+				// 		selectorOptions: [
+				// 			...options,
+				// 			{
+				// 				id: nanoid(),
+				// 				value: 'Нет',
+				// 				products: [],
+				// 				selected: true,
+				// 			},
+				// 		],
+				// 	},
+				// ]
 
 				continue
 			}

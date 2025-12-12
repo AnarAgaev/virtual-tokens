@@ -48,8 +48,8 @@ export const Option = ({
 				})
 			}
 		>
-			<VStack gap="0" w="full" align="flex-start">
-				<Box as="span" color="inherit" fontSize="sm" lineHeight="20px" mb="0.5">
+			<VStack gap="0.5" w="full" align="flex-start">
+				<Box as="span" color="inherit" fontSize="sm" lineHeight="20px">
 					{value}
 				</Box>
 
