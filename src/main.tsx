@@ -4,7 +4,7 @@ import {createRoot} from 'react-dom/client'
 import {App, ErrorBoundary} from '@/components'
 import {system} from '@/theme/config'
 
-const rootElement = document.getElementById('root')
+const rootElement = document.getElementById('virtualToken')
 
 if (!rootElement) {
 	throw new Error('Root element not found')

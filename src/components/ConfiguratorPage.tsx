@@ -60,7 +60,8 @@ export const ConfiguratorPage = () => {
 							direction="column"
 						>
 							<Box
-								w="30%"
+								display={{base: 'none', md: 'block'}}
+								w="25%"
 								aspectRatio="1"
 								background="transparent no-repeat center"
 								backgroundSize="cover"
@@ -71,6 +72,8 @@ export const ConfiguratorPage = () => {
 								textWrap="balance"
 								color="gray.400"
 								lineHeight="1.2"
+								w={{base: '90%', md: '80%'}}
+								fontSize={{base: 'clamp(8px, 2vw, 14px)', lg: '16px'}}
 							>
 								Покажем здесь картинку, как только сможем её получить.
 							</Text>
@@ -129,13 +132,15 @@ export const ConfiguratorPage = () => {
 											bgColor="gray.100"
 											height="full"
 										>
-											<Heading
-												size="xs"
-												fontWeight="bold"
-												color="gray.700"
-												mb="1"
-											>
-												{stepName}
+											<Heading mb="1">
+												<Text
+													fontSize="xs"
+													lineHeight="1rem"
+													fontWeight="bold"
+													color="gray.700"
+												>
+													{stepName}
+												</Text>
 											</Heading>
 
 											{/* Для выбора из нескольких селекторов где нет целевого продукта */}
@@ -148,6 +153,8 @@ export const ConfiguratorPage = () => {
 														fontSize="sm"
 														color="gray.800"
 														fontWeight="light"
+														lineHeight="1.2"
+														mt="1"
 													>
 														{selectedData.map(
 															(selectorName, idx) =>
