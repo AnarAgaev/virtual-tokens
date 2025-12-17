@@ -13,7 +13,7 @@ export const App = () => {
 
 	return (
 		<VStack w="full">
-			<Tabs.Root defaultValue="configurator" variant="outline" w="full">
+			<Tabs.Root defaultValue="description" variant="outline" w="full">
 				<Tabs.List>
 					<Tabs.Trigger {...tabButtonStyle} value="configurator" rounded="none">
 						Конфигуратор

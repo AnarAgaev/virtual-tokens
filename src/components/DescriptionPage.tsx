@@ -1,3 +1,216 @@
+import {
+	Box,
+	Button,
+	Flex,
+	Grid,
+	GridItem,
+	Heading,
+	Image,
+	Link,
+	Text,
+	VStack,
+} from '@chakra-ui/react'
+import {Download, PencilRuler, Image as Pic, X} from 'lucide-react'
+import {OrderForm, PropList} from '@/components'
+import {useConfiguration} from '@/store'
+
 export const DescriptionPage = () => {
-	return <p>Description</p>
+	const createModifications = useConfiguration(
+		(state) => state.createModifications,
+	)
+	return (
+		<VStack gap="10" w="full">
+			<Grid w="full" gap="5" gridTemplateColumns={{lg: 'repeat(3, 1fr)'}}>
+				{/* Картинка */}
+				<GridItem order={{lg: 2}}>
+					<VStack pt={{lg: '60px'}} gap={{base: '2', lg: '5'}}>
+						<Flex px={{sm: '50px', md: '0'}} justify="center" w="full">
+							<Box
+								w="full"
+								maxW={{md: '50%', lg: '80%', '2xl': '47.155%'}}
+								aspectRatio="1"
+								bgColor="gray.100"
+							>
+								<Image src="https://aws.technolight.ru/technolight/public/combo/images/invoices/338.webp" />
+							</Box>
+						</Flex>
+						<Flex
+							justify="center"
+							p="1"
+							w="full"
+							px={{sm: '50px', md: '0'}}
+							maxW={{md: '50%', lg: '80%', '2xl': '47.155%'}}
+						>
+							<Button
+								w="50%"
+								colorPalette="gray"
+								variant="solid"
+								rounded="full"
+								size="sm"
+							>
+								<Pic /> Картинка
+							</Button>
+							<Button
+								w="50%"
+								colorPalette="gray"
+								variant="outline"
+								rounded="full"
+								size="sm"
+							>
+								<PencilRuler /> Чертеж
+							</Button>
+						</Flex>
+					</VStack>
+				</GridItem>
+
+				{/* Параметры */}
+				<GridItem order={{lg: 1}}>
+					<Heading
+						fontWeight="bold"
+						lineHeight="20px"
+						fontSize="sm"
+						flexShrink="0"
+						mb={{base: '2', lg: '10'}}
+					>
+						Параметры
+					</Heading>
+					<VStack gap="5">
+						<PropList />
+					</VStack>
+				</GridItem>
+
+				{/* Состав комплекта */}
+				<GridItem order={{lg: 3}}>
+					<VStack p="0" h="full">
+						<Heading
+							fontWeight="bold"
+							lineHeight="20px"
+							fontSize="sm"
+							mb={{base: '2', lg: '10'}}
+							textAlign={{lg: 'right'}}
+							w="full"
+						>
+							Состав комплекта
+						</Heading>
+						<VStack gap="5" justifyContent="space-between" w="full" h="full">
+							<PropList />
+							<OrderForm />
+						</VStack>
+					</VStack>
+				</GridItem>
+			</Grid>
+			<Button
+				borderRadius="none"
+				variant="solid"
+				size="sm"
+				color="white"
+				textStyle="sm"
+				w="full"
+				onClick={createModifications}
+			>
+				<Text w="full">Сбросить конфигуратор</Text>
+				<X />
+			</Button>
+			<VStack direction="column" w="full" gap="7">
+				<Grid w="full" gap="5" gridTemplateColumns={{lg: 'repeat(3, 1fr)'}}>
+					<GridItem>
+						<Heading
+							fontWeight="bold"
+							fontSize="sm"
+							lineHeight="20px"
+							letterSpacing="0"
+						>
+							Файлы для скачивания
+						</Heading>
+					</GridItem>
+					<GridItem gridColumnStart={{lg: 2}} gridColumnEnd={{lg: 4}}>
+						<Flex
+							direction={{base: 'column', xl: 'row'}}
+							columnGap="5"
+							rowGap="2"
+							wrap="wrap"
+							pos="relative"
+						>
+							{[1, 2, 3, 4, 5].map((i) => (
+								<Link
+									key={i}
+									display="flex"
+									alignItems="center"
+									gap="3"
+									href="https://example.com/"
+									download
+									w={{xl: 'calc(50% - 10px)'}}
+								>
+									<Flex
+										align="center"
+										justify="center"
+										h="40px"
+										w="40px"
+										bgColor="#6E6E73"
+										flexShrink={0}
+									>
+										<Download
+											stroke="#FFFFFF"
+											style={{width: 15, height: 15}}
+										/>
+									</Flex>
+									Монтаж безрамочных светильников ЗЕРО ЛОК в натяжной
+									потолок.pdf
+								</Link>
+							))}
+						</Flex>
+					</GridItem>
+				</Grid>
+
+				<Grid w="full" gap="5" gridTemplateColumns={{lg: 'repeat(3, 1fr)'}}>
+					<GridItem>
+						<Heading
+							fontWeight="bold"
+							fontSize="sm"
+							lineHeight="20px"
+							letterSpacing="0"
+						>
+							Видео
+						</Heading>
+					</GridItem>
+					<GridItem gridColumnStart={{lg: 2}} gridColumnEnd={{lg: 4}}>
+						<Flex
+							direction={{base: 'column', xl: 'row'}}
+							columnGap="5"
+							rowGap="2"
+							wrap="wrap"
+							pos="relative"
+						>
+							{[1, 2, 3].map((i) => (
+								<Link
+									key={i}
+									display="flex"
+									alignItems="center"
+									gap="3"
+									href="https://example.com/"
+									download
+									w={{xl: 'calc(50% - 10px)'}}
+								>
+									<Flex
+										align="center"
+										justify="center"
+										h="40px"
+										w="40px"
+										bgColor="#6E6E73"
+										flexShrink={0}
+									>
+										<Download
+											stroke="#FFFFFF"
+											style={{width: 15, height: 15}}
+										/>
+									</Flex>
+									Длинный текст с названием файла.pdf
+								</Link>
+							))}
+						</Flex>
+					</GridItem>
+				</Grid>
+			</VStack>
+		</VStack>
+	)
 }

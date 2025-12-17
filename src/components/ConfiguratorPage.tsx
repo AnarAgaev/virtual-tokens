@@ -115,7 +115,7 @@ export const ConfiguratorPage = () => {
 					maxW="991px"
 					onClick={createModifications}
 				>
-					<Text w="full">Сбросить настройки</Text>
+					<Text w="full">Сбросить конфигуратор</Text>
 					<X />
 				</Button>
 
