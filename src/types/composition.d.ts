@@ -1,6 +1,14 @@
+import type {T_Selector} from '@/types/configuration'
+
 export type T_CompositionSlice = {
 	selectedProducts: {
-		// В имени свойства - имя шага
+		/**
+		 * В имени свойства - имя шага
+		 *
+		 * В значении либо/либо:
+		 * 1. для шагов с несколькими селекторами - список селекторов которые ЕЩЕ НЕ ВЫБРАНЫ
+		 * 2. для шагов с одним селектором - указанные ниже сигнатура с пустым массивом выбранных продуктов
+		 */
 		[key: string]:
 			| {
 					selector: T_Selector['selectorName'] | null

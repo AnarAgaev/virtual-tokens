@@ -11,7 +11,7 @@ import {
 	VStack,
 } from '@chakra-ui/react'
 import {Download, PencilRuler, Image as Pic, X} from 'lucide-react'
-import {OrderForm, PropList} from '@/components'
+import {OrderForm, PropList, TotalProducts} from '@/components'
 import {useConfiguration} from '@/store'
 
 export const DescriptionPage = () => {
@@ -92,8 +92,13 @@ export const DescriptionPage = () => {
 						>
 							Состав комплекта
 						</Heading>
-						<VStack gap="5" justifyContent="space-between" w="full" h="full">
-							<PropList />
+						<VStack
+							gap={{base: '5', md: '10'}}
+							justifyContent="space-between"
+							w="full"
+							h="full"
+						>
+							<TotalProducts />
 							<OrderForm />
 						</VStack>
 					</VStack>
@@ -108,7 +113,7 @@ export const DescriptionPage = () => {
 				w="full"
 				onClick={createModifications}
 			>
-				<Text w="full">Сбросить конфигуратор</Text>
+				<Text w="full">Сбросить конфигурацию</Text>
 				<X />
 			</Button>
 			<VStack direction="column" w="full" gap="7">
