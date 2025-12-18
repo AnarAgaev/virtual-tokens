@@ -1,17 +1,15 @@
 import {
-	Box,
 	Button,
 	Flex,
 	Grid,
 	GridItem,
 	Heading,
-	Image,
 	Link,
 	Text,
 	VStack,
 } from '@chakra-ui/react'
-import {Download, PencilRuler, Image as Pic, X} from 'lucide-react'
-import {OrderForm, PropList, TotalProducts} from '@/components'
+import {Download, X} from 'lucide-react'
+import {OrderForm, PropList, TotalImage, TotalProducts} from '@/components'
 import {useConfiguration} from '@/store'
 
 export const DescriptionPage = () => {
@@ -20,47 +18,11 @@ export const DescriptionPage = () => {
 	)
 	return (
 		<VStack gap="10" w="full">
+			{/* Основные данные */}
 			<Grid w="full" gap="5" gridTemplateColumns={{lg: 'repeat(3, 1fr)'}}>
 				{/* Картинка */}
 				<GridItem order={{lg: 2}}>
-					<VStack pt={{lg: '60px'}} gap={{base: '2', lg: '5'}}>
-						<Flex px={{sm: '50px', md: '0'}} justify="center" w="full">
-							<Box
-								w="full"
-								maxW={{md: '50%', lg: '80%', '2xl': '47.155%'}}
-								aspectRatio="1"
-								bgColor="gray.100"
-							>
-								<Image src="https://aws.technolight.ru/technolight/public/combo/images/invoices/338.webp" />
-							</Box>
-						</Flex>
-						<Flex
-							justify="center"
-							p="1"
-							w="full"
-							px={{sm: '50px', md: '0'}}
-							maxW={{md: '50%', lg: '80%', '2xl': '47.155%'}}
-						>
-							<Button
-								w="50%"
-								colorPalette="gray"
-								variant="solid"
-								rounded="full"
-								size="sm"
-							>
-								<Pic /> Картинка
-							</Button>
-							<Button
-								w="50%"
-								colorPalette="gray"
-								variant="outline"
-								rounded="full"
-								size="sm"
-							>
-								<PencilRuler /> Чертеж
-							</Button>
-						</Flex>
-					</VStack>
+					<TotalImage />
 				</GridItem>
 
 				{/* Параметры */}
@@ -104,6 +66,8 @@ export const DescriptionPage = () => {
 					</VStack>
 				</GridItem>
 			</Grid>
+
+			{/* Сбросить конфигурацию */}
 			<Button
 				borderRadius="none"
 				variant="solid"
@@ -116,6 +80,8 @@ export const DescriptionPage = () => {
 				<Text w="full">Сбросить конфигурацию</Text>
 				<X />
 			</Button>
+
+			{/* Файлы для скачивания */}
 			<VStack direction="column" w="full" gap="7">
 				<Grid w="full" gap="5" gridTemplateColumns={{lg: 'repeat(3, 1fr)'}}>
 					<GridItem>

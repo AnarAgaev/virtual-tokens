@@ -2,7 +2,12 @@ import {create, type StateCreator} from 'zustand'
 import {devtools} from 'zustand/middleware'
 import generateVirtualArticle from '@/combinations/virtual_article.js'
 import {useConfiguration} from '@/store'
-import type {T_CompositionSlice, T_Option} from '@/types'
+import type {
+	T_CompositionSlice,
+	T_Option,
+	T_ResultAdditionalData,
+} from '@/types'
+import type {T_Combos} from '@/zod'
 
 const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 	selectedProducts: {},
@@ -167,6 +172,121 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 		return !selectorOptions.length ? null : selectorOptions[0]
 	},
 
+	resultAdditionalData: {
+		files: [],
+	},
+
+	setResultAdditionalData: () => {
+		// const totalProductList = get().totalProductList
+		const selectedProducts = get().selectedProducts
+
+		// const combinationsArr = get().combos
+		const combinations = useConfiguration.getState().combos
+
+		const stepsAndProducts: Record<string, string> = {}
+
+		const checkedCombs: T_Combos = []
+
+		const resultAdditionalData: T_ResultAdditionalData = {
+			files: [],
+		}
+
+		function checkCombination(
+			selectedArticles: Array<string>,
+			combination: Record<string, Array<string>>,
+		) {
+			let isMatch = true
+
+			for (const step in combination) {
+				const isIncludes = combination[step].some((article) =>
+					selectedArticles.includes(article),
+				)
+				if (!isIncludes) isMatch = false
+			}
+
+			return isMatch
+		}
+
+		// Собираем артикулы на выбранных шагах
+		Object.entries(selectedProducts).forEach(([stepName, selectedData]) => {
+			if (Array.isArray(selectedData)) return
+
+			selectedData.products.forEach((product) => {
+				if (!stepsAndProducts[stepName]) {
+					stepsAndProducts[stepName] = product.article
+				}
+			})
+		})
+
+		// Фильтруем комбинации
+		combinations?.forEach((combination) => {
+			if (
+				typeof combination.combo === 'number' ||
+				typeof combination.combo === 'string' ||
+				Array.isArray(combination.combo)
+			) {
+				return
+			}
+
+			const isMatch = checkCombination(
+				Object.values(stepsAndProducts),
+				combination.combo,
+			)
+
+			if (isMatch) {
+				checkedCombs.push(combination)
+			}
+		})
+
+		checkedCombs
+			.sort((a, b) => {
+				const a1 = Object.keys(a.combo).length
+				const b1 = Object.keys(b.combo).length
+				return b1 - a1
+			})
+			.forEach((i) => {
+				if (
+					!resultAdditionalData.light_flow &&
+					i.light_flow &&
+					typeof i.light_flow === 'number'
+				) {
+					resultAdditionalData.light_flow = i.light_flow
+				}
+
+				if (
+					!resultAdditionalData.final_image &&
+					i.final_image &&
+					typeof i.final_image === 'string'
+				) {
+					resultAdditionalData.final_image = i.final_image
+				}
+
+				if (
+					!resultAdditionalData.final_drawing &&
+					i.final_drawing &&
+					typeof i.final_drawing === 'string'
+				) {
+					resultAdditionalData.final_drawing = i.final_drawing
+				}
+
+				if (i.files && Array.isArray(i.files)) {
+					resultAdditionalData.files = [
+						...resultAdditionalData.files,
+						...i.files,
+					]
+				}
+			})
+
+		return set({resultAdditionalData})
+	},
+
+	// #region Виртуальный артикул
+	/**
+	 * Делала Оля Кондратенко - kondratenko@technolight.ru
+	 * https://bt24.ddns.net/company/personal/user/13449/
+	 *
+	 * Вся логика по пути src/combinations
+	 */
 	emptyResult: () => ({
 		image: null,
 		drawing: null,
@@ -247,6 +367,7 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 
 		return result
 	},
+	// #endregion
 })
 
 export const useComposition = create<T_CompositionSlice>()(
