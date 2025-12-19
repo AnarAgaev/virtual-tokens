@@ -24,8 +24,15 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 	units: null,
 	combos: null,
 	products: null,
+	description: null,
+	videos: [],
+	files: [],
 
-	setInitData: (payload) => set({...payload}),
+	setInitData: (payload) => {
+		console.log('payload', payload)
+
+		set({...payload})
+	},
 	// #endregion
 
 	createModifications: () => {

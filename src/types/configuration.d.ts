@@ -2,6 +2,8 @@ import type {
 	T_BlackList,
 	T_Characteristics,
 	T_Combos,
+	T_Description,
+	T_Files,
 	T_Filters,
 	T_HardFilterSteps,
 	T_Product,
@@ -12,6 +14,7 @@ import type {
 	T_StepsCount,
 	T_Titles,
 	T_Units,
+	T_Videos,
 } from '@/zod'
 
 export type T_ConfigurationSlice = {
@@ -26,6 +29,9 @@ export type T_ConfigurationSlice = {
 	units: T_Units
 	combos: T_Combos
 	products: T_Products
+	description: T_Description
+	videos: T_Videos
+	files: T_Files
 
 	setInitData: (payload: {
 		steps: T_Steps
@@ -38,6 +44,9 @@ export type T_ConfigurationSlice = {
 		units: T_Units
 		combos: T_Combos
 		products: T_Products
+		description: T_Description
+		videos: T_Videos
+		files: T_Files
 	}) => void
 	// #endregion
 

@@ -71,6 +71,9 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 				units: safeResponse.data.units,
 				combos: safeResponse.data.combos,
 				products: safeResponse.data.products,
+				description: safeResponse.data.description,
+				videos: safeResponse.data.videos,
+				files: safeResponse.data.files,
 			})
 
 			// Определяем тип пользователя

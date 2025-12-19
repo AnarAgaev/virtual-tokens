@@ -197,6 +197,15 @@ const products = z
 		'Должен быть хотя бы один товар',
 	)
 export type T_Products = z.infer<typeof products> | null
+
+const description = z.union([z.string(), z.null()]).optional()
+export type T_Description = z.infer<typeof description>
+
+const videos = z.array(z.record(z.string(), z.string())).optional()
+export type T_Videos = z.infer<typeof videos>
+
+const files = z.array(z.record(z.string(), z.string())).optional()
+export type T_Files = z.infer<typeof files>
 // #endregion
 
 // #region Initial data
@@ -217,6 +226,9 @@ export const InitDataContract = z
 		units,
 		combos,
 		products,
+		description,
+		videos,
+		files,
 	})
 	.refine((data) => {
 		// Проверка согласованности steps и stepsCount
