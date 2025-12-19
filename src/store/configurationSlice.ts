@@ -165,6 +165,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		set({modifications})
 		useComposition.getState().handleModificationsChange()
 		useComposition.getState().setResultAdditionalData()
+		useComposition.getState().setResultCharacteristics()
 	},
 
 	getProductByArticle: (article) => {
@@ -595,6 +596,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		useComposition.getState().handleModificationsChange()
 		useComposition.getState().setResultAdditionalData()
+		useComposition.getState().setResultCharacteristics()
 	},
 
 	unlockSelector: (payload) => {
@@ -692,6 +694,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		useComposition.getState().handleModificationsChange()
 		useComposition.getState().setResultAdditionalData()
+		useComposition.getState().setResultCharacteristics()
 	},
 
 	productsWithBuiltInDriver: [],

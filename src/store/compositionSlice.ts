@@ -1,13 +1,13 @@
 import {create, type StateCreator} from 'zustand'
 import {devtools} from 'zustand/middleware'
 import generateVirtualArticle from '@/combinations/virtual_article.js'
-import {useConfiguration} from '@/store'
+import {useApp, useConfiguration} from '@/store'
 import type {
 	T_CompositionSlice,
 	T_Option,
 	T_ResultAdditionalData,
 } from '@/types'
-import type {T_Combos} from '@/zod'
+import type {T_Combos, T_Product} from '@/zod'
 
 const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 	selectedProducts: {},
@@ -177,7 +177,6 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 	},
 
 	setResultAdditionalData: () => {
-		// const totalProductList = get().totalProductList
 		const selectedProducts = get().selectedProducts
 
 		// const combinationsArr = get().combos
@@ -278,6 +277,118 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 			})
 
 		return set({resultAdditionalData})
+	},
+
+	resultCharacteristics: {},
+
+	setResultCharacteristics: () => {
+		const characteristics = useConfiguration.getState().characteristics
+		const selectedProducts = get().selectedProducts
+		let resultCharacteristics: Record<string, string> = {}
+		let isThereIPClass = false
+
+		// обходим характеристики по шагам
+		for (const stepName in characteristics) {
+			// Получаем массивы выбранных на шаге артикулов
+			const selectedArticles = getSelectedArticlesByStep(stepName)
+
+			// получаем характеристику из выбранных артикулов
+			const characteristicsObj = getCharacteristicsBySelectedArticles(
+				selectedArticles,
+				characteristics[stepName],
+			)
+
+			// Добавляем характеристики в итоговый объект
+			resultCharacteristics = Object.assign(
+				resultCharacteristics,
+				characteristicsObj,
+			)
+		}
+
+		function getSelectedArticlesByStep(stepName: string): string[] {
+			const stepData = selectedProducts[stepName]
+
+			if (Array.isArray(stepData)) return []
+
+			return stepData.products.map((product) => product.article)
+		}
+
+		function getCharacteristicsBySelectedArticles(
+			articlesArr: string[],
+			characteristicsObj: Record<string, string>,
+		): Record<string, string> {
+			const productsAll = useConfiguration.getState().products
+			const units = useConfiguration.getState().units
+
+			const resCharacteristics: Record<string, string> = {}
+
+			// обходим характеристики
+			for (const characteristic in characteristicsObj) {
+				const unit = units?.[characteristic]
+
+				// обходим выбранные на шагах артикулы
+				for (const article of articlesArr) {
+					const productCharacteristicValue =
+						productsAll?.[article][characteristic as keyof T_Product]
+
+					const property = characteristicsObj[characteristic]
+
+					if (productCharacteristicValue) {
+						let value: string
+
+						// Для IP (Степень пыле-влагозащищенности сначала идут единицы)
+						if (characteristic === 'ip_class') {
+							value = `${unit ? `${unit}` : ''}${productCharacteristicValue}`
+
+							// Помечаем флаг для IP класса
+							isThereIPClass = true
+						} else if (characteristic === 'protection_class_ik') {
+							value = `${unit ? `${unit}` : ''}${productCharacteristicValue}`
+						} else {
+							value = `${productCharacteristicValue}${unit ? `${unit}` : ''}`
+						}
+
+						// Записываем характеристику только один раз
+						if (!resCharacteristics[property]) {
+							resCharacteristics[property] = value
+						}
+					}
+				}
+			}
+
+			for (const characteristic in characteristicsObj) {
+				// Характеристики ip_class (степень пыле-влагозащищенности) может не быть
+				if (characteristic === 'ip_class') continue
+
+				const prop = characteristicsObj[characteristic]
+
+				if (
+					!resCharacteristics[prop] &&
+					useApp.getState().userStatus === 'admin'
+				) {
+					console.log(
+						'\x1b[31m%s\x1b[0m',
+						`Для артикулов ${articlesArr} не указана характеристика ${characteristic} - ${prop}`,
+					)
+				}
+			}
+
+			return resCharacteristics
+		}
+
+		/**
+		 * Если нигде не указан IP (степень пыле-влагозащищенности),
+		 * то указываем дефолтное значение.
+		 *
+		 * Устанавливаем только в том случае, если выбрана
+		 * хотя бы одна характеристика
+		 */
+		//
+		if (!isThereIPClass && Object.keys(resultCharacteristics).length) {
+			resultCharacteristics['Степень пыле-влагозащищенности'] = 'IP20'
+		}
+
+		set({resultCharacteristics})
 	},
 
 	// #region Виртуальный артикул

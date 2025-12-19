@@ -9,7 +9,7 @@ import {
 	VStack,
 } from '@chakra-ui/react'
 import {Download, X} from 'lucide-react'
-import {OrderForm, PropList, TotalImage, TotalProducts} from '@/components'
+import {OrderForm, TotalImage, TotalParams, TotalProducts} from '@/components'
 import {useConfiguration} from '@/store'
 
 export const DescriptionPage = () => {
@@ -37,7 +37,7 @@ export const DescriptionPage = () => {
 						Параметры
 					</Heading>
 					<VStack gap="5">
-						<PropList />
+						<TotalParams />
 					</VStack>
 				</GridItem>
 

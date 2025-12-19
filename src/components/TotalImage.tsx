@@ -47,7 +47,8 @@ export const TotalImage = () => {
 							p="10"
 						>
 							<DraftingCompass
-								style={{width: '15%', height: '15%', stroke: '#eee'}}
+								stroke="#eee"
+								style={{width: '15%', height: '15%'}}
 							/>
 							<Text>
 								Покажем здесь картинку и схему, как только начнете выбирать на
