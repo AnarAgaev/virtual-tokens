@@ -29,8 +29,6 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 	files: [],
 
 	setInitData: (payload) => {
-		console.log('payload', payload)
-
 		set({...payload})
 	},
 	// #endregion
@@ -170,9 +168,14 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		}
 
 		set({modifications})
+
 		useComposition.getState().handleModificationsChange()
+		useComposition.getState().updateTotalPrice()
+
 		useComposition.getState().setResultAdditionalData()
 		useComposition.getState().setResultCharacteristics()
+
+		useComposition.getState().resetComposition()
 	},
 
 	getProductByArticle: (article) => {
@@ -602,6 +605,8 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		set({modifications})
 
 		useComposition.getState().handleModificationsChange()
+		useComposition.getState().updateTotalPrice()
+
 		useComposition.getState().setResultAdditionalData()
 		useComposition.getState().setResultCharacteristics()
 	},
@@ -700,6 +705,8 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		})
 
 		useComposition.getState().handleModificationsChange()
+		useComposition.getState().updateTotalPrice()
+
 		useComposition.getState().setResultAdditionalData()
 		useComposition.getState().setResultCharacteristics()
 	},

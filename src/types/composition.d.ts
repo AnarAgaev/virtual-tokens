@@ -1,60 +1,77 @@
 import type {T_Selector} from '@/types/configuration'
+import type { T_Product } from '@/zod'
 
 export type T_CompositionSlice = {
-	selectedProducts: {
+		selectedProducts: {
+			/**
+			 * В имени свойства - имя шага
+			 *
+			 * В значении либо/либо:
+			 * 1. для шагов с несколькими селекторами - список селекторов которые ЕЩЕ НЕ ВЫБРАНЫ
+			 * 2. для шагов с одним селектором - указанные ниже сигнатура с пустым массивом выбранных продуктов
+			 */
+			[key: string]:
+				| {
+						selector: T_Selector['selectorName'] | null
+						option: T_Option['T_Option'] | null
+						products: T_Product[]
+				  }
+				| Array<T_Selector['selectorName']>
+		}
+
 		/**
-		 * В имени свойства - имя шага
-		 *
-		 * В значении либо/либо:
-		 * 1. для шагов с несколькими селекторами - список селекторов которые ЕЩЕ НЕ ВЫБРАНЫ
-		 * 2. для шагов с одним селектором - указанные ниже сигнатура с пустым массивом выбранных продуктов
+		 * Отслеживаем modifications в Слайсе useConfiguration [name: 'Configuration Store']
+		 * Вызываем везде и сразу после изменения modifications во всех Слайсах
 		 */
-		[key: string]:
-			| {
-					selector: T_Selector['selectorName'] | null
-					option: T_Option['T_Option'] | null
-					products: T_Product[]
-			  }
-			| Array<T_Selector['selectorName']>
+		handleModificationsChange: () => void
+
+		getSelectedSingleOption: (payload: {
+			selectorOptions: T_Option[]
+		}) => T_Option | null
+
+		resultAdditionalData: T_ResultAdditionalData
+		setResultAdditionalData: () => void
+
+		resultCharacteristics: Record<string, string>
+		setResultCharacteristics: () => void
+
+		complectCount: number
+		updateComplectCount: (payload: {direction: number}) => void
+
+		isDotInCart: boolean
+
+		resetComposition: () => void
+
+		totalPrice: number
+		updateTotalPrice: () => void
+
+		pushDotToCart: () => void
+
+		getSelectedProductsExtendedStepNames: () => (T_Product & {
+			stepName: string
+		})[]
+
+		// #region Виртуальный артикул
+		virtualArticle: (null | string)[] | null
+
+		emptyResult: () => T_ResultData
+
+		getResultData: () => T_ResultData
+
+		collectSelectedArticles: (
+			selectedProducts: T_CompositionSlice['selectedProducts'],
+		) => T_SelectedArticles
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		comboMatches: (combo: any, selectedArticles: T_SelectedArticles) => void
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		getComboStepCount: (combo: any) => number
+
+		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+		extractRelevantData: (combos: any[]) => T_ResultData
+		// #endregion
 	}
-
-	/**
-	 * Отслеживаем modifications в Слайсе useConfiguration [name: 'Configuration Store']
-	 * Вызываем везде и сразу после изменения modifications во всех Слайсах
-	 */
-	handleModificationsChange: () => void
-
-	getSelectedSingleOption: (payload: {
-		selectorOptions: T_Option[]
-	}) => T_Option | null
-
-	resultAdditionalData: T_ResultAdditionalData
-	setResultAdditionalData: () => void
-
-	resultCharacteristics: Record<string, string>
-	setResultCharacteristics: () => void
-
-	// #region Виртуальный артикул
-	virtualArticle: (null | string)[] | null
-
-	emptyResult: () => T_ResultData
-
-	getResultData: () => T_ResultData
-
-	collectSelectedArticles: (
-		selectedProducts: T_CompositionSlice['selectedProducts'],
-	) => T_SelectedArticles
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	comboMatches: (combo: any, selectedArticles: T_SelectedArticles) => void
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	getComboStepCount: (combo: any) => number
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	extractRelevantData: (combos: any[]) => T_ResultData
-	// #endregion
-}
 
 export type T_SelectedArticles = Record<string, string[]>
 

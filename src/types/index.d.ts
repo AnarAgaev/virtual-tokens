@@ -6,5 +6,6 @@ declare global {
 	interface Window {
 		terms?: string[]
 		initInformers?: () => void
+		addDotToCart?: (order: Record<string, unknown>) => Promise<boolean>
 	}
 }

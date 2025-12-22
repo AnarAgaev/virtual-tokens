@@ -13,6 +13,93 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 	selectedProducts: {},
 	virtualArticle: null,
 
+	complectCount: 1,
+	updateComplectCount: (payload) => {
+		const pervCount = get().complectCount
+
+		let complectCount = pervCount + payload.direction
+
+		if (complectCount < 1) complectCount = 1
+
+		set({complectCount})
+	},
+
+	isDotInCart: false,
+
+	totalPrice: 0,
+	updateTotalPrice: () => {
+		const stepsCount = useConfiguration.getState().stepsCount
+		const selectedProducts = get().getSelectedProductsExtendedStepNames()
+		let totalPrice = 0
+
+		selectedProducts.forEach((product) => {
+			if (product?.price) {
+				const count = stepsCount?.[product.stepName] || 1
+				totalPrice += product.price * count
+			}
+		})
+
+		set({totalPrice})
+	},
+
+	pushDotToCart: async () => {
+		const stepsCount = useConfiguration.getState().stepsCount
+
+		// const customName = get().customName
+		// const configurationName = customName ? customName : 'Дот в сборе'
+		const configurationName = 'Дот в сборе'
+
+		const selectedProducts = get().getSelectedProductsExtendedStepNames()
+
+		const order = {
+			name: configurationName,
+			image: get().resultAdditionalData.final_image,
+			count: get().complectCount,
+			arts: selectedProducts.map((product) => {
+				const count =
+					stepsCount && product.stepName ? stepsCount[product.stepName] : 1
+
+				return {
+					...product,
+					art: product.article,
+					count: count, // Количество отдельного артикула в составе Дота
+				}
+			}),
+		}
+
+		if (typeof window.addDotToCart !== 'function') {
+			console.error('window.addDotToCart is not a function')
+			return
+		}
+
+		try {
+			const response = window.addDotToCart(order)
+			const result = await response
+
+			if (result) {
+				set({isDotInCart: true})
+			}
+		} catch (error) {
+			console.error('Error adding dot to cart:', error)
+		}
+	},
+
+	getSelectedProductsExtendedStepNames: () => {
+		const selectedProducts = get().selectedProducts
+
+		return Object.entries(selectedProducts).flatMap(
+			([stepName, stepData]): Array<T_Product & {stepName: string}> => {
+				if (Array.isArray(stepData)) {
+					return [] // пропускаем массивы строк
+				}
+				return stepData.products.map((p) => ({
+					...p,
+					stepName,
+				}))
+			},
+		)
+	},
+
 	/**
 	 * Отслеживаем modifications в Слайсе useConfiguration [name: 'Configuration Store']
 	 * Вызываем везде и сразу после изменения modifications во всех Слайсах
@@ -280,6 +367,14 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 	},
 
 	resultCharacteristics: {},
+
+	resetComposition: () => {
+		set({
+			complectCount: 1,
+			isDotInCart: false,
+			totalPrice: 0,
+		})
+	},
 
 	setResultCharacteristics: () => {
 		const characteristics = useConfiguration.getState().characteristics
