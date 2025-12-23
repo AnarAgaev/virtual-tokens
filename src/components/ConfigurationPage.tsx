@@ -12,7 +12,7 @@ import {X} from 'lucide-react'
 import {Configurator} from '@/components'
 import {useApp, useComposition, useConfiguration} from '@/store'
 
-export const ConfiguratorPage = () => {
+export const ConfigurationPage = () => {
 	const userStatus = useApp((state) => state.userStatus)
 	const selectedProducts = useComposition((state) => state.selectedProducts)
 	const virtualArticle = useComposition((state) => state.virtualArticle)
