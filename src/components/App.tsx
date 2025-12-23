@@ -6,6 +6,8 @@ import '@/theme/app.css'
 
 export const App = () => {
 	const requestInitData = useApp((state) => state.requestInitData)
+	const activeTab = useApp((state) => state.activeTab)
+	const setActiveTab = useApp((state) => state.setActiveTab)
 
 	useEffect(() => {
 		requestInitData()
@@ -13,16 +15,29 @@ export const App = () => {
 
 	return (
 		<VStack w="full">
-			<Tabs.Root defaultValue="description" variant="outline" w="full">
+			<Tabs.Root
+				variant="outline"
+				w="full"
+				value={activeTab}
+				onValueChange={({value}) => {
+					if (value === 'configuration' || value === 'description') {
+						setActiveTab({tabType: value})
+					}
+				}}
+			>
 				<Tabs.List>
-					<Tabs.Trigger {...tabButtonStyle} value="configurator" rounded="none">
+					<Tabs.Trigger
+						{...tabButtonStyle}
+						value="configuration"
+						rounded="none"
+					>
 						Конфигуратор
 					</Tabs.Trigger>
 					<Tabs.Trigger {...tabButtonStyle} value="description" rounded="none">
 						Описание
 					</Tabs.Trigger>
 				</Tabs.List>
-				<Tabs.Content value="configurator" pt={{base: '5', lg: '10'}}>
+				<Tabs.Content value="configuration" pt={{base: '5', lg: '10'}}>
 					<ConfiguratorPage />
 				</Tabs.Content>
 				<Tabs.Content value="description" pt={{base: '5', lg: '10'}}>

@@ -1,13 +1,13 @@
 import {Button, Flex, Heading, Input, Text, VStack} from '@chakra-ui/react'
 import {ChevronDown, ChevronUp} from 'lucide-react'
-import {useComposition} from '@/store'
+import {useApp, useComposition} from '@/store'
 
 export const OrderForm = () => {
-	// const showCustomName = useDots((state) => state.showCustomName)
 	const pushDotToCart = useComposition((state) => state.pushDotToCart)
 	const updateComplectCount = useComposition(
 		(store) => store.updateComplectCount,
 	)
+	const setActiveTab = useApp((state) => state.setActiveTab)
 	const complectCount = useComposition((state) => state.complectCount)
 	const isDotInCart = useComposition((state) => state.isDotInCart)
 	const totalSum = useComposition((state) => state.totalPrice)
@@ -94,6 +94,7 @@ export const OrderForm = () => {
 					variant="solid"
 					rounded="full"
 					size="xl"
+					onClick={() => setActiveTab({tabType: 'configuration'})}
 				>
 					Назад к расчетам
 				</Button>

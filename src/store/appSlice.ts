@@ -97,6 +97,9 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 			console.error(error)
 		}
 	},
+
+	activeTab: 'configuration',
+	setActiveTab: (payload) => set({activeTab: payload.tabType}),
 })
 
 export const useApp = create<T_AppSlice>()(
