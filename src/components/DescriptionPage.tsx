@@ -2,8 +2,8 @@ import {Button, Grid, GridItem, Heading, Text, VStack} from '@chakra-ui/react'
 import {X} from 'lucide-react'
 import {useEffect, useState} from 'react'
 import {
+	ConfigurationDetails,
 	OrderForm,
-	TotalFiles,
 	TotalImage,
 	TotalParams,
 	TotalProducts,
@@ -102,10 +102,8 @@ export const DescriptionPage = () => {
 				<X />
 			</Button>
 
-			{/* Файлы для скачивания */}
-			<VStack direction="column" w="full" gap="7">
-				<TotalFiles />
-			</VStack>
+			{/* Описание / Файлы для скачивания / Видео */}
+			<ConfigurationDetails />
 		</VStack>
 	)
 }
