@@ -1,14 +1,13 @@
 import {Box, Button, Flex, Image, Text, VStack} from '@chakra-ui/react'
 import {DraftingCompass, PencilRuler, Image as Pic} from 'lucide-react'
-import {useState} from 'react'
 import {useComposition} from '@/store'
 
 export const TotalImage = () => {
 	const {final_image, final_drawing} = useComposition(
 		(state) => state.resultAdditionalData,
 	)
-
-	const [showImage, setShowImage] = useState<boolean>(!!final_image)
+	const pictureMode = useComposition((state) => state.pictureMode)
+	const setPictureMode = useComposition((state) => state.setPictureMode)
 
 	return (
 		<VStack pt={{lg: '60px'}} gap={{base: '2', lg: '5'}}>
@@ -26,7 +25,7 @@ export const TotalImage = () => {
 				>
 					{final_image || final_drawing ? (
 						<Image
-							src={showImage ? final_image : final_drawing}
+							src={pictureMode === 'image' ? final_image : final_drawing}
 							pos="absolute"
 							inset="50% auto auto 50%"
 							transform="translate(-50%, -50%)"
@@ -72,20 +71,20 @@ export const TotalImage = () => {
 					<Button
 						w="50%"
 						colorPalette="gray"
-						variant={showImage ? 'solid' : 'outline'}
+						variant={pictureMode === 'image' ? 'solid' : 'outline'}
 						rounded="full"
 						size="sm"
-						onClick={() => setShowImage(true)}
+						onClick={() => setPictureMode({type: 'image'})}
 					>
 						<Pic /> Картинка
 					</Button>
 					<Button
 						w="50%"
 						colorPalette="gray"
-						variant={showImage ? 'outline' : 'solid'}
+						variant={pictureMode === 'drawing' ? 'solid' : 'outline'}
 						rounded="full"
 						size="sm"
-						onClick={() => setShowImage(false)}
+						onClick={() => setPictureMode({type: 'drawing'})}
 					>
 						<PencilRuler /> Чертеж
 					</Button>

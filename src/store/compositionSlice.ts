@@ -23,6 +23,7 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 
 		set({complectCount})
 	},
+	resetCompleteCount: () => set({complectCount: 1}),
 
 	isDotInCart: false,
 
@@ -368,11 +369,17 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 
 	resultCharacteristics: {},
 
+	pictureMode: 'image',
+	setPictureMode: (payload) => {
+		set({pictureMode: payload.type})
+	},
+
 	resetComposition: () => {
 		set({
 			complectCount: 1,
 			isDotInCart: false,
 			totalPrice: 0,
+			pictureMode: 'image',
 		})
 	},
 

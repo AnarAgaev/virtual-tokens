@@ -1,5 +1,6 @@
 import {Button, Grid, GridItem, Heading, Text, VStack} from '@chakra-ui/react'
 import {X} from 'lucide-react'
+import {useEffect, useState} from 'react'
 import {
 	OrderForm,
 	TotalFiles,
@@ -7,12 +8,35 @@ import {
 	TotalParams,
 	TotalProducts,
 } from '@/components'
-import {useConfiguration} from '@/store'
+import {useComposition, useConfiguration} from '@/store'
 
 export const DescriptionPage = () => {
 	const createModifications = useConfiguration(
 		(state) => state.createModifications,
 	)
+	const selectedProducts = useComposition((state) => state.selectedProducts)
+	const resetCompleteCount = useComposition((state) => state.resetCompleteCount)
+
+	const [isSelectedProducts, setIsSelectedProducts] = useState<boolean>(false)
+
+	useEffect(() => {
+		const products = Object.entries(selectedProducts).flatMap(
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+			([_stepName, stepData]) => {
+				if (Array.isArray(stepData)) {
+					return [] // пропускаем массивы строк
+				}
+				return stepData.products
+			},
+		)
+
+		if (!products.length) {
+			resetCompleteCount()
+		}
+
+		setIsSelectedProducts(!!products.length)
+	}, [selectedProducts, resetCompleteCount])
+
 	return (
 		<VStack gap="10" w="full">
 			{/* Основные данные */}
@@ -58,7 +82,7 @@ export const DescriptionPage = () => {
 							h="full"
 						>
 							<TotalProducts />
-							<OrderForm />
+							{isSelectedProducts ? <OrderForm /> : null}
 						</VStack>
 					</VStack>
 				</GridItem>
