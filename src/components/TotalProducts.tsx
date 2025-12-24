@@ -1,4 +1,4 @@
-import {Link, List, Text, VisuallyHidden} from '@chakra-ui/react'
+import {Link, List, Text} from '@chakra-ui/react'
 import {useId, useMemo} from 'react'
 import {useComposition, useConfiguration} from '@/store'
 import type {T_CompositionSlice} from '@/types'
@@ -29,10 +29,14 @@ const getTotalProductList = (
 						target="_blank"
 						data-cy="article"
 						p="3"
+						borderRadius="0"
+						transition="0.1s linear"
+						textDecoration="none"
+						_hover={{opacity: 0.6}}
 					>
 						{product.article}
 					</Link>
-					<Text p="3" textAlign="right">
+					<Text p="3" pl="0" textAlign="right">
 						{/* Наименование */}
 						{`${title} `}
 
@@ -115,5 +119,6 @@ const itemStyle = {
 	justifyContent: 'space-between',
 	borderBottomWidth: '1px',
 	borderBottomColor: 'gray.200',
+	borderBottomStyle: 'solid',
 }
 // #endregion

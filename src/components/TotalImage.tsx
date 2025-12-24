@@ -15,7 +15,7 @@ export const TotalImage = () => {
 			<Flex px={{sm: '50px', md: '0'}} justify="center" w="full">
 				<Box
 					w="full"
-					maxW={{md: '50%', lg: '80%', '2xl': '47.155%'}}
+					maxW={{md: '50%', lg: '80%'}}
 					aspectRatio="1"
 					pos="relative"
 					borderWidth="1px"
@@ -49,7 +49,7 @@ export const TotalImage = () => {
 							<Box w="30%" aspectRatio="1">
 								<ImagePlaceholder color="#e4e4e7" />
 							</Box>
-							<Text>
+							<Text lineHeight="1.3">
 								Покажем здесь картинку и схему, как только начнете выбирать на
 								вкладке
 								<Text as="span" fontWeight="bold">
@@ -66,7 +66,7 @@ export const TotalImage = () => {
 					p="1"
 					w="full"
 					px={{sm: '50px', md: '0'}}
-					maxW={{md: '50%', lg: '80%', '2xl': '47.155%'}}
+					maxW={{md: '50%', lg: '80%'}}
 				>
 					<Button
 						w="50%"

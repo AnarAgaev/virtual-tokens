@@ -1,5 +1,4 @@
-import {Link, List, Text} from '@chakra-ui/react'
-import {Info} from 'lucide-react'
+import {List, Text} from '@chakra-ui/react'
 import {type JSX, useEffect, useId, useMemo} from 'react'
 import {useComposition, useConfiguration} from '@/store'
 
@@ -21,23 +20,26 @@ const getCharacteristicsList = (
 		elementList.push(
 			<List.Item key={`${reactId}-${key}`} {...itemStyle}>
 				{hasInformation ? (
-					<Link
-						display="flex"
-						alignItems="center"
-						gap="1"
+					<Text
 						data-term={`${key}`}
+						as="span"
 						p="3"
 						cursor="pointer"
-						href={`#${key}`}
+						transition="0.1s linear"
+						_after={{top: '6px !important', left: '2px !important'}}
+						_hover={{opacity: 0.6}}
 					>
-						{key}{' '}
-						<Info stroke="#09090B" style={{width: '16px', height: '16px'}} />
-					</Link>
+						{key}
+					</Text>
 				) : (
-					<Text p="3">{key}</Text>
+					<Text as="span" p="3">
+						{key}
+					</Text>
 				)}
 
-				<Text p="3">{characteristics[key]}</Text>
+				<Text p="3" pl="0">
+					{characteristics[key]}
+				</Text>
 			</List.Item>,
 		)
 	}
@@ -78,11 +80,12 @@ export const TotalParams = () => {
 		[reactId, characteristics],
 	)
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		if (typeof window.initInformers === 'function') {
 			window.initInformers()
 		}
-	}, [])
+	}, [characteristics])
 
 	return (
 		<List.Root variant="plain" {...listStyle}>
@@ -104,5 +107,6 @@ const itemStyle = {
 	justifyContent: 'space-between',
 	borderBottomWidth: '1px',
 	borderBottomColor: 'gray.200',
+	borderBottomStyle: 'solid',
 }
 // #endregion

@@ -160,8 +160,9 @@ export const OrderForm = () => {
 				<Heading {...inputHeadingStyle}>Придумайте название проекта</Heading>
 				<InputGroup
 					w="full"
+					padding="0"
 					startElement={
-						<Pencil stroke="#5B5B5F" style={{width: 16, height: 16}} />
+						<Pencil stroke="#5B5B5F" style={{width: 44, height: 16}} />
 					}
 				>
 					<Input
@@ -179,11 +180,12 @@ export const OrderForm = () => {
 						}
 						onChange={handleNameInputChange}
 						placeholder="Ваше название для конфигурации"
-						ml="-1.5"
 						overflow="hidden"
 						textOverflow="ellipsis"
 						whiteSpace="nowrap"
 						boxSizing="border-box"
+						pl="44px"
+						disabled={isDotInCart}
 					/>
 				</InputGroup>
 			</VStack>

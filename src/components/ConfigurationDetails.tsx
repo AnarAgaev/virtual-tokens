@@ -30,6 +30,8 @@ const getResultFilesList = (
 				href={file.file}
 				download
 				target="_blank"
+				borderRadius="0"
+				textDecoration="none"
 			>
 				<Flex
 					align="center"
@@ -41,7 +43,15 @@ const getResultFilesList = (
 				>
 					<Download stroke="#FFFFFF" style={{width: 15, height: 15}} />
 				</Flex>
-				{file.name}
+				<Text
+					as="span"
+					transition="0.1s linear"
+					_hover={{opacity: 0.7}}
+					lineHeight="1.3"
+					fontSize={{base: 'sm', lg: 'md'}}
+				>
+					{file.name}
+				</Text>
 			</Link>,
 		)
 	})
