@@ -1,5 +1,14 @@
-import {Button, Flex, Heading, Input, Text, VStack} from '@chakra-ui/react'
-import {ChevronDown, ChevronUp} from 'lucide-react'
+import {
+	Button,
+	Flex,
+	Heading,
+	Input,
+	InputGroup,
+	Text,
+	VStack,
+} from '@chakra-ui/react'
+import {ChevronDown, ChevronUp, Pencil} from 'lucide-react'
+import {useRef} from 'react'
 import {formatNumber} from '@/helpers'
 import {useApp, useComposition} from '@/store'
 
@@ -13,20 +22,35 @@ export const OrderForm = () => {
 	const isDotInCart = useComposition((state) => state.isDotInCart)
 	const totalSum = useComposition((state) => state.totalPrice)
 	const totalValue = totalSum * complectCount
+	const defaultConfigurationName = useComposition(
+		(state) => state.defaultConfigurationName,
+	)
+	const configurationName = useComposition((state) => state.configurationName)
+	const setConfigurationName = useComposition(
+		(state) => state.setConfigurationName,
+	)
 
 	const onButtonInc = () => updateComplectCount({direction: 1})
 	const onButtonDec = () => updateComplectCount({direction: -1})
 
+	const inputName = useRef<HTMLInputElement | null>(null)
+
+	const inputChangeHandler = () => {
+		let name = inputName.current?.value
+
+		if (!name) {
+			name = defaultConfigurationName
+		}
+
+		setConfigurationName({name})
+	}
+
 	return (
-		<VStack w="full" pb="1">
+		<VStack w="full" pb="1" gap="5">
+			{/* Количество */}
 			<VStack gap="2" alignItems="flex-start" w="full">
 				<Flex justify="space-between" align="center" w="full">
-					<Heading
-						fontWeight="semibold"
-						fontSize="sm"
-						lineHeight="20px"
-						letterSpacing="0"
-					>
+					<Heading {...inputHeadingStyle}>
 						<Text display={{base: 'none', sm: 'inline'}} as="span">
 							Введите количество
 						</Text>
@@ -90,6 +114,42 @@ export const OrderForm = () => {
 					</Flex>
 				</Flex>
 			</VStack>
+
+			{/* Переименовать конфигурацию */}
+			<VStack gap="2" alignItems="flex-start" w="full">
+				<Heading {...inputHeadingStyle}>Придумайте название проекта</Heading>
+				<Flex w="full" justify="space-between">
+					<InputGroup
+						startElement={
+							<Pencil stroke="#5B5B5F" style={{width: 16, height: 16}} />
+						}
+					>
+						<Input
+							ref={inputName}
+							variant="outline"
+							size="lg"
+							name="name"
+							borderRadius="0"
+							borderColor="gray.200"
+							outline="none"
+							value={
+								configurationName === defaultConfigurationName
+									? ''
+									: configurationName
+							}
+							onChange={inputChangeHandler}
+							placeholder="Ваше название для конфигурации"
+							ml="-1.5"
+							overflow="hidden"
+							textOverflow="ellipsis"
+							whiteSpace="nowrap"
+							boxSizing="border-box"
+						/>
+					</InputGroup>
+				</Flex>
+			</VStack>
+
+			{/* Кнопки */}
 			<Flex direction={{base: 'column', sm: 'row'}} gap="2" w="full">
 				<Button
 					w={{base: 'full', sm: 'calc(50% - 4px)'}}
@@ -116,3 +176,12 @@ export const OrderForm = () => {
 		</VStack>
 	)
 }
+
+// #region Styles
+const inputHeadingStyle = {
+	fontWeight: 'semibold',
+	fontSize: 'sm',
+	lineHeight: '20px',
+	letterSpacing: '0',
+}
+// #endregion

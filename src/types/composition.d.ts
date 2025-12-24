@@ -55,6 +55,10 @@ export type T_CompositionSlice = {
 		stepName: string
 	})[]
 
+	configurationName: string
+	defaultConfigurationName: string
+	setConfigurationName: (payload: {name: string}) => void
+
 	// #region Виртуальный артикул
 	virtualArticle: (null | string)[] | null
 

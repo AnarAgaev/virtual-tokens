@@ -45,15 +45,10 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 
 	pushDotToCart: async () => {
 		const stepsCount = useConfiguration.getState().stepsCount
-
-		// const customName = get().customName
-		// const configurationName = customName ? customName : 'Дот в сборе'
-		const configurationName = 'Дот в сборе'
-
 		const selectedProducts = get().getSelectedProductsExtendedStepNames()
 
 		const order = {
-			name: configurationName,
+			name: get().configurationName,
 			image: get().resultAdditionalData.final_image,
 			count: get().complectCount,
 			arts: selectedProducts.map((product) => {
@@ -380,6 +375,7 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 			isDotInCart: false,
 			totalPrice: 0,
 			pictureMode: 'image',
+			configurationName: get().defaultConfigurationName,
 		})
 	},
 
@@ -492,6 +488,11 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 
 		set({resultCharacteristics})
 	},
+
+	defaultConfigurationName: 'Дот в сборе',
+	configurationName: 'Дот в сборе',
+	setConfigurationName: (payload: {name: string}) =>
+		set({configurationName: payload.name}),
 
 	// #region Виртуальный артикул
 	/**
