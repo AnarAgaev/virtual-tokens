@@ -98,7 +98,7 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 		}
 	},
 
-	activeTab: 'description',
+	activeTab: 'configuration',
 	setActiveTab: (payload) => set({activeTab: payload.tabType}),
 })
 

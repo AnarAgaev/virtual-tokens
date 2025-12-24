@@ -406,7 +406,13 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 		function getSelectedArticlesByStep(stepName: string): string[] {
 			const stepData = selectedProducts[stepName]
 
-			if (Array.isArray(stepData)) return []
+			if (!stepData) {
+				return []
+			}
+
+			if (Array.isArray(stepData)) {
+				return []
+			}
 
 			return stepData.products.map((product) => product.article)
 		}

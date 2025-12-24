@@ -37,10 +37,14 @@ const getTotalProductList = (
 						{`${title} `}
 
 						{/* Стоимость */}
-						<VisuallyHidden
+						{/* <VisuallyHidden
 							as="span"
 							textWrap="nowrap"
-						>{`(${product.price?.toLocaleString('ru-RU')} р.)`}</VisuallyHidden>
+						>{`(${product.price?.toLocaleString('ru-RU')} р.)`}</VisuallyHidden> */}
+						<Text
+							as="span"
+							textWrap="nowrap"
+						>{`(${product.price?.toLocaleString('ru-RU')} р.)`}</Text>
 
 						{/* Количество  */}
 						{multipleCount && multipleCount > 1 ? (
