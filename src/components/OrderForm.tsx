@@ -8,8 +8,9 @@ import {
 	VStack,
 } from '@chakra-ui/react'
 import {ChevronDown, ChevronUp, Pencil} from 'lucide-react'
-import {useRef} from 'react'
+import {useEffect, useRef, useState} from 'react'
 import {formatNumber} from '@/helpers'
+import {useCountHandlers} from '@/hooks'
 import {useApp, useComposition} from '@/store'
 
 export const OrderForm = () => {
@@ -29,13 +30,10 @@ export const OrderForm = () => {
 	const setConfigurationName = useComposition(
 		(state) => state.setConfigurationName,
 	)
-
-	const onButtonInc = () => updateComplectCount({direction: 1})
-	const onButtonDec = () => updateComplectCount({direction: -1})
+	const {onButtonInc, onButtonDec} = useCountHandlers()
 
 	const inputName = useRef<HTMLInputElement | null>(null)
-
-	const inputChangeHandler = () => {
+	const handleNameInputChange = () => {
 		let name = inputName.current?.value
 
 		if (!name) {
@@ -43,6 +41,43 @@ export const OrderForm = () => {
 		}
 
 		setConfigurationName({name})
+	}
+
+	const [inputValue, setInputValue] = useState(complectCount.toString())
+
+	useEffect(() => {
+		setInputValue(complectCount.toString())
+	}, [complectCount])
+
+	const handleCountInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value
+
+		if (value === '') {
+			setInputValue('')
+			return
+		}
+
+		if (/^\d+$/.test(value)) {
+			const numValue = parseInt(value, 10)
+
+			if (numValue >= 1) {
+				setInputValue(value)
+				const diff = numValue - complectCount
+				if (diff !== 0) {
+					updateComplectCount({direction: diff})
+				}
+			}
+		}
+	}
+
+	const handleCountInputBlur = () => {
+		if (!inputValue || parseInt(inputValue, 10) < 1) {
+			setInputValue('1')
+			if (complectCount !== 1) {
+				const diff = 1 - complectCount
+				updateComplectCount({direction: diff})
+			}
+		}
 	}
 
 	return (
@@ -78,8 +113,13 @@ export const OrderForm = () => {
 						borderColor="gray.200"
 						borderRight="none"
 						outline="none"
-						readOnly
-						value={complectCount}
+						value={inputValue}
+						onChange={handleCountInputChange}
+						onBlur={handleCountInputBlur}
+						disabled={isDotInCart}
+						type="text"
+						inputMode="numeric"
+						pattern="[0-9]*"
 					/>
 					<Flex direction="column">
 						<Button
@@ -118,35 +158,34 @@ export const OrderForm = () => {
 			{/* Переименовать конфигурацию */}
 			<VStack gap="2" alignItems="flex-start" w="full">
 				<Heading {...inputHeadingStyle}>Придумайте название проекта</Heading>
-				<Flex w="full" justify="space-between">
-					<InputGroup
-						startElement={
-							<Pencil stroke="#5B5B5F" style={{width: 16, height: 16}} />
+				<InputGroup
+					w="full"
+					startElement={
+						<Pencil stroke="#5B5B5F" style={{width: 16, height: 16}} />
+					}
+				>
+					<Input
+						ref={inputName}
+						variant="outline"
+						size="lg"
+						name="name"
+						borderRadius="0"
+						borderColor="gray.200"
+						outline="none"
+						value={
+							configurationName === defaultConfigurationName
+								? ''
+								: configurationName
 						}
-					>
-						<Input
-							ref={inputName}
-							variant="outline"
-							size="lg"
-							name="name"
-							borderRadius="0"
-							borderColor="gray.200"
-							outline="none"
-							value={
-								configurationName === defaultConfigurationName
-									? ''
-									: configurationName
-							}
-							onChange={inputChangeHandler}
-							placeholder="Ваше название для конфигурации"
-							ml="-1.5"
-							overflow="hidden"
-							textOverflow="ellipsis"
-							whiteSpace="nowrap"
-							boxSizing="border-box"
-						/>
-					</InputGroup>
-				</Flex>
+						onChange={handleNameInputChange}
+						placeholder="Ваше название для конфигурации"
+						ml="-1.5"
+						overflow="hidden"
+						textOverflow="ellipsis"
+						whiteSpace="nowrap"
+						boxSizing="border-box"
+					/>
+				</InputGroup>
 			</VStack>
 
 			{/* Кнопки */}
