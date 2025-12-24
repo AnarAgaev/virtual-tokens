@@ -1,5 +1,6 @@
 import {Button, Flex, Heading, Input, Text, VStack} from '@chakra-ui/react'
 import {ChevronDown, ChevronUp} from 'lucide-react'
+import {formatNumber} from '@/helpers'
 import {useApp, useComposition} from '@/store'
 
 export const OrderForm = () => {
@@ -19,18 +20,31 @@ export const OrderForm = () => {
 	return (
 		<VStack w="full" pb="1">
 			<VStack gap="2" alignItems="flex-start" w="full">
-				<Heading
-					fontWeight="semibold"
-					fontSize="sm"
-					lineHeight="20px"
-					letterSpacing="0"
-				>
-					Введите количество
-					<Text as="span" fontSize="xs" color="gray.300">
-						{' '}
-						({totalValue} руб.)
+				<Flex justify="space-between" align="center" w="full">
+					<Heading
+						fontWeight="semibold"
+						fontSize="sm"
+						lineHeight="20px"
+						letterSpacing="0"
+					>
+						<Text display={{base: 'none', sm: 'inline'}} as="span">
+							Введите количество
+						</Text>
+						<Text display={{sm: 'none'}} as="span">
+							Количество
+						</Text>
+					</Heading>
+					<Text
+						as="span"
+						fontWeight="semibold"
+						fontSize="sm"
+						color="gray.400"
+						lineHeight="20px"
+						letterSpacing="0"
+					>
+						Итого: {formatNumber(totalValue)} руб.
 					</Text>
-				</Heading>
+				</Flex>
 				<Flex w="full" justify="space-between">
 					<Input
 						variant="outline"
