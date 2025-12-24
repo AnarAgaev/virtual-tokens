@@ -1,6 +1,7 @@
 import {Box, Button, Flex, Image, Text, VStack} from '@chakra-ui/react'
-import {DraftingCompass, PencilRuler, Image as Pic} from 'lucide-react'
+import {PencilRuler, Image as Pic} from 'lucide-react'
 import {useComposition} from '@/store'
+import {ImagePlaceholder} from './ImagePlaceholder'
 
 export const TotalImage = () => {
 	const {final_image, final_drawing} = useComposition(
@@ -45,10 +46,9 @@ export const TotalImage = () => {
 							fontSize="sm"
 							p="10"
 						>
-							<DraftingCompass
-								stroke="#eee"
-								style={{width: '15%', height: '15%'}}
-							/>
+							<Box w="30%" aspectRatio="1">
+								<ImagePlaceholder color="#e4e4e7" />
+							</Box>
 							<Text>
 								Покажем здесь картинку и схему, как только начнете выбирать на
 								вкладке
