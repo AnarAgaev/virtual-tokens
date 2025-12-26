@@ -46,8 +46,14 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 	pushDotToCart: async () => {
 		const stepsCount = useConfiguration.getState().stepsCount
 		const selectedProducts = get().getSelectedProductsExtendedStepNames()
+		const virtualArticle = get().virtualArticle
+		const virtualArticleString = virtualArticle
+			?.map((part) => part ?? 'XXX')
+			.join('-')
 
 		const order = {
+			virtualArticle,
+			virtualArticleString,
 			name: get().configurationName,
 			image: get().resultAdditionalData.final_image,
 			count: get().complectCount,

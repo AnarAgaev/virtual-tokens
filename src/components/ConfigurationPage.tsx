@@ -88,7 +88,7 @@ export const ConfigurationPage = () => {
 						textStyle={{base: 'xs', sm: 'xl'}}
 						fontWeight="light"
 						textAlign="center"
-						lineHeight="1.2"
+						lineHeight="1.2 !important"
 						whiteSpace="pre-line"
 						textWrap={!virtualArticle ? 'balance' : 'nowrap'}
 					>
