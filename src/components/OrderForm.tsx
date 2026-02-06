@@ -1,5 +1,6 @@
 import {
 	Button,
+	Checkbox,
 	Flex,
 	Heading,
 	Input,
@@ -14,6 +15,8 @@ import {useCountHandlers} from '@/hooks'
 import {useApp, useComposition} from '@/store'
 
 export const OrderForm = () => {
+	const separatedBox = useComposition((state) => state.separatedBox)
+	const toggleSeparatedBox = useComposition((state) => state.toggleSeparatedBox)
 	const pushDotToCart = useComposition((state) => state.pushDotToCart)
 	const updateComplectCount = useComposition(
 		(store) => store.updateComplectCount,
@@ -189,6 +192,18 @@ export const OrderForm = () => {
 					/>
 				</InputGroup>
 			</VStack>
+
+			{/* Чекбокс добавлять в отдельную коробку */}
+			<Checkbox.Root
+				w="full"
+				size="sm"
+				checked={separatedBox}
+				onCheckedChange={toggleSeparatedBox}
+			>
+				<Checkbox.HiddenInput />
+				<Checkbox.Control borderRadius={0} />
+				<Checkbox.Label>Собрать комплект в отдельную коробку</Checkbox.Label>
+			</Checkbox.Root>
 
 			{/* Кнопки */}
 			<Flex direction={{base: 'column', sm: 'row'}} gap="2" w="full">

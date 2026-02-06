@@ -59,6 +59,9 @@ export type T_CompositionSlice = {
 	defaultConfigurationName: string
 	setConfigurationName: (payload: {name: string}) => void
 
+	separatedBox: boolean
+	toggleSeparatedBox: () => void
+
 	// #region Виртуальный артикул
 	virtualArticle: (null | string)[] | null
 

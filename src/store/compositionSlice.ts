@@ -57,6 +57,7 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 			name: get().configurationName,
 			image: get().resultAdditionalData.final_image,
 			count: get().complectCount,
+			separatedBox: get().separatedBox,
 			arts: selectedProducts.map((product) => {
 				const count =
 					stepsCount && product.stepName ? stepsCount[product.stepName] : 1
@@ -505,6 +506,11 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 	configurationName: 'Дот в сборе',
 	setConfigurationName: (payload: {name: string}) =>
 		set({configurationName: payload.name}),
+
+	separatedBox: false,
+	toggleSeparatedBox: () => {
+		set({separatedBox: !get().separatedBox})
+	},
 
 	// #region Виртуальный артикул
 	/**
