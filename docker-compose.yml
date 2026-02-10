@@ -1,0 +1,41 @@
+version: "3.9"
+
+services:
+  # ======================
+  # DEV
+  # ======================
+  frontend-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+      args:
+        NODE_VERSION: 23.10.0  # фиксируем версию Node.js
+    container_name: virtual-tokens-dev
+    profiles: ["dev"]
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app                  # монтируем локальные файлы для live-reload
+      - /app/node_modules       # сохраняем зависимости контейнера
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    command: npm run dev
+
+  # ======================
+  # PROD
+  # ======================
+  frontend-prod:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_VERSION: 23.10.0  # фиксируем ту же версию Node.js
+    container_name: virtual-tokens-prod
+    profiles: ["prod"]
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+# Использование:
+# docker compose --profile dev up --build
+# docker compose --profile prod up --build
