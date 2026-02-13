@@ -28,17 +28,20 @@ export const Option = ({
 	const blockedData = shouldOptionBlocking({optionId: id})
 	const isLocked = blockedData.shouldBlock
 
-	const blockedMsg = `В этой конфигурации данный артикул не доступен. Заблокировано выбором:
-		${
-			blockedData.blockedBy
-				? `${blockedData.blockedBy[0].selectorName} ${blockedData.blockedBy[0].optionValue}`
-				: ''
-		}`
+	const blockedMsg = blockedData.blockedBy
+		? ` Заблокировано выбором: ${blockedData.blockedBy[0].selectorName} ${blockedData.blockedBy[0].optionValue}`
+		: ''
+
+	const filteredMsg = blockedData.filteredBy?.length
+		? ` Отфильтровано выбором: ${blockedData.filteredBy[0].selectorName} ${blockedData.filteredBy[0].selectedValue}`
+		: ''
+
+	const tooltipMsg = `В этой конфигурации данный артикул не доступен.${blockedMsg}${filteredMsg}`
 
 	return (
 		<Tooltip
 			showArrow
-			content={blockedMsg}
+			content={tooltipMsg}
 			positioning={{placement: 'top'}}
 			disabled={!isLocked}
 			openDelay={500}
