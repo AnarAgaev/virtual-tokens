@@ -56,13 +56,7 @@ export const Option = ({
 				color={isLocked ? 'gray.400' : selected ? 'white' : 'gray.900'}
 				backgroundColor={isLocked ? 'gray.200' : selected ? 'gray.900' : ''}
 				pointerEvents={selected ? 'none' : 'auto'}
-				disabled={
-					isDisabled
-						? true
-						: shouldOptionBlocking({
-								optionId: id,
-							}).shouldBlock
-				}
+				disabled={isDisabled ? true : isLocked}
 				onClick={() =>
 					setSelectedOption({
 						stepName,
