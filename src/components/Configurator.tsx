@@ -8,6 +8,9 @@ export const Configurator = () => {
 	const hasProductWithBuiltInDriver = useConfiguration(
 		(state) => state.hasProductWithBuiltInDriver,
 	)
+	const hasStepUnblockedSelector = useConfiguration(
+		(state) => state.hasStepUnblockedSelector,
+	)
 
 	// #region Фильтруем шаг Драйвер
 	const filteredModifications = useMemo(() => {
@@ -26,23 +29,35 @@ export const Configurator = () => {
 	}, [modifications, hasProductWithBuiltInDriver])
 	// #endregion
 
+	console.log('filteredModifications', filteredModifications)
+
 	return (
 		<Flex direction="column" gap="8">
-			{filteredModifications.map(({stepName, selectors}) => (
-				<Flex key={stepName} direction="column" gap="1.5">
-					{/* Имя шага */}
-					<Text fontSize="sm" lineHeight="20px" fontWeight="600">
-						{stepName}
-					</Text>
+			{filteredModifications.map(({stepName, selectors}) => {
+				const isStepDisabled = !hasStepUnblockedSelector({selectors})
 
-					{/* Список Селекторов на текущем Шаге */}
-					<Flex direction="column" gap="5">
-						{selectors.map((selector) => (
-							<Selector key={selector.selectorId} selector={selector} />
-						))}
+				return (
+					<Flex key={stepName} direction="column" gap="1.5">
+						{/* Имя шага */}
+						<Text
+							fontSize="sm"
+							lineHeight="20px"
+							fontWeight="600"
+							transition="color .1s linear"
+							color={isStepDisabled ? 'gray.400' : 'inherit'}
+						>
+							{stepName}
+						</Text>
+
+						{/* Список Селекторов на текущем Шаге */}
+						<Flex direction="column" gap="5">
+							{selectors.map((selector) => (
+								<Selector key={selector.selectorId} selector={selector} />
+							))}
+						</Flex>
 					</Flex>
-				</Flex>
-			))}
+				)
+			})}
 		</Flex>
 	)
 }

@@ -5,8 +5,16 @@ import {useConfiguration} from '@/store'
 import type {T_Selector} from '@/types'
 
 export const Selector = (payload: {selector: T_Selector}) => {
-	const {selectorId, selectorName, selectorOptions, selectorCode, stepName} =
-		payload.selector
+	const {
+		selectorId,
+		selectorName,
+		selectorOptions,
+		selectorCode,
+		stepName,
+		selectorSelectedStatus,
+	} = payload.selector
+
+	const isDisabled = selectorSelectedStatus === 'blocked'
 
 	const hasSomeBlockedOptionBySelectorId = useConfiguration(
 		(state) => state.hasSomeBlockedOptionBySelectorId,
@@ -26,6 +34,8 @@ export const Selector = (payload: {selector: T_Selector}) => {
 				maxW="233px"
 				h={{xl: '48px'}}
 				flexShrink={0}
+				transition="color .1s linear"
+				color={isDisabled ? 'gray.400' : 'inherit'}
 			>
 				{selectorName}
 			</Text>
@@ -39,6 +49,7 @@ export const Selector = (payload: {selector: T_Selector}) => {
 						stepName={stepName}
 						selectorId={selectorId}
 						selectorCode={selectorCode}
+						isDisabled={isDisabled}
 					/>
 				))}
 

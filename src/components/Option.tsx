@@ -8,6 +8,7 @@ interface I_Props {
 	stepName: string
 	selectorId: T_Id
 	selectorCode: string | null
+	isDisabled: boolean
 }
 
 export const Option = ({
@@ -15,6 +16,7 @@ export const Option = ({
 	stepName,
 	selectorId,
 	selectorCode,
+	isDisabled,
 }: I_Props) => {
 	const setSelectedOption = useConfiguration((state) => state.setSelectedOption)
 	const shouldOptionBlocking = useConfiguration(
@@ -38,9 +40,13 @@ export const Option = ({
 			color={isLocked ? 'gray.400' : selected ? 'white' : 'gray.900'}
 			backgroundColor={isLocked ? 'gray.200' : selected ? 'gray.900' : ''}
 			pointerEvents={selected ? 'none' : 'auto'}
-			disabled={shouldOptionBlocking({
-				optionId: id,
-			})}
+			disabled={
+				isDisabled
+					? true
+					: shouldOptionBlocking({
+							optionId: id,
+						})
+			}
 			onClick={() =>
 				setSelectedOption({
 					stepName,

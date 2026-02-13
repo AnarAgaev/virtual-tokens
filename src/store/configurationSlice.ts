@@ -1,7 +1,6 @@
 import {nanoid} from 'nanoid'
 import {create, type StateCreator} from 'zustand'
 import {devtools} from 'zustand/middleware'
-import {haveCommonArticlesExact} from '@/helpers'
 import {useComposition} from '@/store'
 import type {
 	T_ConfigurationSlice,
@@ -40,6 +39,8 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		if (!steps) return
 
+		const stepListArr = Object.keys(steps)
+
 		for (const stepName in steps) {
 			const stepArticles = steps[stepName]
 			if (!stepArticles) continue
@@ -49,7 +50,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 			const selectors = filters[stepName]
 
-			// Если в фильтрах нет текущего шага — опциональный селектор с возможностью выбора Нет
+			const selectorListArr = selectors ? Object.keys(selectors) : []
+
+			// Если в фильтрах нет текущего шага - опциональный селектор с возможностью выбора Нет
 			if (!selectors) {
 				/**
 				 * Шаги с бинарным выбором являются не обязательными
@@ -142,12 +145,16 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 						.filter((product): product is T_Product => !!product)
 
 					const key = code as keyof T_Product
+					const isFirstStep = stepListArr.indexOf(stepName) === 0
+					const isFirstSelector = selectorListArr.indexOf(code) === 0
 
 					return {
 						stepName,
 						selectorId: nanoid(),
 						selectorName: name,
 						selectorCode: key,
+						selectorSelectedStatus:
+							isFirstStep && isFirstSelector ? 'unselected' : 'blocked',
 						selectorOptions: [
 							...new Set(products.map((product) => String(product[key] ?? ''))),
 						]
@@ -176,6 +183,57 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		useComposition.getState().setResultCharacteristics()
 
 		useComposition.getState().resetComposition()
+	},
+
+	getResolvedBlockingArticle: (payload, modifications) => {
+		const stepSelectors = modifications[payload.stepName]
+
+		if (!stepSelectors) return null
+
+		if (stepSelectors.length === 1) {
+			const selectorOptions = stepSelectors[0].selectorOptions
+
+			const selectedOption = selectorOptions.find((option) => option.selected)
+
+			if (!selectedOption) return null
+
+			if (selectedOption.products.length === 1) {
+				return selectedOption.products[0].article
+			}
+
+			return null
+		}
+
+		// Шаг с несколькими селекторами
+		const allSelectedOptions = stepSelectors
+			.map(
+				(selector) =>
+					selector.selectorOptions.find((option) => option.selected) ?? null,
+			)
+			.filter(Boolean)
+
+		if (allSelectedOptions.length !== stepSelectors.length) return null
+
+		const productArrays = allSelectedOptions.map((option) =>
+			option ? option.products : [],
+		)
+
+		const commonProducts = productArrays.reduce(
+			(intersection, currentProducts) => {
+				return intersection.filter((product) =>
+					currentProducts.some(
+						(currentProduct) => currentProduct.id === product.id,
+					),
+				)
+			},
+			productArrays[0] ?? [],
+		)
+
+		if (commonProducts.length === 1) {
+			return commonProducts[0].article
+		}
+
+		return null
 	},
 
 	getProductByArticle: (article) => {
@@ -296,8 +354,10 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 	},
 
 	shouldArticleBlocking: (payload) => {
-		const {blockingArticles, productArticle} = payload
+		const {blockingArticle, productArticle} = payload
 		const blacklistArr = get().blacklist
+
+		if (!blockingArticle) return false
 
 		if (!blacklistArr) return false
 
@@ -305,16 +365,14 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			// Подтверждаем то, что в текущем блэклисте есть проверяемый артикул
 			if (!blacklistArticlesBlockingGroup.includes(productArticle)) continue
 
-			for (const blockingArticle of blockingArticles) {
-				if (
-					blockingArticle !== productArticle &&
-					/**
-					 * ! Проверяем то, что блокирующий артикул в блэклисте стоит НА ПЕРВОМ МЕСТЕ
-					 */
-					blacklistArticlesBlockingGroup[0] === blockingArticle
-				) {
-					return {blockingArticle, blacklistArticlesBlockingGroup}
-				}
+			if (
+				blockingArticle !== productArticle &&
+				/**
+				 * ! Проверяем то, что блокирующий артикул в блэклисте стоит НА ПЕРВОМ МЕСТЕ
+				 */
+				blacklistArticlesBlockingGroup[0] === blockingArticle
+			) {
+				return {blockingArticle, blacklistArticlesBlockingGroup}
 			}
 		}
 
@@ -322,98 +380,333 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 	},
 
 	setSelectedOption: (payload) => {
-		let blockingArticles: T_Product['article'][] = []
 		const modifications = structuredClone({...get().modifications})
-		const {isSelected} = payload
 
-		// Получаем данные блокирующего селектора
-		const blockingSelector = get().getSelectorById({
-			selectorId: payload.selectorId,
-		})
-
-		// Получаем данные блокирующей опции/кнопки
-		const blockingOption = get().getOptionById({
-			optionId: payload.optionId,
-		})
-
-		// #region Собираем массив блокирующих артикулов с кликнутой кнопки/опшена
-		/**
-		 * Проходим по всем опшинам/кнопкам и фильтруем кликнутые
-		 * Собираем все артикулы/продукты с кликнутого опшена/кнопки
-		 * в массив блокирующих артикулов для блокировки ПРОДУКТА
-		 * при повторном прохождении.
-		 *
-		 * * Напоминаю: на каждой кнопке/опшине несколько артикулов!
-		 *
-		 * ! Важно:
-		 * На интерфейсе Опшен/кнопка будут заблокирована,
-		 * если у нее заблокированы все продукты.
+		// * Тогглим Блокировку/Разблокировку селектов --- START
+		// #region
+		/** Собираем карту идентификаторов селекторов, для того чтобы понимать
+		 * порядковый номер итерируемого относительно выбираемого
 		 */
+		const selectorIdsMap = Object.values(modifications)
+			.flat()
+			.map((selector) => selector.selectorId)
 
-		const allOptions = Object.values(modifications).flatMap((selectors) =>
-			selectors.flatMap((selector) => selector.selectorOptions),
-		)
+		const clickedSelectorPlaceIdx = selectorIdsMap.indexOf(payload.selectorId)
 
-		const blockedOption = allOptions.find(
-			(option) => option.id === payload.optionId,
-		)
+		const hasBuiltInDriver = get().hasProductWithBuiltInDriver()
+		const driverSelectorIds =
+			// biome-ignore lint/complexity/useLiteralKeys: ключ динамический и приходит с сервера именно в таком виде
+			modifications['Драйвер']?.map((selector) => selector.selectorId) ?? []
 
-		if (!blockedOption) return
+		Object.values(modifications)
+			.flat()
+			.forEach((selector) => {
+				const currentSelectorPlaceIdx = selectorIdsMap.indexOf(
+					selector.selectorId,
+				)
 
-		// Собираем массив блокирующих артикулов
-		blockingArticles = blockedOption.products.map((product) => product.article)
+				// Работаем только с селекторами начиная с кликнутого
+				if (!(currentSelectorPlaceIdx >= clickedSelectorPlaceIdx)) return
+
+				const driverSelectorsCount =
+					hasBuiltInDriver && driverSelectorIds.length
+						? driverSelectorIds.length
+						: 0
+
+				// Обновляем selectorSelectedStatus
+				if (!payload.isSelected) {
+					// Кнопка нажимается или переключается с соседней
+					if (clickedSelectorPlaceIdx === currentSelectorPlaceIdx) {
+						selector.selectorSelectedStatus = 'selected'
+					} else if (
+						// Перепрыгиваем через скрытый шаг Драйвера если выбран встроенный драйвер
+						clickedSelectorPlaceIdx + 1 + driverSelectorsCount ===
+							currentSelectorPlaceIdx &&
+						driverSelectorIds.includes(
+							selectorIdsMap[clickedSelectorPlaceIdx + 1],
+						)
+					) {
+						selector.selectorSelectedStatus = 'unselected'
+					} else if (
+						clickedSelectorPlaceIdx + 1 === currentSelectorPlaceIdx &&
+						!driverSelectorIds.includes(selector.selectorId)
+					) {
+						selector.selectorSelectedStatus = 'unselected'
+					} else if (
+						driverSelectorIds.includes(selector.selectorId) &&
+						hasBuiltInDriver
+					) {
+						// Скрытые селекторы Драйвера не трогаем
+					} else {
+						selector.selectorSelectedStatus = 'blocked'
+					}
+				} else {
+					// Кнопка отжимается
+					if (clickedSelectorPlaceIdx === currentSelectorPlaceIdx) {
+						selector.selectorSelectedStatus = 'unselected'
+					} else if (
+						driverSelectorIds.includes(selector.selectorId) &&
+						hasBuiltInDriver
+					) {
+						// Скрытые селекторы Драйвера не трогаем
+					} else {
+						selector.selectorSelectedStatus = 'blocked'
+					}
+				}
+
+				// Обрабатываем селекторы НИЖЕ кликнутого:
+				// сбрасываем выбор опций и снимаем наложенные ими блокировки/фильтрации
+				if (currentSelectorPlaceIdx > clickedSelectorPlaceIdx) {
+					selector.selectorOptions.forEach((option) => {
+						if (option.selected) {
+							/**
+							 * Получаем итоговый блокирующий артикул сбрасываемой опции
+							 * через getResolvedBlockingArticle - симулируем что опция выбрана
+							 * (isSelected: false = опция считается выбранной в методе)
+							 */
+							const resetPayload: T_SelectionPayload = {
+								stepName: selector.stepName,
+								selectorId: selector.selectorId,
+								optionId: option.id,
+								isSelected: false,
+							}
+
+							const resetBlockingArticle = get().getResolvedBlockingArticle(
+								resetPayload,
+								modifications,
+							)
+
+							// Проходим по всем продуктам и снимаем блокировки/фильтрации
+							// наложенные сбрасываемой опцией
+							Object.values(modifications)
+								.flat()
+								.flatMap((selector) => selector.selectorOptions)
+								.flatMap((option) => option.products)
+								.forEach((product) => {
+									// Снимаем blockedBy наложенный итоговым артикулом сбрасываемой опции
+									if (product.blockedBy?.length && resetBlockingArticle) {
+										product.blockedBy = product.blockedBy.filter(
+											(blockedObj) =>
+												blockedObj.selectorId !== selector.selectorId ||
+												blockedObj.blockingArticle !== resetBlockingArticle,
+										)
+
+										if (!product.blockedBy.length) {
+											delete product.blockedBy
+										}
+									}
+
+									// Снимаем filteredBy наложенный сбрасываемой опцией
+									if (product.filteredBy?.length) {
+										product.filteredBy = product.filteredBy.filter(
+											(filteredObj) =>
+												filteredObj.selectedOptionId !== option.id,
+										)
+
+										if (!product.filteredBy.length) {
+											delete product.filteredBy
+										}
+									}
+								})
+						}
+
+						// Сбрасываем выбор опции
+						option.selected = false
+					})
+				}
+			})
 		// #endregion
 
-		// #region Тогглим кнопку/опшен + блокируем по блэк-листам и собранному массиву блокирующих артикулов
+		// * Снимаем блокировки и фильтрации наложенные ранее выбранной опцией --- START
+		// #region
 		/**
-		 * Проходим по всем модификациям (шагам) и селекторам в них, чтобы:
-		 * 1. тогглим выбранную опцию
-		 * 2. блокируем отдельные артикулы/продукты в соответствии с
-		 *     - blacklists (приходит с бэка, есть в текущем slice, используем в shouldArticleBlocking)
-		 *     - blockingArticles (сгенерировали на первом проходе)
+		 * Определяем артикул который нужно разблокировать.
+		 *
+		 * Если кнопка ОТЖИМАЕТСЯ - получаем артикул кликнутой опции,
+		 * симулируя что она ещё выбрана (isSelected: false).
+		 *
+		 * Если кнопка НАЖИМАЕТСЯ (переключение) - находим ранее выбранную
+		 * соседнюю опцию в том же селекторе и получаем её артикул.
+		 *
+		 * Важно: этот блок выполняется ДО тогглинга option.selected,
+		 * поэтому previouslySelectedOption корректно находится через option.selected
+		 */
+		const unblockingArticle: T_Product['article'] | null = (() => {
+			if (payload.isSelected) {
+				// Кнопка отжимается - симулируем что она ещё выбрана
+				// передавая isSelected: false, метод найдёт опцию как выбранную
+				const previousPayload: T_SelectionPayload = {
+					...payload,
+					isSelected: false,
+				}
+
+				return get().getResolvedBlockingArticle(previousPayload, modifications)
+			}
+
+			// Кнопка нажимается - ищем ранее выбранную опцию в том же селекторе
+			const currentSelector = Object.values(modifications)
+				.flat()
+				.find((selector) => selector.selectorId === payload.selectorId)
+
+			const previouslySelectedOption =
+				currentSelector?.selectorOptions.find((option) => option.selected) ??
+				null
+
+			// В селекторе не было выбора - нечего разблокировать
+			if (!previouslySelectedOption) return null
+
+			// Симулируем payload от ранее выбранной опции
+			const previousPayload: T_SelectionPayload = {
+				stepName: payload.stepName,
+				selectorId: payload.selectorId,
+				optionId: previouslySelectedOption.id,
+				isSelected: false, // считаем её выбранной - получаем её артикул
+			}
+
+			const resolvedFromPrevious = get().getResolvedBlockingArticle(
+				previousPayload,
+				modifications,
+			)
+
+			if (resolvedFromPrevious) return resolvedFromPrevious
+
+			// Fallback - берём итоговый артикул из Composition Store
+			// там хранится состояние ДО текущего клика
+			const prevStepData =
+				useComposition.getState().selectedProducts[payload.stepName]
+
+			if (
+				!Array.isArray(prevStepData) &&
+				prevStepData?.products?.length === 1
+			) {
+				return prevStepData.products[0].article
+			}
+
+			return null
+		})()
+
+		/**
+		 * Вычисляем previouslySelectedOptionId один раз до forEach -
+		 * на этом этапе тоггл ещё не произошёл, поэтому option.selected
+		 * содержит актуальное предыдущее значение
+		 */
+		const currentSelectorForUnblock = Object.values(modifications)
+			.flat()
+			.find((selector) => selector.selectorId === payload.selectorId)
+
+		const previouslySelectedOptionId =
+			currentSelectorForUnblock?.selectorOptions.find(
+				(option) => option.selected,
+			)?.id ?? null
+
+		// Проходим по всем продуктам и снимаем блокировки/фильтрации
+		const allProducts = Object.values(modifications)
+			.flat()
+			.flatMap((selector) => selector.selectorOptions)
+			.flatMap((option) => option.products)
+
+		allProducts.forEach((product) => {
+			// Снимаем blockedBy если блокиратором был unblockingArticle
+			if (product.blockedBy?.length && unblockingArticle) {
+				product.blockedBy = product.blockedBy.filter((blockedObj) => {
+					/**
+					 * Один и тот же артикул может быть заблокирован из разных селекторов -
+					 * оставляем блокировки от других селекторов нетронутыми
+					 */
+					if (blockedObj.selectorId !== payload.selectorId) return true
+
+					return blockedObj.blockingArticle !== unblockingArticle
+				})
+
+				if (!product.blockedBy.length) {
+					delete product.blockedBy
+				}
+			}
+
+			// Снимаем filteredBy наложенный ранее выбранной опцией текущего селектора
+			if (product.filteredBy?.length) {
+				product.filteredBy = product.filteredBy.filter(
+					(filteredObj) =>
+						filteredObj.selectedOptionId !== previouslySelectedOptionId,
+				)
+
+				if (!product.filteredBy.length) {
+					delete product.filteredBy
+				}
+			}
+		})
+		// #endregion
+
+		// * Блокируем продукты по блэклистам на основе итогового блокирующего артикула --- START
+		// #region
+		/**
+		 * Читаем blockingSelector и blockingOption напрямую из modifications
+		 * а не через get() чтобы работать с актуальным состоянием клона
+		 */
+		const blockingSelector =
+			Object.values(modifications)
+				.flat()
+				.find((selector) => selector.selectorId === payload.selectorId) ?? null
+
+		const blockingOption =
+			blockingSelector?.selectorOptions.find(
+				(option) => option.id === payload.optionId,
+			) ?? null
+
+		/**
+		 * Сначала тогглим option.selected в кликнутом селекторе -
+		 * getResolvedBlockingArticle должен видеть актуальное состояние
 		 */
 		Object.values(modifications)
 			.flat()
 			.forEach((selector) => {
-				const options = selector.selectorOptions
+				if (selector.selectorId !== payload.selectorId) return
 
-				options.forEach((option) => {
-					/**
-					 * Тогглим выбранную опцию.
-					 *
-					 * Так как выбор одной опции в рамках селекта автоматически
-					 * снимает выбор с опции в том же селекте, работаем
-					 * с опшенами/кнопками только в рамках одного селекта
-					 */
-					if (selector.selectorId === payload.selectorId) {
-						option.selected = option.id === payload.optionId && !isSelected
-					}
+				selector.selectorOptions.forEach((option) => {
+					option.selected =
+						option.id === payload.optionId && !payload.isSelected
+				})
+			})
 
-					/**
-					 * 1. Проходим по всем продуктам текущего итерируемого опшена
-					 * 2. Чекаем каждый продукт в опшине/кнопке, нужно ли
-					 *    заблокировать текущий артикул/продукт через
-					 * 	    - blacklists (приходит с бэка, есть в текущем slice )
-					 *      - blockingArticles (сгенерировали на первом проходе)
-					 */
+		/**
+		 * Получаем итоговый блокирующий артикул после тогглинга.
+		 * Если на шаге ещё не определён единственный артикул - blockingArticle будет null
+		 * и блокировка по блэклистам не применяется
+		 */
+		const blockingArticle = get().getResolvedBlockingArticle(
+			payload,
+			modifications,
+		)
+
+		Object.values(modifications)
+			.flat()
+			.forEach((selector) => {
+				const currentSelectorPlaceIdx = selectorIdsMap.indexOf(
+					selector.selectorId,
+				)
+
+				// Работаем только с селекторами начиная с кликнутого
+				if (currentSelectorPlaceIdx < clickedSelectorPlaceIdx) return
+
+				selector.selectorOptions.forEach((option) => {
 					option.products.forEach((product) => {
 						/**
-						 * Флаг отвечает за то, что селектор текущего итерируемого продукта
-						 * совпадает с селектором блокиратором (селектор кликнутой кнопки)
+						 * Не блокируем продукты внутри того же селектора
+						 * где была нажата кнопка
 						 */
 						const sameSelector =
 							selector.selectorId === blockingSelector?.selectorId
 
-						// Не блокируем продукты в рамках единого с блокиратором селектора
 						const shouldBlockProduct = sameSelector
 							? false
 							: get().shouldArticleBlocking({
-									blockingArticles,
+									blockingArticle,
 									productArticle: product.article,
 								})
 
+						// Блокируем только если кнопка нажата и продукт не выбран
 						if (shouldBlockProduct && !option.selected) {
-							const {blockingArticle, blacklistArticlesBlockingGroup} =
+							const {blockingArticle: ba, blacklistArticlesBlockingGroup} =
 								shouldBlockProduct
 
 							if (!product.blockedBy) {
@@ -421,8 +714,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 							}
 
 							product.blockedBy.push({
-								blockingArticle,
-								blockingArticles,
+								blockingArticle: ba,
 								stepName: payload.stepName,
 								selectorName: blockingSelector?.selectorName ?? null,
 								selectorId: blockingSelector?.selectorId ?? null,
@@ -433,7 +725,6 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 						}
 
 						if (!product.blockedBy?.length) {
-							// Если в массив блокировок ничего не добавили, удаляем его
 							delete product.blockedBy
 						}
 					})
@@ -441,113 +732,18 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			})
 		// #endregion
 
-		// #region Если кнопка отжимается, разблокируем, заблокированные ранее этой кнопкой продукты/артикулы
+		// * Фильтруем продукты внутри шага если на нём несколько селекторов --- START
+		// #region
 		/**
-		 * При смене опции в рамках того же селекта (кликнули по кнопке рядом с выбранной),
-		 * разблокируем опции которые были заблокированы ранее соседней опцией из того же селекта,
-		 * что и кликнутая:
-		 *
-		 * 1. собираем список всех артикулов/продуктов из соседних
-		 *    опшенов из того же селекта, что и кликнутый.
-		 * 2. проходимся
-		 *    по всем шагам -> по всем селектам -> по всем опшинам -> по всем артикулам/продуктам
-		 *    и если, этот артикул/продукт был заблокирован одним из артикулов/продуктов из соседних
-		 *    с кликнутым, разблокируем его.
-		 *
-		 *    Также, если текущий продукт/артикул был зафильтрован одной из опцией,
-		 *    расфильтруем её (удаляем соответствующий объект в filteredBy)
+		 * Если на шаге несколько селекторов - нужно фильтровать продукты
+		 * в одних селекторах по выбранным значениям в других.
+		 * Например: выбрана температура 3000K → фильтруем продукты
+		 * в селекторе, оставляя только те что имеют температуру 3000K
 		 */
-
-		const siblingsOptionsWithClicked = isSelected
-			? [get().getOptionById({optionId: payload.optionId})]
-			: get().getSiblingsOptionsByOptionId({
-					optionId: payload.optionId,
-				})
-
-		const optionIdsOfSiblingOptions = siblingsOptionsWithClicked.map(
-			(option) => option?.id,
-		)
-
-		const productsArticlesOfSiblingsOptions =
-			siblingsOptionsWithClicked.flatMap((option) => {
-				return option?.products
-					? option.products.map((product) => product.article)
-					: []
-			})
-
-		const allProducts = Object.values(modifications)
-			.flat()
-			.flatMap((selector) => selector.selectorOptions)
-			.flatMap((option) => option.products)
-
-		allProducts.forEach((product) => {
-			/**
-			 * 1. Определяем есть ли в blockedBy текущего продукта блоки из соседних с кликнутым артикулов
-			 * 2. Если есть, то только в этом случае, вырезаем и перезаписываем blockedBy
-			 */
-
-			const haveCommonArticlesWithSibling = !product.blockedBy
-				? false
-				: haveCommonArticlesExact(
-						productsArticlesOfSiblingsOptions,
-						product.blockedBy.map((blockedObj) => blockedObj.blockingArticle),
-					)
-
-			if (haveCommonArticlesWithSibling) {
-				const filteredBlockedBy = product.blockedBy?.filter((blockedObj) => {
-					/**
-					 * Один и тот же артикул может быть в разных селекторах,
-					 * поэтому если селекторы не совпадают, оставляем блокировку
-					 */
-
-					if (blockedObj.selectorId !== payload.selectorId) return true
-
-					return !productsArticlesOfSiblingsOptions.includes(
-						blockedObj.blockingArticle,
-					)
-				})
-
-				product.blockedBy = filteredBlockedBy
-
-				if (!product.blockedBy?.length) {
-					// Если в массив блокировок ничего не добавили, удаляем его
-					delete product.blockedBy
-				}
-			}
-
-			if (product.filteredBy?.length) {
-				product.filteredBy = product.filteredBy.filter(
-					(filteredObj) =>
-						!optionIdsOfSiblingOptions.includes(filteredObj.selectedOptionId),
-				)
-			}
-		})
-		// #endregion
-
-		// #region Отфильтровываем опшены/кнопки в рамках одного шага
-		/**
-		 * Если на шаге в каком-либо опшине/кнопке есть более одного артикула
-		 * следовательно, мы не может получить один и только один артикул на шаге
-		 * имея единственный селектор. Селекторов должно быть несколько.
-		 *
-		 * 1. Получаем весь шаг со всеми селектами и опшенами/кнопками от кликнутого опшена/кнопки
-		 *
-		 * 3. Фильтрация:
-		 * - Проходим по каждому селектору
-		 * - Определяем есть ли выбора на текущем, итерируемом селекте.
-		 *   Если нет, то идем на следующую итерацию.
-		 *   Если есть, то:
-		 *     1. Получаем подмассив селекторов шага, исключив текущий итерируемый (с выбором);
-		 *     2. Проходим по подмассиву и, при необходимости, отфильтровываем продукты.
-		 */
-
 		const clickedStepSelectors = modifications[payload.stepName]
 
 		if (clickedStepSelectors.length > 1) {
-			/**
-			 * Перед началом новой фильтрации,
-			 * сбрасываем все filteredBy на всех продуктах.
-			 */
+			// Сбрасываем все filteredBy перед новой фильтрацией
 			clickedStepSelectors
 				.flatMap((selector) =>
 					selector.selectorOptions.flatMap((option) => option.products),
@@ -556,34 +752,24 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 					delete product.filteredBy
 				})
 
-			// Обходим все селекторы и фильтруем продукты, при необходимости.
 			clickedStepSelectors.forEach((currentSelector, _idx, selectors) => {
 				const selectedData = get().getSelectedOptionValue({
 					selector: currentSelector,
 				})
 
-				/**
-				 * Если на текущем селекторе нет выбранных опшенов,
-				 * не фильтруем по этому селектору продукты
-				 * из других селекторов.
-				 */
-				if (!selectedData) {
-					return
-				}
+				// Если на текущем селекторе нет выбора - не фильтруем по нему
+				if (!selectedData) return
 
-				// Подмассив селекторов, за исключением текущего, итерируемого.
+				// Все остальные селекторы шага кроме текущего
 				const otherSelectors = selectors.filter(
-					(s) => s.selectorId !== currentSelector.selectorId,
+					(selector) => selector.selectorId !== currentSelector.selectorId,
 				)
 
 				const otherSelectorsProducts = otherSelectors.flatMap((selector) =>
 					selector.selectorOptions.flatMap((option) => option.products),
 				)
 
-				/**
-				 * Добавляем фильтратор, если выбранная опция текущего селекта,
-				 * отличается у текущего продукта
-				 */
+				// Добавляем filteredBy если значение продукта не совпадает с выбранным
 				otherSelectorsProducts.forEach((product) => {
 					if (
 						selectedData.selectorCode &&
@@ -595,6 +781,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 						if (!product.filteredBy) {
 							product.filteredBy = []
 						}
+
 						product.filteredBy.push(selectedData)
 					}
 				})
@@ -606,11 +793,11 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		useComposition.getState().handleModificationsChange()
 		useComposition.getState().updateTotalPrice()
-
 		useComposition.getState().setResultAdditionalData()
 		useComposition.getState().setResultCharacteristics()
 	},
 
+	// * Клик по замочку
 	unlockSelector: (payload) => {
 		const modifications = structuredClone({...get().modifications})
 		const allSelectors = Object.values(modifications).flat()
@@ -739,6 +926,14 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		)
 
 		return isSelected
+	},
+
+	hasStepUnblockedSelector: (payload) => {
+		return (
+			payload.selectors.findIndex(
+				(selector) => selector.selectorSelectedStatus !== 'blocked',
+			) !== -1
+		)
 	},
 })
 

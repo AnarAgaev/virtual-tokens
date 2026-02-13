@@ -53,6 +53,11 @@ export type T_ConfigurationSlice = {
 	modifications?: T_Modifications
 	createModifications: () => void
 
+	getResolvedBlockingArticle: (
+		payload: T_SelectionPayload,
+		modifications: T_Modifications,
+	) => T_Product['article'] | null
+
 	getProductByArticle: (article: T_StepArticle) => T_ProductExtended | null
 
 	getSelectorById: (payload: {selectorId: T_Id}) => T_Selector | null
@@ -73,7 +78,7 @@ export type T_ConfigurationSlice = {
 	hasSomeBlockedOptionBySelectorId: (payload: {selectorId: T_Id}) => boolean
 
 	shouldArticleBlocking: (payload: {
-		blockingArticles: T_Product['article'][]
+		blockingArticle: T_Product['article'] | null
 		productArticle: T_Product['article']
 	}) =>
 		| {
@@ -95,6 +100,8 @@ export type T_ConfigurationSlice = {
 	}) => void
 
 	hasProductWithBuiltInDriver: () => boolean
+
+	hasStepUnblockedSelector: (payload: {selectors: T_Selector[]}) => boolean
 }
 
 export type T_Id = string
@@ -103,10 +110,6 @@ export type T_ProductExtended = T_Product & {
 	blockedBy?: {
 		// Опция заблокирована этим артикулом
 		blockingArticle: T_Product['article']
-
-		// Список артикулов в массиве из опции которая заблокировала
-		// в том числе, содержит блокирующий article (предыдущее свойство)
-		blockingArticles: T_Product['article'][]
 
 		// Заблокирован шагом
 		stepName: T_StepName
@@ -152,6 +155,7 @@ export type T_Selector = {
 	selectorId: T_Id
 	selectorName: string
 	selectorCode: keyof T_Product | null
+	selectorSelectedStatus: 'selected' | 'unselected' | 'blocked'
 	selectorOptions: T_Option[]
 }
 
