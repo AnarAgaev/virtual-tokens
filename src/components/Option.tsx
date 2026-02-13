@@ -1,5 +1,6 @@
 import {Box, Button, Icon, VStack} from '@chakra-ui/react'
 import {X} from 'lucide-react'
+import {Tooltip} from '@/components'
 import {useApp, useConfiguration} from '@/store'
 import type {T_Id, T_Option} from '@/types'
 
@@ -23,61 +24,77 @@ export const Option = ({
 		(state) => state.shouldOptionBlocking,
 	)
 	const {id, selected, value} = option
-	const isLocked = shouldOptionBlocking({optionId: id})
 	const userStatus = useApp((state) => state.userStatus)
+	const blockedData = shouldOptionBlocking({optionId: id})
+	const isLocked = blockedData.shouldBlock
+
+	const blockedMsg = `В этой конфигурации данный артикул не доступен. Заблокировано выбором:
+		${
+			blockedData.blockedBy
+				? `${blockedData.blockedBy[0].selectorName} ${blockedData.blockedBy[0].optionValue}`
+				: ''
+		}`
 
 	return (
-		<Button
-			colorPalette="gray"
-			variant="outline"
-			rounded="full"
-			size="xl"
-			minW={{base: '146px', lg: '138px'}}
-			h={{base: '40px', lg: '48px'}}
-			justifyContent="space-between"
-			px="5"
-			borderColor={isLocked ? 'gray.200' : 'gray.900'}
-			color={isLocked ? 'gray.400' : selected ? 'white' : 'gray.900'}
-			backgroundColor={isLocked ? 'gray.200' : selected ? 'gray.900' : ''}
-			pointerEvents={selected ? 'none' : 'auto'}
-			disabled={
-				isDisabled
-					? true
-					: shouldOptionBlocking({
-							optionId: id,
-						})
-			}
-			onClick={() =>
-				setSelectedOption({
-					stepName,
-					selectorId,
-					optionId: id,
-					isSelected: selected,
-				})
-			}
+		<Tooltip
+			showArrow
+			content={blockedMsg}
+			positioning={{placement: 'top'}}
+			disabled={!isLocked}
+			openDelay={500}
 		>
-			<VStack gap="0.5" w="full" align="flex-start">
-				<Box as="span" color="inherit" fontSize="sm" lineHeight="20px">
-					{value}
-				</Box>
-
-				{/* Только для Админов, показываем артикулы на Опшинах */}
-				{userStatus === 'admin' && (
-					<Box as="span" fontSize="xs" lineHeight="8px" fontWeight="light">
-						{option.products.map((product) => product.article).join(' • ')}
+			<Button
+				colorPalette="gray"
+				variant="outline"
+				rounded="full"
+				size="xl"
+				minW={{base: '146px', lg: '138px'}}
+				h={{base: '40px', lg: '48px'}}
+				justifyContent="space-between"
+				px="5"
+				borderColor={isLocked ? 'gray.200' : 'gray.900'}
+				color={isLocked ? 'gray.400' : selected ? 'white' : 'gray.900'}
+				backgroundColor={isLocked ? 'gray.200' : selected ? 'gray.900' : ''}
+				pointerEvents={selected ? 'none' : 'auto'}
+				disabled={
+					isDisabled
+						? true
+						: shouldOptionBlocking({
+								optionId: id,
+							}).shouldBlock
+				}
+				onClick={() =>
+					setSelectedOption({
+						stepName,
+						selectorId,
+						optionId: id,
+						isSelected: selected,
+					})
+				}
+			>
+				<VStack gap="0.5" w="full" align="flex-start">
+					<Box as="span" color="inherit" fontSize="sm" lineHeight="20px">
+						{value}
 					</Box>
-				)}
-			</VStack>
 
-			{/* Крестик - отжать опцию / снять выбор */}
-			{selectorCode && selected && (
-				<Icon
-					pointerEvents="auto"
-					as={X}
-					boxSize="16px"
-					_hover={{color: 'gray.200'}}
-				/>
-			)}
-		</Button>
+					{/* Только для Админов, показываем артикулы на Опшинах */}
+					{userStatus === 'admin' && (
+						<Box as="span" fontSize="xs" lineHeight="8px" fontWeight="light">
+							{option.products.map((product) => product.article).join(' • ')}
+						</Box>
+					)}
+				</VStack>
+
+				{/* Крестик - отжать опцию / снять выбор */}
+				{selectorCode && selected && (
+					<Icon
+						pointerEvents="auto"
+						as={X}
+						boxSize="16px"
+						_hover={{color: 'gray.200'}}
+					/>
+				)}
+			</Button>
+		</Tooltip>
 	)
 }

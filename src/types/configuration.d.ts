@@ -87,7 +87,11 @@ export type T_ConfigurationSlice = {
 		  }
 		| false
 
-	shouldOptionBlocking: (payload: {optionId: T_Option['id']}) => boolean
+	shouldOptionBlocking: (payload: {optionId: T_Option['id']}) => {
+		shouldBlock: boolean
+		blockedBy?: T_ProductExtended['blockedBy']
+		filteredBy?: T_ProductExtended['filteredBy']
+	}
 
 	setSelectedOption: (payload: T_SelectionPayload) => void
 

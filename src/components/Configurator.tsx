@@ -29,8 +29,6 @@ export const Configurator = () => {
 	}, [modifications, hasProductWithBuiltInDriver])
 	// #endregion
 
-	console.log('filteredModifications', filteredModifications)
-
 	return (
 		<Flex direction="column" gap="8">
 			{filteredModifications.map(({stepName, selectors}) => {

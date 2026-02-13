@@ -335,22 +335,40 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			(option) => option.id === payload.optionId,
 		)
 
-		if (!targetOption) return false
+		if (!targetOption)
+			return {
+				shouldBlock: false,
+			}
 
 		/**
 		 * Не блокируем опшены/кнопки с пустыми массивами артикулов/продуктов.
 		 * Это опшены внутри селекторов Да/Нет
 		 */
-		if (!targetOption.products.length) return false
+		if (!targetOption.products.length)
+			return {
+				shouldBlock: false,
+			}
 
 		/**
 		 * Блокируем опшен/кнопку если у нее заблокированы все артикулы/продукты
 		 * Заблокированные продукты - это продукты у которых есть валидные
 		 * свойства BlockedBy или filteredBy
 		 */
-		return targetOption.products.every(
+		const isBlocked = targetOption.products.every(
 			(product) => product.blockedBy || product.filteredBy?.length,
 		)
+
+		if (isBlocked) {
+			return {
+				shouldBlock: true,
+				blockedBy: targetOption.products[0].blockedBy,
+				filteredBy: targetOption.products[0].filteredBy,
+			}
+		}
+
+		return {
+			shouldBlock: false,
+		}
 	},
 
 	shouldArticleBlocking: (payload) => {

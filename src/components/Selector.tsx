@@ -1,6 +1,6 @@
 import {Button, Flex, Icon, Text} from '@chakra-ui/react'
 import {Lock, LockOpen} from 'lucide-react'
-import {Option} from '@/components'
+import {Option, Tooltip} from '@/components'
 import {useConfiguration} from '@/store'
 import type {T_Selector} from '@/types'
 
@@ -61,33 +61,39 @@ export const Selector = (payload: {selector: T_Selector}) => {
 						w="8"
 						h={{base: '40px', lg: '48px'}}
 					>
-						<Button
-							rounded="full"
-							size="xs"
-							backgroundColor="gray.100"
-							aspectRatio="1"
-							p="0"
-							title={`Разблокировать ${selectorName}`}
-							className="group"
-							onClick={() => unlockSelector({selectorId})}
+						<Tooltip
+							showArrow
+							content={`Разблокировать ${selectorName}`}
+							positioning={{placement: 'right'}}
+							openDelay={500}
 						>
-							{/* Иконка закрытого замка */}
-							<Icon
-								as={Lock}
-								pos="absolute"
-								color="gray.600"
-								_groupHover={{opacity: 0}} // скрывается при hover
-							/>
+							<Button
+								rounded="full"
+								size="xs"
+								backgroundColor="gray.100"
+								aspectRatio="1"
+								p="0"
+								className="group"
+								onClick={() => unlockSelector({selectorId})}
+							>
+								{/* Иконка закрытого замка */}
+								<Icon
+									as={Lock}
+									pos="absolute"
+									color="gray.600"
+									_groupHover={{opacity: 0}} // скрывается при hover
+								/>
 
-							{/* Иконка открытого замка */}
-							<Icon
-								as={LockOpen}
-								pos="absolute"
-								color="gray.600"
-								opacity={0}
-								_groupHover={{opacity: 1}} // показывается при hover
-							/>
-						</Button>
+								{/* Иконка открытого замка */}
+								<Icon
+									as={LockOpen}
+									pos="absolute"
+									color="gray.600"
+									opacity={0}
+									_groupHover={{opacity: 1}} // показывается при hover
+								/>
+							</Button>
+						</Tooltip>
 					</Flex>
 				)}
 			</Flex>
