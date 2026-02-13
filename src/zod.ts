@@ -134,6 +134,7 @@ const combo = z.object({
 		.optional(),
 })
 const combos = z.array(combo)
+export type T_Combo = z.infer<typeof combo>
 export type T_Combos = z.infer<typeof combos> | null
 
 const product = z.object({

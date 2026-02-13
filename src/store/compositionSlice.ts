@@ -588,6 +588,8 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 	extractRelevantData: (combos) => {
 		const result = get().emptyResult()
 
+		if (!combos) return result
+
 		for (const combo of combos) {
 			if (!result.image && combo.final_image) result.image = combo.final_image
 			if (!result.drawing && combo.final_drawing)

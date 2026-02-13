@@ -1,5 +1,5 @@
 import type {T_Selector} from '@/types/configuration'
-import type {T_Product} from '@/zod'
+import type {T_Combo, T_Combos, T_Product} from '@/zod'
 
 export type T_CompositionSlice = {
 	selectedProducts: {
@@ -73,14 +73,11 @@ export type T_CompositionSlice = {
 		selectedProducts: T_CompositionSlice['selectedProducts'],
 	) => T_SelectedArticles
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	comboMatches: (combo: any, selectedArticles: T_SelectedArticles) => void
+	comboMatches: (combo: T_Combo, selectedArticles: T_SelectedArticles) => void
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	getComboStepCount: (combo: any) => number
+	getComboStepCount: (combo: T_Combo) => number
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	extractRelevantData: (combos: any[]) => T_ResultData
+	extractRelevantData: (combos: T_Combos) => T_ResultData
 	// #endregion
 }
 
