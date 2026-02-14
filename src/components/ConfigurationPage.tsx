@@ -96,10 +96,7 @@ export const ConfigurationPage = () => {
 							`Недостаточно выбора${'\n'}для формирования Артикула`}
 						{virtualArticle
 							?.map((article) => (article ? `${article}` : `XXX`))
-							.map(
-								(article, idx) =>
-									`${article}${idx !== virtualArticle.length - 1 ? '-' : ''}`,
-							)}
+							.join('-')}
 					</Text>
 				</Flex>
 			</Flex>
