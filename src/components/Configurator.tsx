@@ -5,9 +5,7 @@ import {useConfiguration} from '@/store'
 
 export const Configurator = () => {
 	const modifications = useConfiguration((state) => state.modifications)
-	const hasProductWithBuiltInDriver = useConfiguration(
-		(state) => state.hasProductWithBuiltInDriver,
-	)
+	const showDriverStep = useConfiguration((state) => state.showDriverStep)
 	const hasStepUnblockedSelector = useConfiguration(
 		(state) => state.hasStepUnblockedSelector,
 	)
@@ -16,17 +14,15 @@ export const Configurator = () => {
 	const filteredModifications = useMemo(() => {
 		if (!modifications) return []
 
-		const hasBuiltInDriver = hasProductWithBuiltInDriver()
-
 		return Object.entries(modifications)
-			.filter(([stepName]) => stepName !== 'Драйвер' || !hasBuiltInDriver)
+			.filter(([stepName]) => stepName !== 'Драйвер' || showDriverStep())
 			.map(([stepName, selectors]) => ({
 				stepName,
 				selectors: selectors.filter(
-					(selector) => selector.stepName !== 'Драйвер' || !hasBuiltInDriver,
+					(selector) => selector.stepName !== 'Драйвер' || showDriverStep(),
 				),
 			}))
-	}, [modifications, hasProductWithBuiltInDriver])
+	}, [modifications, showDriverStep])
 	// #endregion
 
 	return (

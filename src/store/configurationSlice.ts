@@ -60,7 +60,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				 * поэтом сразу пропускаем этот шаг.
 				 *
 				 * При необходимости, в дальнейшем, можно включить,
-				 * раскомментировав код ниже
+				 * раскомментировав код ниже.
+				 *
+				 * ! НЕ УДАЛЯТЬ
 				 */
 
 				// const products = stepArticles
@@ -166,7 +168,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 								products: products
 									.filter((product) => String(product[key] ?? '') === value)
 
-									// ✅ клонируем каждый продукт, чтобы `blockedBy` не передавался между селекторами
+									// клонируем каждый продукт, чтобы `blockedBy` не передавался между селекторами
 									.map((product) => ({...product})),
 							})),
 					}
@@ -411,10 +413,16 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		const clickedSelectorPlaceIdx = selectorIdsMap.indexOf(payload.selectorId)
 
-		const hasBuiltInDriver = get().hasProductWithBuiltInDriver()
-		const driverSelectorIds =
-			// biome-ignore lint/complexity/useLiteralKeys: ключ динамический и приходит с сервера именно в таком виде
-			modifications['Драйвер']?.map((selector) => selector.selectorId) ?? []
+		const productsWithBuiltInDriver = get().productsWithBuiltInDriver
+		// biome-ignore lint/complexity/useLiteralKeys: Такое название шага приходит с бэка. В случае изменения API данных, поменять в коде
+		const driverSelectorsCount = modifications['Драйвер']?.length ?? 0
+
+		const willHaveBuiltInDriver = Object.values(modifications)
+			.flat()
+			.flatMap((s) => s.selectorOptions)
+			.filter((o) => o.id === payload.optionId && !payload.isSelected)
+			.flatMap((o) => o.products)
+			.some((p) => productsWithBuiltInDriver.includes(p.article))
 
 		Object.values(modifications)
 			.flat()
@@ -426,47 +434,27 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				// Работаем только с селекторами начиная с кликнутого
 				if (!(currentSelectorPlaceIdx >= clickedSelectorPlaceIdx)) return
 
-				const driverSelectorsCount =
-					hasBuiltInDriver && driverSelectorIds.length
-						? driverSelectorIds.length
-						: 0
-
-				// Обновляем selectorSelectedStatus
 				if (!payload.isSelected) {
-					// Кнопка нажимается или переключается с соседней
+					// Обновляем selectorSelectedStatus
 					if (clickedSelectorPlaceIdx === currentSelectorPlaceIdx) {
 						selector.selectorSelectedStatus = 'selected'
+					} else if (clickedSelectorPlaceIdx + 1 === currentSelectorPlaceIdx) {
+						selector.selectorSelectedStatus = 'unselected'
 					} else if (
-						// Перепрыгиваем через скрытый шаг Драйвера если выбран встроенный драйвер
+						willHaveBuiltInDriver &&
 						clickedSelectorPlaceIdx + 1 + driverSelectorsCount ===
 							currentSelectorPlaceIdx &&
-						driverSelectorIds.includes(
-							selectorIdsMap[clickedSelectorPlaceIdx + 1],
-						)
+						selectorIdsMap[clickedSelectorPlaceIdx + 1] ===
+							// biome-ignore lint/complexity/useLiteralKeys: Такое название шага приходит с бэка. В случае изменения API данных, поменять в коде
+							modifications['Драйвер']?.[0]?.selectorId
 					) {
 						selector.selectorSelectedStatus = 'unselected'
-					} else if (
-						clickedSelectorPlaceIdx + 1 === currentSelectorPlaceIdx &&
-						!driverSelectorIds.includes(selector.selectorId)
-					) {
-						selector.selectorSelectedStatus = 'unselected'
-					} else if (
-						driverSelectorIds.includes(selector.selectorId) &&
-						hasBuiltInDriver
-					) {
-						// Скрытые селекторы Драйвера не трогаем
 					} else {
 						selector.selectorSelectedStatus = 'blocked'
 					}
 				} else {
-					// Кнопка отжимается
 					if (clickedSelectorPlaceIdx === currentSelectorPlaceIdx) {
 						selector.selectorSelectedStatus = 'unselected'
-					} else if (
-						driverSelectorIds.includes(selector.selectorId) &&
-						hasBuiltInDriver
-					) {
-						// Скрытые селекторы Драйвера не трогаем
 					} else {
 						selector.selectorSelectedStatus = 'blocked'
 					}
@@ -928,22 +916,22 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		}
 	},
 
-	hasProductWithBuiltInDriver: () => {
-		const productsWithBuiltInDriver = [...get().productsWithBuiltInDriver]
-		const modifications = {...get().modifications}
+	showDriverStep: () => {
+		const productsWithBuiltInDriver = get().productsWithBuiltInDriver
+		const selectedProducts = useComposition.getState().selectedProducts
 
-		const selectedProducts = Object.values(modifications)
-			.flat()
-			.flatMap((selector) => selector.selectorOptions)
-			.filter((option) => option.selected)
-			.flatMap((option) => option.products)
-			.map((product) => product.article)
-
-		const isSelected = productsWithBuiltInDriver.some((productWithDriver) =>
-			selectedProducts.includes(productWithDriver),
+		const selectedArticles = Object.values(selectedProducts).flatMap(
+			(stepData) => {
+				if (Array.isArray(stepData)) return []
+				return stepData.products.map((p) => p.article)
+			},
 		)
 
-		return isSelected
+		const hasBuiltIn = selectedArticles.some((article) =>
+			productsWithBuiltInDriver.includes(article),
+		)
+
+		return !hasBuiltIn
 	},
 
 	hasStepUnblockedSelector: (payload) => {

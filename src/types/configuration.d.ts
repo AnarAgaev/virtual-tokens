@@ -103,7 +103,7 @@ export type T_ConfigurationSlice = {
 		productArticle: T_Product['article']
 	}) => void
 
-	hasProductWithBuiltInDriver: () => boolean
+	showDriverStep: () => boolean
 
 	hasStepUnblockedSelector: (payload: {selectors: T_Selector[]}) => boolean
 }
