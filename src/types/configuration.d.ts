@@ -106,6 +106,8 @@ export type T_ConfigurationSlice = {
 	showDriverStep: () => boolean
 
 	hasStepUnblockedSelector: (payload: {selectors: T_Selector[]}) => boolean
+
+	normalizeSelectorStatuses: () => void
 }
 
 export type T_Id = string

@@ -807,30 +807,32 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 	unlockSelector: (payload) => {
 		const modifications = structuredClone({...get().modifications})
 		const allSelectors = Object.values(modifications).flat()
-		const blockingSelectorAndOptions = new Set<T_SelectorAndOptionPair>()
-
-		// #region Шаг 1.
-		/**
-		 * ! Задача 1.
-		 * Проходим по селектору который нужно разблокировать и собираем со всех
-		 * заблокированных или зафильтрованных продуктов инициаторов их блокировки
-		 * и фильтрации.
-		 *
-		 * ! Задача 2.
-		 * Снимаем блокировку и фильтрацию со всех продуктов целевого селектора
-		 */
 		const targetSelector = allSelectors.find(
 			(selector) => selector.selectorId === payload.selectorId,
 		)
 
 		if (!targetSelector) return
 
+		const blockingSelectorAndOptions = new Set<T_SelectorAndOptionPair>()
+
 		const targetProducts = targetSelector.selectorOptions.flatMap(
 			(option) => option.products,
 		)
 
+		// #region Шаг 1.
+		/**
+		 * ! Задача 1.
+		 * Проходим по всем шагам селектора который нужно разблокировать
+		 * и собираем со всех заблокированных или зафильтрованных продуктов
+		 * инициаторов их блокировки и фильтрации.
+		 *
+		 * ! Задача 2.
+		 * Снимаем блокировку и фильтрацию со всех продуктов целевого селектора
+		 */
+
 		targetProducts.forEach((product) => {
 			if (product.blockedBy) {
+				console.log('product.blockedBy', product.blockedBy)
 				// Сохраняем блокиратора
 				product.blockedBy.forEach((blockedObj) => {
 					blockingSelectorAndOptions.add(
@@ -843,6 +845,8 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			}
 
 			if (product.filteredBy) {
+				console.log('product.filteredBy', product.filteredBy)
+
 				// Сохраняем фильтратора
 				product.filteredBy.forEach((filter) => {
 					blockingSelectorAndOptions.add(
@@ -891,15 +895,24 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		set({modifications})
 
-		// Снятие зависимых блокировок проводим через имитацию
-		// отжатия опшена - параметр isSelected: true
+		/**
+		 * Снятие зависимых блокировок проводим через имитацию отжатия опшена/кнопки
+		 * Вызываем метод setSelectedOption, передавая в него объект отжимаемого опшена.
+		 * В передаваемом объекте параметр isSelected: true говорит о том, что
+		 * кнопка/опшен нажата и в текущий момент отжимается пользователем.
+		 * Метод setSelectedOption вызывается при каждом клике по кнопке/опшену.
+		 */
+
 		unblockingOptions.forEach((selectionObj) => {
 			get().setSelectedOption(selectionObj)
 		})
 
+		// Нормализуем статусы селекторов после всех перекрёстных разблокировок
+		get().normalizeSelectorStatuses()
+
+		// Обновляем Composition Store после нормализации
 		useComposition.getState().handleModificationsChange()
 		useComposition.getState().updateTotalPrice()
-
 		useComposition.getState().setResultAdditionalData()
 		useComposition.getState().setResultCharacteristics()
 	},
@@ -940,6 +953,32 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				(selector) => selector.selectorSelectedStatus !== 'blocked',
 			) !== -1
 		)
+	},
+
+	normalizeSelectorStatuses: () => {
+		const modifications = structuredClone({...get().modifications})
+		const allSelectors = Object.values(modifications).flat()
+
+		// Находим индекс первого unselected селектора
+		const firstUnselectedIdx = allSelectors.findIndex(
+			(selector) => selector.selectorSelectedStatus === 'unselected',
+		)
+
+		// Если unselected не найден — ничего не делаем
+		if (firstUnselectedIdx === -1) return
+
+		// Все селекторы после первого unselected ставим в blocked
+		allSelectors.forEach((selector, idx) => {
+			if (idx > firstUnselectedIdx) {
+				selector.selectorSelectedStatus = 'blocked'
+				// Сбрасываем выбор опций у заблокированных селекторов
+				selector.selectorOptions.forEach((option) => {
+					option.selected = false
+				})
+			}
+		})
+
+		set({modifications})
 	},
 })
 
