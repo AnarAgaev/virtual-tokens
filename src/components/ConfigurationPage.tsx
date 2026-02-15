@@ -22,6 +22,10 @@ export const ConfigurationPage = () => {
 		(state) => state.createModifications,
 	)
 
+	const isValidVirtualArticle = !virtualArticle
+		? false
+		: !virtualArticle.every((a) => a === null)
+
 	return (
 		<Flex
 			direction={{base: 'column', lg: 'row'}}
@@ -90,13 +94,13 @@ export const ConfigurationPage = () => {
 						textAlign="center"
 						lineHeight="1.2 !important"
 						whiteSpace="pre-line"
-						textWrap={!virtualArticle ? 'balance' : 'nowrap'}
+						textWrap={!isValidVirtualArticle ? 'balance' : 'nowrap'}
 					>
-						{!virtualArticle &&
-							`Недостаточно выбора${'\n'}для формирования Артикула`}
-						{virtualArticle
-							?.map((article) => (article ? `${article}` : `XXX`))
-							.join('-')}
+						{isValidVirtualArticle
+							? virtualArticle
+									?.map((article) => (article ? `${article}` : `XXX`))
+									.join('-')
+							: `Недостаточно выбора${'\n'}для формирования Артикула`}
 					</Text>
 				</Flex>
 			</Flex>
