@@ -65,34 +65,35 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				 * ! НЕ УДАЛЯТЬ
 				 */
 
-				// const products = stepArticles
-				// 	.flat()
-				// 	.filter(Boolean) // убираем null
-				// 	.map((article) => get().getProductByArticle(article))
-				// 	.filter((product): product is T_ProductExtended => !!product)
-				// const options = products.map((product) => ({
-				// 	id: nanoid(),
-				// 	value: product.article,
-				// 	products: [structuredClone(product)],
-				// 	selected: false,
-				// }))
-				// modifications[stepName] = [
-				// 	{
-				// 		stepName,
-				// 		selectorId: nanoid(),
-				// 		selectorName: stepName,
-				// 		selectorCode: null,
-				// 		selectorOptions: [
-				// 			...options,
-				// 			{
-				// 				id: nanoid(),
-				// 				value: 'Нет',
-				// 				products: [],
-				// 				selected: true,
-				// 			},
-				// 		],
-				// 	},
-				// ]
+				const products = stepArticles
+					.flat()
+					.filter(Boolean) // убираем null
+					.map((article) => get().getProductByArticle(article))
+					.filter((product): product is T_ProductExtended => !!product)
+				const options = products.map((product) => ({
+					id: nanoid(),
+					value: product.article,
+					products: [structuredClone(product)],
+					selected: false,
+				}))
+				modifications[stepName] = [
+					{
+						stepName,
+						selectorId: nanoid(),
+						selectorName: stepName,
+						selectorCode: null,
+						selectorSelectedStatus: 'optional',
+						selectorOptions: [
+							...options,
+							{
+								id: nanoid(),
+								value: 'Нет',
+								products: [],
+								selected: true,
+							},
+						],
+					},
+				]
 
 				continue
 			}
@@ -434,23 +435,41 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 				// Работаем только с селекторами начиная с кликнутого
 				if (!(currentSelectorPlaceIdx >= clickedSelectorPlaceIdx)) return
 
+				// Не трогаем статус optional селекторов - они всегда доступны
+				if (selector.selectorSelectedStatus === 'optional') return
+
 				if (!payload.isSelected) {
-					// Обновляем selectorSelectedStatus
 					if (clickedSelectorPlaceIdx === currentSelectorPlaceIdx) {
 						selector.selectorSelectedStatus = 'selected'
-					} else if (clickedSelectorPlaceIdx + 1 === currentSelectorPlaceIdx) {
-						selector.selectorSelectedStatus = 'unselected'
-					} else if (
-						willHaveBuiltInDriver &&
-						clickedSelectorPlaceIdx + 1 + driverSelectorsCount ===
-							currentSelectorPlaceIdx &&
-						selectorIdsMap[clickedSelectorPlaceIdx + 1] ===
-							// biome-ignore lint/complexity/useLiteralKeys: Такое название шага приходит с бэка. В случае изменения API данных, поменять в коде
-							modifications['Драйвер']?.[0]?.selectorId
-					) {
-						selector.selectorSelectedStatus = 'unselected'
 					} else {
-						selector.selectorSelectedStatus = 'blocked'
+						// Считаем сколько optional селекторов между кликнутым и текущим
+						const optionalCountBetween = selectorIdsMap
+							.slice(clickedSelectorPlaceIdx + 1, currentSelectorPlaceIdx)
+							.filter((id) => {
+								const s = Object.values(modifications)
+									.flat()
+									.find((sel) => sel.selectorId === id)
+								return s?.selectorSelectedStatus === 'optional'
+							}).length
+
+						const effectiveDistance =
+							currentSelectorPlaceIdx -
+							clickedSelectorPlaceIdx -
+							optionalCountBetween
+
+						if (effectiveDistance === 1) {
+							selector.selectorSelectedStatus = 'unselected'
+						} else if (
+							willHaveBuiltInDriver &&
+							clickedSelectorPlaceIdx + 1 + driverSelectorsCount ===
+								currentSelectorPlaceIdx &&
+							selectorIdsMap[clickedSelectorPlaceIdx + 1] ===
+								modifications['Драйвер']?.[0]?.selectorId
+						) {
+							selector.selectorSelectedStatus = 'unselected'
+						} else {
+							selector.selectorSelectedStatus = 'blocked'
+						}
 					}
 				} else {
 					if (clickedSelectorPlaceIdx === currentSelectorPlaceIdx) {
@@ -959,19 +978,19 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		const modifications = structuredClone({...get().modifications})
 		const allSelectors = Object.values(modifications).flat()
 
-		// Находим индекс первого unselected селектора
+		// Находим индекс первого unselected селектора — пропускаем optional
 		const firstUnselectedIdx = allSelectors.findIndex(
 			(selector) => selector.selectorSelectedStatus === 'unselected',
 		)
 
-		// Если unselected не найден — ничего не делаем
 		if (firstUnselectedIdx === -1) return
 
-		// Все селекторы после первого unselected ставим в blocked
 		allSelectors.forEach((selector, idx) => {
 			if (idx > firstUnselectedIdx) {
+				// Не трогаем optional селекторы
+				if (selector.selectorSelectedStatus === 'optional') return
+
 				selector.selectorSelectedStatus = 'blocked'
-				// Сбрасываем выбор опций у заблокированных селекторов
 				selector.selectorOptions.forEach((option) => {
 					option.selected = false
 				})

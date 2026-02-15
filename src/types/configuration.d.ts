@@ -161,7 +161,7 @@ export type T_Selector = {
 	selectorId: T_Id
 	selectorName: string
 	selectorCode: keyof T_Product | null
-	selectorSelectedStatus: 'selected' | 'unselected' | 'blocked'
+	selectorSelectedStatus: 'selected' | 'unselected' | 'blocked' | 'optional'
 	selectorOptions: T_Option[]
 }
 
