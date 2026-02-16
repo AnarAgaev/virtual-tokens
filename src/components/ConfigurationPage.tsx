@@ -13,6 +13,7 @@ import {Configurator, ImagePlaceholder} from '@/components'
 import {useApp, useComposition, useConfiguration} from '@/store'
 
 export const ConfigurationPage = () => {
+	const setActiveTab = useApp((state) => state.setActiveTab)
 	const userStatus = useApp((state) => state.userStatus)
 	const selectedProducts = useComposition((state) => state.selectedProducts)
 	const virtualArticle = useComposition((state) => state.virtualArticle)
@@ -22,9 +23,13 @@ export const ConfigurationPage = () => {
 		(state) => state.createModifications,
 	)
 
-	const isValidVirtualArticle = !virtualArticle
+	const isVirtualArticleValid = !virtualArticle
 		? false
 		: !virtualArticle.every((a) => a === null)
+
+	const isVirtualArticleComplete = !virtualArticle
+		? false
+		: !virtualArticle?.some((a) => a === null)
 
 	return (
 		<Flex
@@ -34,75 +39,96 @@ export const ConfigurationPage = () => {
 			<Flex
 				gap={{base: '5', lg: '4'}}
 				order={{lg: 1}}
-				direction={{lg: 'column'}}
+				direction="column"
 				align={{lg: 'center'}}
+				justify={{lg: 'space-between'}}
 				w={{lg: '23.879%'}}
 				flexShrink={0}
 			>
-				<Box
-					w={{base: '26.6%', lg: 'full'}}
-					aspectRatio={1}
-					pos="relative"
-					flexShrink="0"
-					backgroundColor="gray.100"
+				<Flex
+					gap={{base: '5', lg: '4'}}
+					direction={{lg: 'column'}}
+					align={{lg: 'center'}}
+					flexShrink={0}
 				>
-					{resultData?.image ? (
-						<Image
-							w="full"
-							h="full"
-							fit="cover"
-							loading="lazy"
-							src={resultData.image}
-						/>
-					) : (
-						<Flex
-							align="center"
-							justify="center"
-							pos="absolute"
-							w="full"
-							h="full"
-							direction="column"
-							gap="5"
-						>
-							<Box
-								display={{base: 'none', md: 'block'}}
-								w="25%"
-								aspectRatio="1"
-							>
-								<ImagePlaceholder color="#d4d4d8" />
-							</Box>
-							<Text
-								textAlign="center"
-								textWrap="balance"
-								color="gray.400"
-								lineHeight="1.3"
-								w={{base: '90%', md: '70%'}}
-								fontSize={{base: 'clamp(8px, 2vw, 14px)', lg: 'sm'}}
-							>
-								Покажем здесь картинку, как только сможем её получить.
-							</Text>
-						</Flex>
-					)}
-				</Box>
-				<Flex gap="1" align="center" w="full" direction="column">
-					<Text textStyle="sm" textAlign="center">
-						Виртуальный артикул:
-					</Text>
-					<Text
-						textStyle={{base: 'xs', sm: 'xl'}}
-						fontWeight="light"
-						textAlign="center"
-						lineHeight="1.2 !important"
-						whiteSpace="pre-line"
-						textWrap={!isValidVirtualArticle ? 'balance' : 'nowrap'}
+					<Box
+						w={{base: '26.6%', lg: 'full'}}
+						aspectRatio={1}
+						pos="relative"
+						flexShrink="0"
+						backgroundColor="gray.100"
 					>
-						{isValidVirtualArticle
-							? virtualArticle
-									?.map((article) => (article ? `${article}` : `XXX`))
-									.join('-')
-							: `Недостаточно выбора${'\n'}для формирования Артикула`}
-					</Text>
+						{resultData?.image ? (
+							<Image
+								w="full"
+								h="full"
+								fit="cover"
+								loading="lazy"
+								src={resultData.image}
+							/>
+						) : (
+							<Flex
+								align="center"
+								justify="center"
+								pos="absolute"
+								w="full"
+								h="full"
+								direction="column"
+								gap="5"
+							>
+								<Box
+									display={{base: 'none', md: 'block'}}
+									w="25%"
+									aspectRatio="1"
+								>
+									<ImagePlaceholder color="#d4d4d8" />
+								</Box>
+								<Text
+									textAlign="center"
+									textWrap="balance"
+									color="gray.400"
+									lineHeight="1.3"
+									w={{base: '90%', md: '70%'}}
+									fontSize={{base: 'clamp(8px, 2vw, 14px)', lg: 'sm'}}
+								>
+									Покажем здесь картинку, как только сможем её получить.
+								</Text>
+							</Flex>
+						)}
+					</Box>
+					<Flex gap="1" align="center" w="full" direction="column">
+						<Text textStyle="sm" textAlign="center">
+							Виртуальный артикул:
+						</Text>
+						<Text
+							textStyle={{base: 'xs', sm: 'xl'}}
+							fontWeight="light"
+							textAlign="center"
+							lineHeight="1.2 !important"
+							whiteSpace="pre-line"
+							textWrap={!isVirtualArticleValid ? 'balance' : 'nowrap'}
+						>
+							{isVirtualArticleValid
+								? virtualArticle
+										?.map((article) => (article ? `${article}` : `XXX`))
+										.join('-')
+								: `Недостаточно выбора${'\n'}для формирования Артикула`}
+						</Text>
+					</Flex>
 				</Flex>
+				{isVirtualArticleComplete && (
+					<Button
+						borderRadius="none"
+						variant="solid"
+						size="sm"
+						color="white"
+						textStyle="sm"
+						w="full"
+						onClick={() => setActiveTab({tabType: 'description'})}
+					>
+						Перейти к итоговой конфигурации
+					</Button>
+				)}
 			</Flex>
 
 			<Flex direction="column" w="full" gap="10">
