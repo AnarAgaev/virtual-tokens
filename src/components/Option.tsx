@@ -19,6 +19,10 @@ export const Option = ({
 	selectorCode,
 	isDisabled,
 }: I_Props) => {
+	const shouldShowWarning = useConfiguration((state) => state.shouldShowWarning)
+	const toggleWarningVisible = useConfiguration(
+		(state) => state.toggleWarningVisible,
+	)
 	const setSelectedOption = useConfiguration((state) => state.setSelectedOption)
 	const shouldOptionBlocking = useConfiguration(
 		(state) => state.shouldOptionBlocking,
@@ -37,6 +41,27 @@ export const Option = ({
 		: ''
 
 	const tooltipMsg = `В этой конфигурации данный артикул не доступен.${blockedMsg}${filteredMsg}`
+
+	const handlerOptionClick = () => {
+		const optionData = {
+			stepName,
+			selectorId,
+			optionId: id,
+			isSelected: selected,
+		}
+
+		const showWarning = shouldShowWarning({selectorId})
+
+		if (showWarning) {
+			toggleWarningVisible({
+				direction: 'show',
+				optionData,
+			})
+			return
+		}
+
+		setSelectedOption(optionData)
+	}
 
 	return (
 		<Tooltip
@@ -60,14 +85,7 @@ export const Option = ({
 				backgroundColor={isLocked ? 'gray.200' : selected ? 'gray.900' : ''}
 				pointerEvents={selected ? 'none' : 'auto'}
 				disabled={isDisabled ? true : isLocked}
-				onClick={() =>
-					setSelectedOption({
-						stepName,
-						selectorId,
-						optionId: id,
-						isSelected: selected,
-					})
-				}
+				onClick={handlerOptionClick}
 			>
 				<VStack gap="0.5" w="full" align="flex-start">
 					<Box as="span" color="inherit" fontSize="sm" lineHeight="20px">

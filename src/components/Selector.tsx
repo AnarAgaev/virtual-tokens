@@ -16,11 +16,33 @@ export const Selector = (payload: {selector: T_Selector}) => {
 
 	const isDisabled = selectorSelectedStatus === 'blocked'
 
+	const shouldShowWarning = useConfiguration((state) => state.shouldShowWarning)
+	const toggleWarningVisible = useConfiguration(
+		(state) => state.toggleWarningVisible,
+	)
 	const hasSomeBlockedOptionBySelectorId = useConfiguration(
 		(state) => state.hasSomeBlockedOptionBySelectorId,
 	)
 
 	const unlockSelector = useConfiguration((state) => state.unlockSelector)
+
+	const handleResetSelector = () => {
+		const selectorData = {
+			selectorId,
+		}
+
+		const showWarning = shouldShowWarning({selectorId})
+
+		if (showWarning) {
+			toggleWarningVisible({
+				direction: 'show',
+				selectorData,
+			})
+			return
+		}
+
+		unlockSelector({selectorId})
+	}
 
 	return (
 		<Flex key={selectorId} direction={{base: 'column', xl: 'row'}} gap="5">
@@ -74,7 +96,7 @@ export const Selector = (payload: {selector: T_Selector}) => {
 								aspectRatio="1"
 								p="0"
 								className="group"
-								onClick={() => unlockSelector({selectorId})}
+								onClick={handleResetSelector}
 							>
 								{/* Иконка закрытого замка */}
 								<Icon

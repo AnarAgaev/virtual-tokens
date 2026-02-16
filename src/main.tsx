@@ -1,7 +1,7 @@
 import {ChakraProvider} from '@chakra-ui/react'
 import {StrictMode} from 'react'
 import {createRoot} from 'react-dom/client'
-import {App, ErrorBoundary} from '@/components'
+import {App, ErrorBoundary, WarningDialog} from '@/components'
 import {system} from '@/theme/config'
 
 const rootElement = document.getElementById('virtualToken')
@@ -15,7 +15,9 @@ createRoot(rootElement).render(
 		<ErrorBoundary>
 			<ChakraProvider value={system}>
 				<App />
+				<WarningDialog />
 			</ChakraProvider>
 		</ErrorBoundary>
+		,
 	</StrictMode>,
 )

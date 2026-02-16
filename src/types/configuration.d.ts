@@ -33,6 +33,25 @@ export type T_ConfigurationSlice = {
 	videos: T_Videos
 	files: T_Files
 
+	showWarning: boolean
+	stopShowWarning: () => void
+	shouldShowWarning: (payload: {selectorId: T_Id}) => boolean
+
+	warningData: {
+		visible: boolean
+		optionData: T_SelectionPayload | undefined
+		selectorData:
+			| {
+					selectorId: T_Id
+			  }
+			| undefined
+	}
+	toggleWarningVisible: (payload: {
+		direction: 'show' | 'hide'
+		optionData?: T_SelectionPayload
+		selectorData?: {selectorId: T_Id}
+	}) => void
+
 	setInitData: (payload: {
 		steps: T_Steps
 		stepsCount: T_StepsCount

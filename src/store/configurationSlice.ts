@@ -27,6 +27,70 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 	videos: [],
 	files: [],
 
+	showWarning: true,
+	stopShowWarning: () => {
+		set({showWarning: false})
+	},
+	shouldShowWarning: (payload) => {
+		// Если пользователь выбрал больше не показывать предупреждение
+		if (!get().showWarning) {
+			return false
+		}
+
+		/**
+		 * Ищем есть ли выбранные ниже
+		 * Если выбранные ниже есть, то задаем вопрос
+		 */
+		const modifications = {...get().modifications}
+		let isSelectorLow = false
+		let hasSelectedLow = false
+
+		Object.values(modifications)
+			.flat()
+			.forEach((selector) => {
+				// Пропускаем опциональные селекторы
+				if (selector.selectorSelectedStatus === 'optional') {
+					return
+				}
+
+				if (selector.selectorId === payload.selectorId) {
+					// Далее будем проверять все селекторы идущие ниже кликнутого
+					isSelectorLow = true
+					return
+				}
+
+				// Если селектор ниже кликнутого
+				if (isSelectorLow) {
+					if (selector.selectorOptions.some((option) => option.selected)) {
+						hasSelectedLow = true
+					}
+				}
+			})
+
+		if (hasSelectedLow) {
+			return true
+		}
+
+		return false
+	},
+
+	warningData: {
+		visible: false,
+		optionData: undefined,
+		selectorData: undefined,
+	},
+	toggleWarningVisible: (payload) => {
+		const visible = payload.direction === 'show'
+
+		set({
+			warningData: {
+				visible,
+				optionData: payload.optionData,
+				selectorData: payload.selectorData,
+			},
+		})
+	},
+
 	setInitData: (payload) => {
 		set({...payload})
 	},
@@ -400,7 +464,6 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		// * Обрабатываем клик по опциональной кнопке (Да/Нет)
 		// #region
-
 		/**
 		 * Если кликнули по опции в optional селекторе —
 		 * только тогглим selected у опции и больше ничего не делаем
