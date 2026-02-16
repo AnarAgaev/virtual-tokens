@@ -179,12 +179,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		set({modifications})
 
-		useComposition.getState().handleModificationsChange()
-		useComposition.getState().updateTotalPrice()
-
-		useComposition.getState().setResultAdditionalData()
-		useComposition.getState().setResultCharacteristics()
-
+		useComposition.getState().syncCompositionWithModifications()
 		useComposition.getState().resetComposition()
 	},
 
@@ -403,7 +398,31 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 	setSelectedOption: (payload) => {
 		const modifications = structuredClone({...get().modifications})
 
-		// * Тогглим Блокировку/Разблокировку селектов --- START
+		// * Обрабатываем клик по опциональной кнопке (Да/Нет)
+		// #region
+
+		/**
+		 * Если кликнули по опции в optional селекторе —
+		 * только тогглим selected у опции и больше ничего не делаем
+		 */
+		const clickedSelector = Object.values(modifications)
+			.flat()
+			.find((selector) => selector.selectorId === payload.selectorId)
+
+		if (clickedSelector?.selectorSelectedStatus === 'optional') {
+			clickedSelector.selectorOptions.forEach((option) => {
+				option.selected = option.id === payload.optionId && !payload.isSelected
+			})
+
+			set({modifications})
+
+			useComposition.getState().syncCompositionWithModifications()
+
+			return
+		}
+		// #endregion
+
+		// * Тогглим Блокировку/Разблокировку селектов
 		// #region
 		/** Собираем карту идентификаторов селекторов, для того чтобы понимать
 		 * порядковый номер итерируемого относительно выбираемого
@@ -542,7 +561,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			})
 		// #endregion
 
-		// * Снимаем блокировки и фильтрации наложенные ранее выбранной опцией --- START
+		// * Снимаем блокировки и фильтрации наложенные ранее выбранной опцией
 		// #region
 		/**
 		 * Определяем артикул который нужно разблокировать.
@@ -662,7 +681,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		})
 		// #endregion
 
-		// * Блокируем продукты по блэклистам на основе итогового блокирующего артикула --- START
+		// * Блокируем продукты по блэклистам на основе итогового блокирующего артикула
 		// #region
 		/**
 		 * Читаем blockingSelector и blockingOption напрямую из modifications
@@ -757,7 +776,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			})
 		// #endregion
 
-		// * Фильтруем продукты внутри шага если на нём несколько селекторов --- START
+		// * Фильтруем продукты внутри шага если на нём несколько селекторов
 		// #region
 		/**
 		 * Если на шаге несколько селекторов - нужно фильтровать продукты
@@ -816,10 +835,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		set({modifications})
 
-		useComposition.getState().handleModificationsChange()
-		useComposition.getState().updateTotalPrice()
-		useComposition.getState().setResultAdditionalData()
-		useComposition.getState().setResultCharacteristics()
+		useComposition.getState().syncCompositionWithModifications()
 	},
 
 	// * Клик по замочку
@@ -930,10 +946,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		get().normalizeSelectorStatuses()
 
 		// Обновляем Composition Store после нормализации
-		useComposition.getState().handleModificationsChange()
-		useComposition.getState().updateTotalPrice()
-		useComposition.getState().setResultAdditionalData()
-		useComposition.getState().setResultCharacteristics()
+		useComposition.getState().syncCompositionWithModifications()
 	},
 
 	productsWithBuiltInDriver: [],

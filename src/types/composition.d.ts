@@ -62,6 +62,8 @@ export type T_CompositionSlice = {
 	separatedBox: boolean
 	toggleSeparatedBox: () => void
 
+	syncCompositionWithModifications: () => void
+
 	// #region Виртуальный артикул
 	virtualArticle: (null | string)[] | null
 

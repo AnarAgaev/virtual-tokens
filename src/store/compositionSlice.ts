@@ -512,6 +512,13 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 		set({separatedBox: !get().separatedBox})
 	},
 
+	syncCompositionWithModifications: () => {
+		get().handleModificationsChange()
+		get().updateTotalPrice()
+		get().setResultAdditionalData()
+		get().setResultCharacteristics()
+	},
+
 	// #region Виртуальный артикул
 	/**
 	 * Делала Оля Кондратенко - kondratenko@technolight.ru
