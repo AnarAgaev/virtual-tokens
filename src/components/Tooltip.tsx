@@ -8,6 +8,7 @@ export interface TooltipProps extends ChakraTooltip.RootProps {
 	content: React.ReactNode
 	contentProps?: ChakraTooltip.ContentProps
 	disabled?: boolean
+	textAlign?: 'left' | 'center' | 'right'
 }
 
 export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
@@ -20,6 +21,7 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
 			content,
 			contentProps,
 			portalRef,
+			textAlign,
 			...rest
 		} = props
 
@@ -37,6 +39,7 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
 							p="3"
 							maxW="260px"
 							textWrap="balance"
+							textAlign={!textAlign ? 'left' : textAlign}
 						>
 							{showArrow && (
 								<ChakraTooltip.Arrow>

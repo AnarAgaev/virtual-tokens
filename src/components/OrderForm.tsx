@@ -13,8 +13,10 @@ import {useEffect, useRef, useState} from 'react'
 import {formatNumber} from '@/helpers'
 import {useCountHandlers} from '@/hooks'
 import {useApp, useComposition} from '@/store'
+import {Tooltip} from './Tooltip'
 
 export const OrderForm = () => {
+	const virtualArticle = useComposition((state) => state.virtualArticle)
 	const separatedBox = useComposition((state) => state.separatedBox)
 	const toggleSeparatedBox = useComposition((state) => state.toggleSeparatedBox)
 	const pushDotToCart = useComposition((state) => state.pushDotToCart)
@@ -82,6 +84,10 @@ export const OrderForm = () => {
 			}
 		}
 	}
+
+	const isVirtualArticleComplete = !virtualArticle
+		? false
+		: !virtualArticle?.some((a) => a === null)
 
 	return (
 		<VStack w="full" pb="1" gap="5">
@@ -207,17 +213,26 @@ export const OrderForm = () => {
 
 			{/* Кнопки */}
 			<Flex direction={{base: 'column', sm: 'row'}} gap="2" w="full">
-				<Button
-					w={{base: 'full', sm: 'calc(50% - 4px)'}}
-					colorPalette="gray"
-					variant="outline"
-					rounded="full"
-					size="xl"
-					disabled={isDotInCart}
-					onClick={pushDotToCart}
+				<Tooltip
+					showArrow
+					content="Для добавления в корзину соберите полную конфигурацию"
+					positioning={{placement: 'top'}}
+					disabled={isVirtualArticleComplete}
+					openDelay={100}
+					textAlign="center"
 				>
-					{isDotInCart ? 'В корзине' : 'Добавить в корзину'}
-				</Button>
+					<Button
+						w={{base: 'full', sm: 'calc(50% - 4px)'}}
+						colorPalette="gray"
+						variant="outline"
+						rounded="full"
+						size="xl"
+						disabled={!isVirtualArticleComplete || isDotInCart}
+						onClick={pushDotToCart}
+					>
+						{isDotInCart ? 'В корзине' : 'Добавить в корзину'}
+					</Button>
+				</Tooltip>
 				<Button
 					w={{base: 'full', sm: 'calc(50% - 4px)'}}
 					colorPalette="gray"
