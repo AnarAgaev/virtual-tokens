@@ -930,7 +930,6 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		targetProducts.forEach((product) => {
 			if (product.blockedBy) {
-				console.log('product.blockedBy', product.blockedBy)
 				// Сохраняем блокиратора
 				product.blockedBy.forEach((blockedObj) => {
 					blockingSelectorAndOptions.add(
