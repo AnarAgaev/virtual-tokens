@@ -11,6 +11,12 @@ export interface TooltipProps extends ChakraTooltip.RootProps {
 	textAlign?: 'left' | 'center' | 'right'
 }
 
+const tooltipFontOverride: React.CSSProperties = {
+	fontFamily: 'var(--chakra-fonts-body)',
+	fontSize: 'var(--chakra-font-sizes-xs)',
+	lineHeight: 'var(--chakra-line-heights-shorter)',
+}
+
 export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
 	function Tooltip(props, ref) {
 		const {
@@ -40,6 +46,7 @@ export const Tooltip = React.forwardRef<HTMLDivElement, TooltipProps>(
 							maxW="260px"
 							textWrap="balance"
 							textAlign={!textAlign ? 'left' : textAlign}
+							style={tooltipFontOverride}
 						>
 							{showArrow && (
 								<ChakraTooltip.Arrow>

@@ -207,8 +207,15 @@ export const OrderForm = () => {
 				onCheckedChange={toggleSeparatedBox}
 			>
 				<Checkbox.HiddenInput />
-				<Checkbox.Control borderRadius={0} />
-				<Checkbox.Label>Собрать комплект в отдельную коробку</Checkbox.Label>
+				<Checkbox.Control
+					borderRadius={0}
+					borderColor="gray.200"
+					borderWidth="1px"
+					borderStyle="solid"
+				/>
+				<Checkbox.Label fontSize="sm">
+					Собрать комплект в отдельную коробку
+				</Checkbox.Label>
 			</Checkbox.Root>
 
 			{/* Кнопки */}
