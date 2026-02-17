@@ -1,9 +1,5 @@
-version: "3.9"
-
 services:
-  # ======================
-  # DEV
-  # ======================
+  # DEVELOPMENT
   frontend-dev:
     build:
       context: .
@@ -21,21 +17,30 @@ services:
       - CHOKIDAR_USEPOLLING=true
     command: npm run dev
 
-  # ======================
-  # PROD
-  # ======================
-  frontend-prod:
+
+  # BUILD (CI / TESTING)
+  frontend-build:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        NODE_VERSION: 23.10.0  # фиксируем ту же версию Node.js
-    container_name: virtual-tokens-prod
-    profiles: ["prod"]
-    ports:
-      - "8080:80"
-    restart: unless-stopped
+    container_name: virtual-tokens-build
+    profiles: ["build"]
+
+    # Монтируем локально dist, чтобы артефакт появился у тебя на ПК
+    volumes:
+      - ./dist:/app/dist
+
+    # Сборка production-билда
+    command: sh -c "npm ci && npm run build"
+
 
 # Использование:
+#
+# 1️⃣ Development (запуск dev-сервера Vite):
 # docker compose --profile dev up --build
-# docker compose --profile prod up --build
+#
+# 2️⃣ Сборка production-билда (генерация папки dist для тестирования / CI):
+# docker compose --profile build up --build
+#
+# 3️⃣ Остановить контейнеры:
+# docker compose down
