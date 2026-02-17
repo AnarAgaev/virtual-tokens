@@ -16,21 +16,22 @@ A modern web application for automatically generating virtual tokens from electr
 
 ## ✨ Features
 
--   🎯 **Automatic Token Generation** - Convert part numbers to virtual tokens seamlessly
--   📱 **Responsive Design** - Works perfectly on all devices
--   🎨 **Beautiful UI** - Clean and modern interface powered by Chakra UI
--   🔒 **Type Safety** - Full TypeScript support with Zod validation
--   ⚡ **Blazing Fast** - Optimized performance with Vite
--   🧩 **Modular Architecture** - Well-structured and maintainable codebase
+- 🎯 **Automatic Token Generation** - Convert part numbers to virtual tokens seamlessly
+- 📱 **Responsive Design** - Works perfectly on all devices
+- 🎨 **Beautiful UI** - Clean and modern interface powered by Chakra UI
+- 🔒 **Type Safety** - Full TypeScript support with Zod validation
+- ⚡ **Blazing Fast** - Optimized performance with Vite
+- 🧩 **Modular Architecture** - Well-structured and maintainable codebase
 
 ## 🛠️ Development
 
 ### Prerequisites
 
--   Node.js (version 19.2 or higher)
--   npm or yarn package manager
+- **Node.js** (version 23.10.0 or higher)
+- **npm** or **yarn** package manager
+- **Docker** and **Docker Compose** (for containerized development)
 
-### Installation
+### Local Installation
 
 ```bash
 # Clone the repository
@@ -44,78 +45,69 @@ npm install
 npm run dev
 ```
 
-<br><br>
+## 🐳 Docker Development
 
-# React + TypeScript + Vite
+The project uses Docker with multi-stage builds and profiles for different scenarios.
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Docker Files Structure
 
-Currently, two official plugins are available:
+- **`Dockerfile`** - Production build stage (creates optimized dist folder)
+- **`Dockerfile.dev`** - Development environment with hot-reload for Vite
+- **`.dockerignore`** - Excludes unnecessary files from Docker context
+- **`docker-compose.yml`** - Orchestrates containers with profile support
 
--   [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
--   [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Quick Start with Docker
 
-## React Compiler
+#### 1️⃣ Development Mode (with hot-reload)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-	globalIgnores(["dist"]),
-	{
-		files: ["**/*.{ts,tsx}"],
-		extends: [
-			// Other configs...
-
-			// Remove tseslint.configs.recommended and replace with this
-			tseslint.configs.recommendedTypeChecked,
-			// Alternatively, use this for stricter rules
-			tseslint.configs.strictTypeChecked,
-			// Optionally, add this for stylistic rules
-			tseslint.configs.stylisticTypeChecked,
-
-			// Other configs...
-		],
-		languageOptions: {
-			parserOptions: {
-				project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-				tsconfigRootDir: import.meta.dirname,
-			},
-			// other options...
-		},
-	},
-])
+```bash
+# Start Vite dev server with live reload
+docker compose --profile dev up --build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+App will be available at **http://localhost:5173**
 
-```js
-// eslint.config.js
-import reactX from "eslint-plugin-react-x"
-import reactDom from "eslint-plugin-react-dom"
+**This mode:**
 
-export default defineConfig([
-	globalIgnores(["dist"]),
-	{
-		files: ["**/*.{ts,tsx}"],
-		extends: [
-			// Other configs...
-			// Enable lint rules for React
-			reactX.configs["recommended-typescript"],
-			// Enable lint rules for React DOM
-			reactDom.configs.recommended,
-		],
-		languageOptions: {
-			parserOptions: {
-				project: ["./tsconfig.node.json", "./tsconfig.app.json"],
-				tsconfigRootDir: import.meta.dirname,
-			},
-			// other options...
-		},
-	},
-])
+- Mounts your local files for instant updates
+- Enables polling for hot-reload to work properly
+- Perfect for active development without Node.js installed locally
+
+#### 2️⃣ Production Build (for CI/CD testing)
+
+```bash
+# Generate production-ready dist folder
+docker compose --profile build up --build
+```
+
+The `dist` folder will appear in your local project directory.
+
+**This mode:**
+
+- Creates an optimized production build
+- Exports the `dist` folder to your local machine
+- Ideal for testing the production bundle or CI/CD pipelines
+
+#### 3️⃣ Stop Containers
+
+```bash
+# Stop and remove all running containers
+docker compose down
+```
+
+## 🔄 CI/CD Integration
+
+The build profile is designed to work seamlessly with CI/CD pipelines. The generated `dist` folder contains all static assets ready for deployment to any static hosting service.
+
+## 📦 Project Structure
+
+```
+virtual-tokens/
+├── src/               # Source code
+├── public/            # Static assets
+├── dist/              # Production build (generated)
+├── docker-compose.yml # Docker composition
+├── Dockerfile         # Production build stage
+├── Dockerfile.dev     # Development environment
+└── .dockerignore      # Docker exclusions
 ```
