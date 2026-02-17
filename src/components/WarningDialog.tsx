@@ -1,6 +1,15 @@
 import {Button, CloseButton, Dialog, Portal, Text} from '@chakra-ui/react'
 import {useConfiguration} from '@/store'
 
+const resetOverride: React.CSSProperties = {
+	fontFamily: 'var(--chakra-fonts-body)',
+	fontSize: 'var(--chakra-font-sizes-xs)',
+	lineHeight: 'var(--chakra-line-heights-normal)',
+	verticalAlign: 'unset',
+	margin: 'unset',
+	border: 'unset',
+}
+
 export const WarningDialog = () => {
 	const setSelectedOption = useConfiguration((state) => state.setSelectedOption)
 	const unlockSelector = useConfiguration((state) => state.unlockSelector)
@@ -25,29 +34,57 @@ export const WarningDialog = () => {
 		>
 			<Portal>
 				<Dialog.Backdrop />
-				<Dialog.Positioner>
-					<Dialog.Content borderRadius="0">
+				<Dialog.Positioner style={{width: '100dvw'}}>
+					<Dialog.Content
+						borderRadius="0"
+						style={{outline: '0', borderRadius: '0'}}
+					>
 						<Dialog.CloseTrigger asChild>
 							<CloseButton
 								borderRadius="0"
 								onClick={() => toggleWarningVisible({direction: 'hide'})}
 							/>
 						</Dialog.CloseTrigger>
-						<Dialog.Header>
-							<Dialog.Title fontWeight="medium">Подтвердите выбор</Dialog.Title>
+						<Dialog.Header
+							style={{
+								paddingInline: 'var(--chakra-spacing-6)',
+								paddingTop: 'var(--chakra-spacing-6)',
+								paddingBottom: 'var(--chakra-spacing-4)',
+							}}
+						>
+							<Dialog.Title
+								fontWeight="medium"
+								style={{fontWeight: 'var(--chakra-font-weights-medium)'}}
+							>
+								Подтвердите выбор
+							</Dialog.Title>
 						</Dialog.Header>
-						<Dialog.Body>
+						<Dialog.Body
+							style={{
+								paddingInline: 'var(--chakra-spacing-6)',
+								paddingTop: 'var(--chakra-spacing-2)',
+								paddingBottom: 'var(--chakra-spacing-6)',
+							}}
+						>
 							<Text fontWeight="normal" fontSize="14px">
 								При внесении изменений выбранные ранее параметры ниже будут
 								очищены!
 							</Text>
 						</Dialog.Body>
-						<Dialog.Footer flexDirection={{base: 'column', sm: 'row'}}>
+						<Dialog.Footer
+							flexDirection={{base: 'column', sm: 'row'}}
+							style={{
+								paddingInline: 'var(--chakra-spacing-6)',
+								paddingTop: 'var(--chakra-spacing-2)',
+								paddingBottom: 'var(--chakra-spacing-4)',
+							}}
+						>
 							<Button
 								size="xs"
 								variant="outline"
 								borderRadius="none"
 								w={{base: 'full', sm: 'auto'}}
+								style={{...resetOverride}}
 								onClick={() => {
 									stopShowWarning()
 									toggleWarningVisible({direction: 'hide'})
@@ -61,6 +98,7 @@ export const WarningDialog = () => {
 								borderRadius="none"
 								color="white"
 								w={{base: 'full', sm: 'auto'}}
+								style={{...resetOverride}}
 								onClick={() => toggleWarningVisible({direction: 'hide'})}
 							>
 								Не выбирать
@@ -71,6 +109,7 @@ export const WarningDialog = () => {
 								colorPalette="red"
 								borderRadius="none"
 								w={{base: 'full', sm: 'auto'}}
+								style={{...resetOverride}}
 								onClick={() => {
 									if (warningData.optionData) {
 										setSelectedOption(warningData.optionData)

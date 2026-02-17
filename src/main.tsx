@@ -18,6 +18,5 @@ createRoot(rootElement).render(
 				<WarningDialog />
 			</ChakraProvider>
 		</ErrorBoundary>
-		,
 	</StrictMode>,
 )
