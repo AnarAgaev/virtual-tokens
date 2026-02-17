@@ -83,6 +83,9 @@ export const WarningDialog = () => {
 								size="xs"
 								variant="outline"
 								borderRadius="none"
+								borderWidth="1px !important"
+								borderColor="gray.200 !important"
+								borderStyle="solid !important"
 								w={{base: 'full', sm: 'auto'}}
 								style={{...resetOverride}}
 								onClick={() => {

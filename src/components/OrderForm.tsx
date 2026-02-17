@@ -194,6 +194,7 @@ export const OrderForm = () => {
 						whiteSpace="nowrap"
 						boxSizing="border-box"
 						pl="44px"
+						fontSize="sm"
 						disabled={isDotInCart}
 					/>
 				</InputGroup>
