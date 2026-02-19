@@ -170,7 +170,8 @@ const product = z.object({
 	power: z
 		.number()
 		.nonnegative('Мощность не может быть отрицательной')
-		.nullable(),
+		.nullable()
+		.optional(),
 	light_temperatures: z.string().nullable(),
 	light_angle: z
 		.number()
