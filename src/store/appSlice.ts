@@ -1,7 +1,7 @@
 // import {type ErrorMessageOptions, generateErrorMessage} from 'zod-error'
 import {create, type StateCreator} from 'zustand'
 import {devtools} from 'zustand/middleware'
-import {formatZodErrors} from '@/helpers'
+import {formatZodErrors, getUrlParam, logExtraFields} from '@/helpers'
 import {useConfiguration} from '@/store'
 import type {T_AppSlice} from '@/types'
 import {InitDataContract} from '@/zod'
@@ -33,9 +33,9 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 
 			const apiLink =
 				normalizeUrl(apiLinkFromGetParam) ?? 'mocks/virtual-token.json'
-			//! Временная логика для тестирования --- END
-
 			if (!apiLink) {
+				//! Временная логика для тестирования --- END
+
 				throw new Error(
 					`Не указан API URL получения инит данных. Текущее значение apiLink: ${apiLink}`,
 				)
@@ -76,20 +76,32 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 				files: safeResponse.data.files,
 			})
 
-			// Определяем тип пользователя
-			// if (safeResponse.data.is_admin) {
-			// 	set({userStatus: 'admin'})
-			// }
+			// #region Определяем тип пользователя
+			let userStatus: T_AppSlice['userStatus'] = 'user'
 
-			//! Временная логика для тестирования --- START
-			const userStatus = window.location.search
-				?.split('?')
-				?.filter(Boolean)[0]
-				?.split('&')
-				?.filter((getParm) => getParm.includes('status'))[0]
-				?.split('=')[1] as 'admin' | 'manager' | 'user'
-			if (userStatus) set({userStatus})
-			//! Временная логика для тестирования --- END
+			if (safeResponse.data.is_admin) {
+				userStatus = 'admin'
+			}
+
+			const userStatusFromUrl = getUrlParam('status')
+
+			if (
+				userStatusFromUrl &&
+				(userStatusFromUrl === 'admin' ||
+					userStatusFromUrl === 'manager' ||
+					userStatusFromUrl === 'user')
+			) {
+				userStatus = userStatusFromUrl
+			}
+
+			set({userStatus})
+			// #endregion
+
+			// #region Проверяем новые свойства в API данных
+			if (userStatus === 'admin') {
+				logExtraFields(safeResponse.data, InitDataContract)
+			}
+			// #endregion
 
 			// Создаем абстракцию с селектами/кнопками для удобства работы
 			useConfiguration.getState().createModifications()
