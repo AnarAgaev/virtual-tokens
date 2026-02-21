@@ -100,95 +100,100 @@ const comboFile = z.object({
 		.min(1, 'Ссылка на файл не может быть пустой'),
 })
 
-const combo = z.object({
-	combo: z
-		.record(
-			z.string().min(1, 'Название шага в комбо не может быть пустым'),
-			z
-				.array(z.string().min(1, 'Артикул в комбо не может быть пустым'))
-				.min(1, 'Список артикулов в комбо не может быть пустым'),
-		)
-		.refine(
-			(combo) => Object.keys(combo).length > 0,
-			'Комбо должен содержать хотя бы один шаг',
-		),
-	name: z
-		.string()
-		.min(1, 'Название комбо не может быть пустой строкой')
-		.optional(),
-	light_flow: z
-		.number()
-		.nonnegative('Световой поток не может быть отрицательным')
-		.optional(),
-	files: z
-		.array(comboFile)
-		.min(1, 'Список файлов не может быть пустым')
-		.optional(),
-	final_image: z
-		.string()
-		.url('Ссылка на изображение должна быть валидным URL')
-		.optional(),
-	final_drawing: z
-		.string()
-		.url('Ссылка на чертеж должна быть валидным URL')
-		.optional(),
-})
+const combo = z
+	.object({
+		combo: z
+			.record(
+				z.string().min(1, 'Название шага в комбо не может быть пустым'),
+				z
+					.array(z.string().min(1, 'Артикул в комбо не может быть пустым'))
+					.min(1, 'Список артикулов в комбо не может быть пустым'),
+			)
+			.refine(
+				(combo) => Object.keys(combo).length > 0,
+				'Комбо должен содержать хотя бы один шаг',
+			),
+		name: z
+			.string()
+			.min(1, 'Название комбо не может быть пустой строкой')
+			.optional(),
+		light_flow: z
+			.number()
+			.nonnegative('Световой поток не может быть отрицательным')
+			.optional(),
+		files: z
+			.array(comboFile)
+			.min(1, 'Список файлов не может быть пустым')
+			.optional(),
+		final_image: z
+			.string()
+			.url('Ссылка на изображение должна быть валидным URL')
+			.optional(),
+		final_drawing: z
+			.string()
+			.url('Ссылка на чертеж должна быть валидным URL')
+			.optional(),
+	})
+	.passthrough()
 const combos = z.array(combo)
 export type T_Combo = z.infer<typeof combo>
 export type T_Combos = z.infer<typeof combos> | null
 
-const product = z.object({
-	id: z.number().int().positive('ID товара должен быть положительным числом'),
-	article: z.string().min(1, 'Артикул товара не может быть пустым'),
-	title: z.string().min(1, 'Название товара не может быть пустым'),
-	ip_class: z
-		.number()
-		.int()
-		.nonnegative('Класс IP не может быть отрицательным')
-		.nullable(),
-	price: z.number().nonnegative('Цена не может быть отрицательной'),
-	old_price: z.union([
-		z.number().nonnegative('Старая цена не может быть отрицательной'),
-		z.null(),
-	]),
-	sale: z.union([z.boolean(), z.null()]),
-	image: z
-		.string()
-		.url('Ссылка на изображение должна быть валидным URL')
-		.min(1, 'Ссылка на изображение не может быть пустой'),
-	available: z.boolean(),
-	height_in_assembly: z
-		.number()
-		.nonnegative('Высота в сборке не может быть отрицательной'),
-	color_rendering_index: z.union([z.number(), z.string()]).nullable(),
-	lamp_style: z.string().nullable().optional(),
-	frame_type: z.string().optional(),
-	armature_color: z
-		.string()
-		.min(1, 'Цвет арматуры не может быть пустым')
-		.nullable(),
-	power: z
-		.number()
-		.nonnegative('Мощность не может быть отрицательной')
-		.nullable()
-		.optional(),
-	light_temperatures: z.string().nullable(),
-	light_angle: z
-		.number()
-		.nonnegative('Угол освещения не может быть отрицательным')
-		.nullable()
-		.optional(),
-	ugr: z.string(),
-	link: z.string().min(1, 'Ссылка на товар не может быть пустой'),
-	input_voltage_v: z.union([z.number(), z.string()]).nullable().optional(),
-	komplektaciya: z.string().nullable().optional(),
-	tip_upravleniya: z.string().nullable().optional(),
-	form: z.string().nullable().optional(),
-	scattering_angle: z
-		.number()
-		.nonnegative('Угол рассеивания не может быть отрицательным')
-		.optional(),
-})
+const product = z
+	.object({
+		id: z.number().int().positive('ID товара должен быть положительным числом'),
+		article: z.string().min(1, 'Артикул товара не может быть пустым'),
+		title: z.string().min(1, 'Название товара не может быть пустым'),
+		ip_class: z
+			.number()
+			.int()
+			.nonnegative('Класс IP не может быть отрицательным')
+			.nullable(),
+		price: z.number().nonnegative('Цена не может быть отрицательной'),
+		old_price: z.union([
+			z.number().nonnegative('Старая цена не может быть отрицательной'),
+			z.null(),
+		]),
+		sale: z.union([z.boolean(), z.null()]),
+		image: z
+			.string()
+			.url('Ссылка на изображение должна быть валидным URL')
+			.min(1, 'Ссылка на изображение не может быть пустой'),
+		available: z.boolean(),
+		height_in_assembly: z
+			.number()
+			.nonnegative('Высота в сборке не может быть отрицательной'),
+		color_rendering_index: z.union([z.number(), z.string()]).nullable(),
+		lamp_style: z.string().nullable().optional(),
+		frame_type: z.string().optional(),
+		armature_color: z
+			.string()
+			.min(1, 'Цвет арматуры не может быть пустым')
+			.nullable(),
+		power: z
+			.number()
+			.nonnegative('Мощность не может быть отрицательной')
+			.nullable()
+			.optional(),
+		light_temperatures: z.string().nullable(),
+		light_angle: z
+			.number()
+			.nonnegative('Угол освещения не может быть отрицательным')
+			.nullable()
+			.optional(),
+		ugr: z.string(),
+		link: z.string().min(1, 'Ссылка на товар не может быть пустой'),
+		input_voltage_v: z.union([z.number(), z.string()]).nullable().optional(),
+		power_range_w: z.union([z.number(), z.string()]).nullable().optional(),
+		komplektaciya: z.string().nullable().optional(),
+		tip_upravleniya: z.string().nullable().optional(),
+		form: z.string().nullable().optional(),
+		scattering_angle: z
+			.number()
+			.nonnegative('Угол рассеивания не может быть отрицательным')
+			.optional(),
+	})
+	.passthrough() // ВСЕ дополнительные поля, которых нет в контракте, останутся в объекте
 
 export type T_Product = z.infer<typeof product>
 

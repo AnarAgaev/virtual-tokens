@@ -546,6 +546,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 							clickedSelectorPlaceIdx + 1 + driverSelectorsCount ===
 								currentSelectorPlaceIdx &&
 							selectorIdsMap[clickedSelectorPlaceIdx + 1] ===
+								// biome-ignore lint/complexity/useLiteralKeys: Свойство Драйвер именно в таком виде приходит с бэка
 								modifications['Драйвер']?.[0]?.selectorId
 						) {
 							selector.selectorSelectedStatus = 'unselected'
