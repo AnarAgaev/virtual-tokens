@@ -118,6 +118,7 @@ export const ConfigurationPage = () => {
 				</Flex>
 				{isVirtualArticleComplete && (
 					<Button
+						display={{base: 'none', lg: 'flex'}}
 						borderRadius="none"
 						variant="solid"
 						size="sm"
@@ -133,7 +134,23 @@ export const ConfigurationPage = () => {
 
 			<Flex direction="column" w="full" gap="10">
 				<Configurator />
+
+				{isVirtualArticleComplete && (
+					<Button
+						display={{lg: 'none'}}
+						borderRadius="none"
+						variant="solid"
+						size="sm"
+						color="white"
+						textStyle="sm"
+						w="full"
+						onClick={() => setActiveTab({tabType: 'description'})}
+					>
+						Перейти к итоговой конфигурации
+					</Button>
+				)}
 				<Button
+					mt={isVirtualArticleComplete ? '-6' : '0'}
 					borderRadius="none"
 					variant="solid"
 					size="sm"
