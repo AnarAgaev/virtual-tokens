@@ -459,6 +459,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		return false
 	},
 
+	// * Клик по кнопке/опшену
 	setSelectedOption: (payload) => {
 		const modifications = structuredClone({...get().modifications})
 
@@ -620,6 +621,37 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 						// Сбрасываем выбор опции
 						option.selected = false
+
+						/**
+						 * Снимаем блокировки которые сбрасываемый селектор наложил на селекторы ниже.
+						 * Из-за того, что мы проходим по всем селекторам, будут сброшены все
+						 * транзитивные артикулы расположенные ниже сбрасываемого
+						 */
+						const currentSelectorIdx = selectorIdsMap.indexOf(
+							selector.selectorId,
+						)
+
+						Object.values(modifications)
+							.flat()
+							.forEach((lowerSelector) => {
+								const lowerIdx = selectorIdsMap.indexOf(
+									lowerSelector.selectorId,
+								)
+
+								if (lowerIdx <= currentSelectorIdx) return
+
+								lowerSelector.selectorOptions.forEach((lowerOption) => {
+									lowerOption.products.forEach((product) => {
+										if (product.blockedBy?.length) {
+											product.blockedBy = product.blockedBy.filter(
+												(blockedObj) =>
+													blockedObj.selectorId !== selector.selectorId,
+											)
+											if (!product.blockedBy.length) delete product.blockedBy
+										}
+									})
+								})
+							})
 					})
 				}
 			})
