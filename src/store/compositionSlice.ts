@@ -104,12 +104,12 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 	},
 
 	/**
-	 * Отслеживаем modifications в Слайсе useConfiguration [name: 'Configuration Store']
+	 * Отслеживаем modifications в Слайсе useConfiguration
 	 * Вызываем везде и сразу после изменения modifications во всех Слайсах
 	 */
 	handleModificationsChange: () => {
 		const modifications = useConfiguration.getState().modifications
-		const steps = structuredClone(modifications) // ✅ Deep copy
+		const steps = structuredClone(modifications) // Deep copy
 		const selectedProducts: T_CompositionSlice['selectedProducts'] = {}
 
 		for (const stepName in steps) {
@@ -139,14 +139,13 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 				selectedProducts[stepName] = {
 					selector: selectorName,
 					option: selectedOption.value,
-					products:
-						selectedOption.products.length &&
-						selectedOption.products[0].autoAddedProducts
-							? [
-									selectedOption.products[0],
-									...selectedOption.products[0].autoAddedProducts,
-								]
-							: selectedOption.products,
+					products: selectedOption.products
+						.filter((product) => !product.blockedBy) // Выбираем только не заблокированные артикулы
+						.flatMap((product) =>
+							product.autoAddedProducts
+								? [product, ...product.autoAddedProducts]
+								: [product],
+						),
 				}
 			} else {
 				// Находим общие продукты для всех выбранных опций
@@ -209,7 +208,13 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 						 */
 						selector: null,
 						option: null,
-						products: products,
+						products: commonProducts
+							.filter((product) => !product.blockedBy)
+							.flatMap((product) =>
+								product.autoAddedProducts
+									? [product, ...product.autoAddedProducts]
+									: [product],
+							),
 					}
 				}
 			}

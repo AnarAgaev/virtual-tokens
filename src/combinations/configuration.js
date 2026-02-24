@@ -13,7 +13,7 @@ async function getAllPossibleCombinationsFromAPI(
 		}
 
 		const dotsData = await response.json()
-		console.log('✅ Данные успешно загружены')
+		console.log('Данные успешно загружены')
 
 		return getAllPossibleCombinations(dotsData, existComplect, existAlFrame)
 	} catch (error) {
@@ -255,5 +255,5 @@ export async function analyzeCombinations(
 
 /*analyzeCombinations('https://technolight.ru/api/dots/19')
 	.then(combinations => {
-		console.log('✅ Анализ завершен');
+		console.log('Анализ завершен');
 	});*/
