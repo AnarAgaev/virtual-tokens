@@ -523,6 +523,11 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 		get().setResultCharacteristics()
 	},
 
+	lastChangedStepName: null,
+	setLastChangedStepName: (stepName) => {
+		set({lastChangedStepName: stepName})
+	},
+
 	// #region Виртуальный артикул
 	/**
 	 * Делала Оля Кондратенко - kondratenko@technolight.ru

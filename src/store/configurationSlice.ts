@@ -480,6 +480,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 			set({modifications})
 
+			// Запоминаем последний изменённый шаг для optional
+			useComposition.getState().setLastChangedStepName(payload.stepName)
+
 			useComposition.getState().syncCompositionWithModifications()
 
 			return
@@ -931,6 +934,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 		set({modifications})
 
+		// Запоминаем последний изменённый шаг
+		useComposition.getState().setLastChangedStepName(payload.stepName)
+
 		useComposition.getState().syncCompositionWithModifications()
 	},
 
@@ -1036,6 +1042,11 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 		unblockingOptions.forEach((selectionObj) => {
 			get().setSelectedOption(selectionObj)
 		})
+
+		// Запоминаем последний изменённый шаг
+		if (targetSelector) {
+			useComposition.getState().setLastChangedStepName(targetSelector.stepName)
+		}
 
 		// Нормализуем статусы селекторов после всех перекрёстных разблокировок
 		get().normalizeSelectorStatuses()

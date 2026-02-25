@@ -9,7 +9,7 @@ import {
 	Text,
 } from '@chakra-ui/react'
 import {X} from 'lucide-react'
-import {Configurator, ImagePlaceholder} from '@/components'
+import {Configurator, ImagePlaceholder, StepImageSlider} from '@/components'
 import {useApp, useComposition, useConfiguration} from '@/store'
 
 export const ConfigurationPage = () => {
@@ -35,7 +35,9 @@ export const ConfigurationPage = () => {
 		<Flex
 			direction={{base: 'column', lg: 'row'}}
 			gap={{base: 5, lg: 10, xl: '126px'}}
+			alignItems={{lg: 'stretch'}}
 		>
+			{/* Сайдбар с картинками */}
 			<Flex
 				gap={{base: '5', lg: '4'}}
 				order={{lg: 1}}
@@ -45,18 +47,59 @@ export const ConfigurationPage = () => {
 				w={{lg: '23.879%'}}
 				flexShrink={0}
 			>
+				{/* Картинка шага */}
+				<Box
+					display={{base: 'none', lg: 'block'}}
+					w={{lg: 'full', xl: '75%', '2xl': '65%'}}
+					aspectRatio={1}
+					pos="relative"
+					flexShrink="0"
+				>
+					<StepImageSlider />
+				</Box>
+
 				<Flex
 					gap={{base: '5', lg: '4'}}
 					direction={{lg: 'column'}}
 					align={{lg: 'center'}}
 					flexShrink={0}
+					w={{lg: 'full', xl: '75%', '2xl': '65%'}}
 				>
+					{/* Виртуальный артикул */}
+					<Flex
+						gap="2"
+						align="center"
+						w="full"
+						direction="column"
+						order={{base: '2', lg: '1'}}
+					>
+						<Text textStyle="sm" textAlign="center">
+							Виртуальный артикул:
+						</Text>
+						<Text
+							textStyle={{base: 'xs', xl: 'md'}}
+							fontWeight="light"
+							textAlign="center"
+							lineHeight="1.2 !important"
+							whiteSpace="pre-line"
+							textWrap={!isVirtualArticleValid ? 'balance' : 'nowrap'}
+						>
+							{isVirtualArticleValid
+								? virtualArticle
+										?.map((article) => (article ? `${article}` : `XXX`))
+										.join('-')
+								: `Недостаточно выбора${'\n'}для формирования Артикула`}
+						</Text>
+					</Flex>
+
+					{/* Итоговая картинка */}
 					<Box
 						w={{base: '26.6%', lg: 'full'}}
 						aspectRatio={1}
 						pos="relative"
 						flexShrink="0"
 						backgroundColor="gray.100"
+						order={{base: '1', lg: '2'}}
 					>
 						{resultData?.image ? (
 							<Image
@@ -91,48 +134,35 @@ export const ConfigurationPage = () => {
 									w={{base: '90%', md: '70%'}}
 									fontSize={{base: 'clamp(8px, 2vw, 14px)', lg: 'sm'}}
 								>
-									Покажем здесь картинку, как только сможем её получить.
+									Покажем здесь картинку итоговой конфигурации
 								</Text>
 							</Flex>
 						)}
 					</Box>
-					<Flex gap="1" align="center" w="full" direction="column">
-						<Text textStyle="sm" textAlign="center">
-							Виртуальный артикул:
-						</Text>
-						<Text
-							textStyle={{base: 'xs', sm: 'xl'}}
-							fontWeight="light"
-							textAlign="center"
-							lineHeight="1.2 !important"
-							whiteSpace="pre-line"
-							textWrap={!isVirtualArticleValid ? 'balance' : 'nowrap'}
+
+					{/* Кнопка перейти к Итого */}
+					{isVirtualArticleComplete && (
+						<Button
+							display={{base: 'none', lg: 'flex'}}
+							borderRadius="none"
+							variant="solid"
+							size="sm"
+							color="white"
+							textStyle="sm"
+							mt="6"
+							order="3"
+							w="full"
+							// w={{base: 'full', '2xl': '80%'}}
+							onClick={() => setActiveTab({tabType: 'description'})}
 						>
-							{isVirtualArticleValid
-								? virtualArticle
-										?.map((article) => (article ? `${article}` : `XXX`))
-										.join('-')
-								: `Недостаточно выбора${'\n'}для формирования Артикула`}
-						</Text>
-					</Flex>
+							Посмотреть всю конфигурацию
+						</Button>
+					)}
 				</Flex>
-				{isVirtualArticleComplete && (
-					<Button
-						display={{base: 'none', lg: 'flex'}}
-						borderRadius="none"
-						variant="solid"
-						size="sm"
-						color="white"
-						textStyle="sm"
-						w="full"
-						onClick={() => setActiveTab({tabType: 'description'})}
-					>
-						Перейти к итоговой конфигурации
-					</Button>
-				)}
 			</Flex>
 
-			<Flex direction="column" w="full" gap="10">
+			{/* Конфигуратор */}
+			<Flex direction="column" w="full" gap="10" justify="space-between">
 				<Configurator />
 
 				{isVirtualArticleComplete && (
@@ -146,7 +176,7 @@ export const ConfigurationPage = () => {
 						w="full"
 						onClick={() => setActiveTab({tabType: 'description'})}
 					>
-						Перейти к итоговой конфигурации
+						Посмотреть всю конфигурацию
 					</Button>
 				)}
 				<Button

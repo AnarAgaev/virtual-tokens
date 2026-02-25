@@ -64,6 +64,9 @@ export type T_CompositionSlice = {
 
 	syncCompositionWithModifications: () => void
 
+	lastChangedStepName: string | null
+	setLastChangedStepName: (stepName: string | null) => void
+
 	// #region Виртуальный артикул
 	virtualArticle: (null | string)[] | null
 
