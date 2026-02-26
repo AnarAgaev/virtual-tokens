@@ -134,6 +134,7 @@ export const StepImageSlider = () => {
 								variant="solid"
 								colorPalette="black"
 								fontSize="2xs"
+								px="2.5"
 							>
 								{item.stepName}
 							</Badge>

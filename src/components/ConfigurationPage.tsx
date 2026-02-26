@@ -50,7 +50,7 @@ export const ConfigurationPage = () => {
 				{/* Картинка шага */}
 				<Box
 					display={{base: 'none', lg: 'block'}}
-					w={{lg: 'full', xl: '75%', '2xl': '65%'}}
+					w="full"
 					aspectRatio={1}
 					pos="relative"
 					flexShrink="0"
@@ -63,7 +63,7 @@ export const ConfigurationPage = () => {
 					direction={{lg: 'column'}}
 					align={{lg: 'center'}}
 					flexShrink={0}
-					w={{lg: 'full', xl: '75%', '2xl': '65%'}}
+					w="full"
 				>
 					{/* Виртуальный артикул */}
 					<Flex
@@ -152,7 +152,6 @@ export const ConfigurationPage = () => {
 							mt="6"
 							order="3"
 							w="full"
-							// w={{base: 'full', '2xl': '80%'}}
 							onClick={() => setActiveTab({tabType: 'description'})}
 						>
 							Посмотреть всю конфигурацию
@@ -180,7 +179,7 @@ export const ConfigurationPage = () => {
 					</Button>
 				)}
 				<Button
-					mt={isVirtualArticleComplete ? '-6' : '0'}
+					mt={{base: '-6', lg: 'initial'}}
 					borderRadius="none"
 					variant="solid"
 					size="sm"
