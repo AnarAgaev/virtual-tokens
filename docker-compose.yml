@@ -44,3 +44,6 @@ services:
 #
 # 3️⃣ Остановить контейнеры:
 # docker compose down
+#
+# 4️⃣ Очистить кэш для пересборки образа
+# docker compose --profile build build --no-cache
