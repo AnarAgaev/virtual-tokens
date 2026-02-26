@@ -47,17 +47,6 @@ export const ConfigurationPage = () => {
 				w={{lg: '23.879%'}}
 				flexShrink={0}
 			>
-				{/* Картинка шага */}
-				<Box
-					display={{base: 'none', lg: 'block'}}
-					w="full"
-					aspectRatio={1}
-					pos="relative"
-					flexShrink="0"
-				>
-					<StepImageSlider />
-				</Box>
-
 				<Flex
 					gap={{base: '5', lg: '4'}}
 					direction={{lg: 'column'}}
@@ -65,6 +54,17 @@ export const ConfigurationPage = () => {
 					flexShrink={0}
 					w="full"
 				>
+					{/* Картинка шага */}
+					<Box
+						display={{base: 'none', lg: 'block'}}
+						w="full"
+						aspectRatio={1}
+						pos="relative"
+						flexShrink="0"
+					>
+						<StepImageSlider />
+					</Box>
+
 					{/* Виртуальный артикул */}
 					<Flex
 						gap="2"
@@ -139,25 +139,25 @@ export const ConfigurationPage = () => {
 							</Flex>
 						)}
 					</Box>
-
-					{/* Кнопка перейти к Итого */}
-					{isVirtualArticleComplete && (
-						<Button
-							display={{base: 'none', lg: 'flex'}}
-							borderRadius="none"
-							variant="solid"
-							size="sm"
-							color="white"
-							textStyle="sm"
-							mt="6"
-							order="3"
-							w="full"
-							onClick={() => setActiveTab({tabType: 'description'})}
-						>
-							Посмотреть всю конфигурацию
-						</Button>
-					)}
 				</Flex>
+
+				{/* Кнопка перейти к Итого */}
+				{isVirtualArticleComplete && (
+					<Button
+						display={{base: 'none', lg: 'flex'}}
+						borderRadius="none"
+						variant="solid"
+						size="sm"
+						color="white"
+						textStyle="sm"
+						mt="6"
+						order="3"
+						w="full"
+						onClick={() => setActiveTab({tabType: 'description'})}
+					>
+						Итоговая конфигурация
+					</Button>
+				)}
 			</Flex>
 
 			{/* Конфигуратор */}
@@ -175,7 +175,7 @@ export const ConfigurationPage = () => {
 						w="full"
 						onClick={() => setActiveTab({tabType: 'description'})}
 					>
-						Посмотреть всю конфигурацию
+						Итоговая конфигурация
 					</Button>
 				)}
 				<Button

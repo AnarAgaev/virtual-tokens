@@ -206,6 +206,7 @@ export const OrderForm = () => {
 				size="sm"
 				checked={separatedBox}
 				onCheckedChange={toggleSeparatedBox}
+				disabled={!isVirtualArticleComplete}
 			>
 				<Checkbox.HiddenInput />
 				<Checkbox.Control
@@ -214,33 +215,33 @@ export const OrderForm = () => {
 					borderWidth="1px"
 					borderStyle="solid"
 				/>
-				<Checkbox.Label fontSize="sm">
-					Собрать комплект в отдельную коробку
-				</Checkbox.Label>
-			</Checkbox.Root>
-
-			{/* Кнопки */}
-			<Flex direction={{base: 'column', sm: 'row'}} gap="2" w="full">
 				<Tooltip
 					showArrow
-					content="Для добавления в корзину соберите полную конфигурацию"
+					content="Для упаковки комплекта в&nbsp;отдельную коробку, соберите полную конфигурацию"
 					positioning={{placement: 'top'}}
 					disabled={isVirtualArticleComplete}
 					openDelay={100}
 					textAlign="center"
 				>
-					<Button
-						w={{base: 'full', sm: 'calc(50% - 4px)'}}
-						colorPalette="gray"
-						variant="outline"
-						rounded="full"
-						size="xl"
-						disabled={!isVirtualArticleComplete || isDotInCart}
-						onClick={pushDotToCart}
-					>
-						{isDotInCart ? 'В корзине' : 'Добавить в корзину'}
-					</Button>
+					<Checkbox.Label fontSize="sm">
+						Собрать комплект в отдельной коробке
+					</Checkbox.Label>
 				</Tooltip>
+			</Checkbox.Root>
+
+			{/* Кнопки */}
+			<Flex direction={{base: 'column', sm: 'row'}} gap="2" w="full">
+				<Button
+					w={{base: 'full', sm: 'calc(50% - 4px)'}}
+					colorPalette="gray"
+					variant="outline"
+					rounded="full"
+					size="xl"
+					disabled={isDotInCart}
+					onClick={pushDotToCart}
+				>
+					{isDotInCart ? 'В корзине' : 'Добавить в корзину'}
+				</Button>
 				<Button
 					w={{base: 'full', sm: 'calc(50% - 4px)'}}
 					colorPalette="gray"
