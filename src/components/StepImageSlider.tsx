@@ -1,11 +1,14 @@
-import {Badge, Box, Flex, Image, Text} from '@chakra-ui/react'
-import {useEffect, useId, useRef} from 'react'
+import {Badge, Box, Button, Flex, Image, Text} from '@chakra-ui/react'
+import {ChevronLeft, ChevronRight} from 'lucide-react'
+import {useEffect, useId, useMemo, useRef, useState} from 'react'
 import type {Swiper as SwiperType} from 'swiper'
+import {Navigation} from 'swiper/modules'
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {ImagePlaceholder} from '@/components'
 import {useComposition} from '@/store'
 
 import 'swiper/css'
+import 'swiper/css/navigation'
 
 export const StepImageSlider = () => {
 	const selectedProducts = useComposition((state) => state.selectedProducts)
@@ -15,18 +18,26 @@ export const StepImageSlider = () => {
 	const id = useId()
 	const swiperRef = useRef<SwiperType | null>(null)
 
+	const [isBeginning, setIsBeginning] = useState(true)
+	const [isEnd, setIsEnd] = useState(false)
+
 	// Собираем все изображения из выбранных продуктов
-	const images = Object.entries(selectedProducts).flatMap(
-		([stepName, stepData]) => {
-			if (Array.isArray(stepData) || !stepData.products.length) return []
-			return stepData.products
-				.map((product) => ({
-					stepName,
-					image: product.image,
-					article: product.article,
-				}))
-				.filter((item) => item.image)
-		},
+	const images = useMemo(
+		() =>
+			Object.entries(selectedProducts).flatMap(([stepName, stepData]) => {
+				if (Array.isArray(stepData) || !stepData.products.length) {
+					return []
+				}
+
+				return stepData.products
+					.map((product) => ({
+						stepName,
+						image: product.image,
+						article: product.article,
+					}))
+					.filter((item) => item.image)
+			}),
+		[selectedProducts],
 	)
 
 	// Свайпаем на последний слайд при изменении images
@@ -40,6 +51,10 @@ export const StepImageSlider = () => {
 
 		if (targetIndex !== -1) {
 			swiperRef.current.slideTo(targetIndex)
+
+			// Обновляем состояние кнопок после программного свайпа
+			setIsBeginning(swiperRef.current.isBeginning)
+			setIsEnd(swiperRef.current.isEnd)
 		}
 	}, [lastChangedStepName, images])
 
@@ -80,6 +95,7 @@ export const StepImageSlider = () => {
 			borderColor="gray.300"
 		>
 			<Swiper
+				modules={[Navigation]}
 				slidesPerView={1}
 				grabCursor
 				observer
@@ -88,26 +104,30 @@ export const StepImageSlider = () => {
 				onSwiper={(swiper) => {
 					swiperRef.current = swiper
 				}}
-				pagination={{
-					clickable: true,
+				onSlideChange={(swiper) => {
+					setIsBeginning(swiper.isBeginning)
+					setIsEnd(swiper.isEnd)
 				}}
 				style={{width: '100%', height: '100%'}}
 			>
 				{images.map((item, idx) => (
 					<SwiperSlide key={`${id}-${item.article}-${idx}`}>
 						<Box w="full" h="full">
-							<Image
-								w="full"
-								h="full"
-								fit="cover"
-								src={item.image}
-								alt={item.stepName}
-								loading="lazy"
-								objectFit="cover"
-							/>
+							{item.image && (
+								<Image
+									w="full"
+									h="full"
+									fit="cover"
+									src={item.image}
+									alt={item.stepName}
+									loading="lazy"
+									objectFit="cover"
+								/>
+							)}
+
 							<Badge
 								pos="absolute"
-								bottom="0"
+								top="0"
 								right="0"
 								borderRadius="0"
 								size="md"
@@ -121,6 +141,37 @@ export const StepImageSlider = () => {
 					</SwiperSlide>
 				))}
 			</Swiper>
+			{images.length <= 1 ? null : (
+				<Flex
+					w="full"
+					position="absolute"
+					justify="space-between"
+					bottom="0"
+					left="0"
+					zIndex="1"
+				>
+					<Button
+						type="button"
+						borderRadius="none"
+						aspectRatio="1"
+						size="xs"
+						onClick={() => swiperRef.current?.slidePrev()}
+						disabled={isBeginning}
+					>
+						<ChevronLeft />
+					</Button>
+					<Button
+						type="button"
+						borderRadius="none"
+						aspectRatio="1"
+						size="xs"
+						onClick={() => swiperRef.current?.slideNext()}
+						disabled={isEnd}
+					>
+						<ChevronRight />
+					</Button>
+				</Flex>
+			)}
 		</Box>
 	)
 }

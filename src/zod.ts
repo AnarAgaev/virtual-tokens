@@ -155,10 +155,13 @@ const product = z
 			z.null(),
 		]),
 		sale: z.union([z.boolean(), z.null()]),
-		image: z
-			.string()
-			.url('Ссылка на изображение должна быть валидным URL')
-			.min(1, 'Ссылка на изображение не может быть пустой'),
+		image: z.union([
+			z
+				.string()
+				.url('Ссылка на изображение должна быть валидным URL')
+				.min(1, 'Ссылка на изображение не может быть пустой'),
+			z.null(),
+		]),
 		available: z.boolean(),
 		height_in_assembly: z
 			.number()
