@@ -23,6 +23,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      no_cache: true
     container_name: virtual-tokens-build
     profiles: ["build"]
 
@@ -45,5 +46,5 @@ services:
 # 3️⃣ Остановить контейнеры:
 # docker compose down
 #
-# 4️⃣ Очистить кэш для пересборки образа
+# 4️⃣ Очистить кэш при необходимости
 # docker compose --profile build build --no-cache

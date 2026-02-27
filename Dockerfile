@@ -1,7 +1,7 @@
 # =========================
 # BUILD IMAGE
 # =========================
-FROM node:23.10.0-alpine AS build
+FROM node:23.10.0-alpine
 
 WORKDIR /app
 
