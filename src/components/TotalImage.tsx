@@ -72,7 +72,7 @@ export const TotalImage = () => {
 						w="50%"
 						colorPalette="gray"
 						variant={pictureMode === 'image' ? 'solid' : 'outline'}
-						rounded="full"
+						rounded="none"
 						size="sm"
 						onClick={() => setPictureMode({type: 'image'})}
 					>
@@ -82,7 +82,7 @@ export const TotalImage = () => {
 						w="50%"
 						colorPalette="gray"
 						variant={pictureMode === 'drawing' ? 'solid' : 'outline'}
-						rounded="full"
+						rounded="none"
 						size="sm"
 						onClick={() => setPictureMode({type: 'drawing'})}
 					>

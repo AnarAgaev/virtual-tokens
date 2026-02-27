@@ -74,7 +74,7 @@ export const Option = ({
 			<Button
 				colorPalette="gray"
 				variant="outline"
-				rounded="full"
+				rounded="none"
 				size="xl"
 				minW={{base: '146px', lg: '138px'}}
 				h={{base: '40px', lg: '48px'}}

@@ -235,7 +235,7 @@ export const OrderForm = () => {
 					w={{base: 'full', sm: 'calc(50% - 4px)'}}
 					colorPalette="gray"
 					variant="outline"
-					rounded="full"
+					rounded="none"
 					size="xl"
 					disabled={isDotInCart}
 					onClick={pushDotToCart}
@@ -246,7 +246,7 @@ export const OrderForm = () => {
 					w={{base: 'full', sm: 'calc(50% - 4px)'}}
 					colorPalette="gray"
 					variant="solid"
-					rounded="full"
+					rounded="none"
 					size="xl"
 					onClick={() => setActiveTab({tabType: 'configuration'})}
 				>
