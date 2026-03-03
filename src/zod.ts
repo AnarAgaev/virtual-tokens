@@ -216,6 +216,9 @@ export type T_Videos = z.infer<typeof videos>
 
 const files = z.array(z.record(z.string(), z.string())).optional()
 export type T_Files = z.infer<typeof files>
+
+const shortTitles = z.record(z.string(), z.string()).nullable().optional()
+export type T_ShotTitles = z.infer<typeof shortTitles>
 // #endregion
 
 // #region Initial data
@@ -239,6 +242,7 @@ export const InitDataContract = z
 		description,
 		videos,
 		files,
+		shortTitles,
 	})
 	.refine((data) => {
 		// Проверка согласованности steps и stepsCount

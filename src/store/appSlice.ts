@@ -60,21 +60,24 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 			}
 
 			// Set init data
-			useConfiguration.getState().setInitData({
-				steps: safeResponse.data.steps,
-				stepsCount: safeResponse.data.stepsCount,
-				hardFilterSteps: safeResponse.data.hardFilterSteps,
-				filters: safeResponse.data.filters,
-				characteristics: safeResponse.data.characteristics,
-				blacklist: safeResponse.data.blacklists,
-				titles: safeResponse.data.titles,
-				units: safeResponse.data.units,
-				combos: safeResponse.data.combos,
-				products: safeResponse.data.products,
-				description: safeResponse.data.description,
-				videos: safeResponse.data.videos,
-				files: safeResponse.data.files,
-			})
+			useConfiguration
+				.getState()
+				.setInitData({
+					steps: safeResponse.data.steps,
+					stepsCount: safeResponse.data.stepsCount,
+					hardFilterSteps: safeResponse.data.hardFilterSteps,
+					filters: safeResponse.data.filters,
+					characteristics: safeResponse.data.characteristics,
+					blacklist: safeResponse.data.blacklists,
+					titles: safeResponse.data.titles,
+					units: safeResponse.data.units,
+					combos: safeResponse.data.combos,
+					products: safeResponse.data.products,
+					description: safeResponse.data.description,
+					videos: safeResponse.data.videos,
+					files: safeResponse.data.files,
+					shortTitles: safeResponse.data.shortTitles,
+				})
 
 			// #region Определяем тип пользователя
 			let userStatus: T_AppSlice['userStatus'] = 'user'

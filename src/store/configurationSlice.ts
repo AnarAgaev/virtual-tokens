@@ -26,6 +26,7 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 	description: null,
 	videos: [],
 	files: [],
+	shortTitles: null,
 
 	showWarning: true,
 	stopShowWarning: () => {
@@ -116,30 +117,39 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 
 			const selectorListArr = selectors ? Object.keys(selectors) : []
 
-			// Если в фильтрах нет текущего шага - опциональный селектор с возможностью выбора Нет
+			/**
+			 * Если в фильтрах нет текущего шага - это опциональный селектор
+			 * с возможностью выбора Нет.
+			 *
+			 * Шаги с бинарным выбором являются не обязательными
+			 * и не влияют на итоговый Виртуальный артикул.
+			 */
 			if (!selectors) {
-				/**
-				 * Шаги с бинарным выбором являются не обязательными
-				 * и не влияют на итоговый Виртуальный артикул,
-				 * поэтом сразу пропускаем этот шаг.
-				 *
-				 * При необходимости, в дальнейшем, можно включить,
-				 * раскомментировав код ниже.
-				 *
-				 * ! НЕ УДАЛЯТЬ
-				 */
 
 				const products = stepArticles
 					.flat()
 					.filter(Boolean) // убираем null
 					.map((article) => get().getProductByArticle(article))
 					.filter((product): product is T_ProductExtended => !!product)
+
 				const options = products.map((product) => ({
 					id: nanoid(),
 					value: product.article,
 					products: [structuredClone(product)],
 					selected: false,
 				}))
+
+				// Заменяем артикулы на короткие названия из shortTitles
+				const shortTitles = get().shortTitles
+				if (shortTitles) {
+					options.forEach((option) => {
+						const shortTitle = shortTitles[option.value]
+						if (shortTitle) {
+							option.value = shortTitle
+						}
+					})
+				}
+
 				modifications[stepName] = [
 					{
 						stepName,

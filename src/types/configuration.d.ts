@@ -8,6 +8,7 @@ import type {
 	T_HardFilterSteps,
 	T_Product,
 	T_Products,
+	T_ShotTitles,
 	T_StepArticle,
 	T_StepName,
 	T_Steps,
@@ -32,6 +33,7 @@ export type T_ConfigurationSlice = {
 	description: T_Description
 	videos: T_Videos
 	files: T_Files
+	shortTitles: T_ShotTitles
 
 	showWarning: boolean
 	stopShowWarning: () => void
@@ -66,6 +68,7 @@ export type T_ConfigurationSlice = {
 		description: T_Description
 		videos: T_Videos
 		files: T_Files
+		shortTitles: T_ShotTitles
 	}) => void
 	// #endregion
 
