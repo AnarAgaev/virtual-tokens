@@ -523,6 +523,21 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 		get().setResultCharacteristics()
 	},
 
+	isAllRequiredSelectorsSelected: () => {
+		const modifications = useConfiguration.getState().modifications
+
+		if (!modifications) return false
+
+		const allSelectors = Object.values(modifications).flat()
+
+		// Проверяем что все обязательные селекторы имеют выбранную опцию
+		return allSelectors
+			.filter((selector) => selector.selectorSelectedStatus !== 'optional')
+			.every((selector) =>
+				selector.selectorOptions.some((option) => option.selected),
+			)
+	},
+
 	lastChangedStepName: null,
 	setLastChangedStepName: (stepName) => {
 		set({lastChangedStepName: stepName})

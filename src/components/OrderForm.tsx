@@ -89,6 +89,10 @@ export const OrderForm = () => {
 		? false
 		: !virtualArticle?.some((a) => a === null)
 
+	const isAllRequiredSelectorsSelected = useComposition(
+		(state) => state.isAllRequiredSelectorsSelected,
+	)()
+
 	return (
 		<VStack w="full" pb="1" gap="5">
 			{/* Количество */}
@@ -231,17 +235,26 @@ export const OrderForm = () => {
 
 			{/* Кнопки */}
 			<Flex direction={{base: 'column', sm: 'row'}} gap="2" w="full">
-				<Button
-					w={{base: 'full', sm: 'calc(50% - 4px)'}}
-					colorPalette="gray"
-					variant="outline"
-					rounded="none"
-					size="xl"
-					disabled={isDotInCart}
-					onClick={pushDotToCart}
+				<Tooltip
+					showArrow
+					content="Чтобы добавить комплект в корзину, необходимо собрать полную конфигурацию, выбрав все обязательные параметры"
+					positioning={{placement: 'top'}}
+					disabled={isAllRequiredSelectorsSelected}
+					openDelay={100}
+					textAlign="center"
 				>
-					{isDotInCart ? 'В корзине' : 'Добавить в корзину'}
-				</Button>
+					<Button
+						w={{base: 'full', sm: 'calc(50% - 4px)'}}
+						colorPalette="gray"
+						variant="outline"
+						rounded="none"
+						size="xl"
+						disabled={!isAllRequiredSelectorsSelected || isDotInCart}
+						onClick={pushDotToCart}
+					>
+						{isDotInCart ? 'В корзине' : 'Добавить в корзину'}
+					</Button>
+				</Tooltip>
 				<Button
 					w={{base: 'full', sm: 'calc(50% - 4px)'}}
 					colorPalette="gray"

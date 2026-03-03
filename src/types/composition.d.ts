@@ -67,6 +67,8 @@ export type T_CompositionSlice = {
 	lastChangedStepName: string | null
 	setLastChangedStepName: (stepName: string | null) => void
 
+	isAllRequiredSelectorsSelected: () => boolean
+
 	// #region Виртуальный артикул
 	virtualArticle: (null | string)[] | null
 
