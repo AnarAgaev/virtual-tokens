@@ -49,7 +49,7 @@ export const ConfigurationPage = () => {
 			>
 				<Flex
 					gap={{base: '5', lg: '4'}}
-					direction={{lg: 'column'}}
+					direction={{base: 'column', sm: 'row', lg: 'column'}}
 					align={{lg: 'center'}}
 					flexShrink={0}
 					w="full"
@@ -77,7 +77,7 @@ export const ConfigurationPage = () => {
 							Виртуальный артикул:
 						</Text>
 						<Text
-							textStyle={{base: 'xs', xl: 'md'}}
+							textStyle={{base: 'sm', xl: 'md'}}
 							fontWeight="light"
 							textAlign="center"
 							lineHeight="1.2 !important"
@@ -94,7 +94,8 @@ export const ConfigurationPage = () => {
 
 					{/* Итоговая картинка */}
 					<Box
-						w={{base: '26.6%', lg: 'full'}}
+						// w={{base: '26.6%', lg: 'full'}}
+						w={{base: 'full', sm: '40%', lg: 'full'}}
 						aspectRatio={1}
 						pos="relative"
 						flexShrink="0"
@@ -132,7 +133,7 @@ export const ConfigurationPage = () => {
 									color="gray.400"
 									lineHeight="1.3"
 									w={{base: '90%', md: '70%'}}
-									fontSize={{base: 'clamp(8px, 2vw, 14px)', lg: 'sm'}}
+									fontSize={{base: 'clamp(12px, 2vw, 18px)', lg: 'sm'}}
 								>
 									Покажем здесь картинку итоговой конфигурации
 								</Text>
