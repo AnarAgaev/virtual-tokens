@@ -11,33 +11,35 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 
 	requestInitData: async () => {
 		try {
-			//! Временная логика для тестирования --- START
-			const apiLinkFromGetParam = window.location.search
-				?.split('?')
-				?.filter(Boolean)[0]
-				?.split('&')
-				?.filter((getParm) => getParm.includes('url'))[0]
-				?.split('=')[1]
+			// //! Временная логика для тестирования --- START
+			// const apiLinkFromGetParam = window.location.search
+			// 	?.split('?')
+			// 	?.filter(Boolean)[0]
+			// 	?.split('&')
+			// 	?.filter((getParm) => getParm.includes('url'))[0]
+			// 	?.split('=')[1]
 
-			const normalizeUrl = (url: string) => {
-				if (!url) return null
+			// const normalizeUrl = (url: string) => {
+			// 	if (!url) return null
 
-				// Если URL уже содержит протокол, возвращаем как есть
-				if (url.startsWith('http://') || url.startsWith('https://')) {
-					return url
-				}
+			// 	// Если URL уже содержит протокол, возвращаем как есть
+			// 	if (url.startsWith('http://') || url.startsWith('https://')) {
+			// 		return url
+			// 	}
 
-				// Добавляем протокол по умолчанию
-				return `https://${url}`
-			}
+			// 	// Добавляем протокол по умолчанию
+			// 	return `https://${url}`
+			// }
 
-			const apiLink =
-				normalizeUrl(apiLinkFromGetParam) ?? 'mocks/virtual-token.json'
+			// const apiLink =
+			// 	normalizeUrl(apiLinkFromGetParam) ?? 'mocks/virtual-token.json'
+			// //! Временная логика для тестирования --- END
+
+			const apiLink = window.virtualTokenApiLink
+
 			if (!apiLink) {
-				//! Временная логика для тестирования --- END
-
 				throw new Error(
-					`Не указан API URL получения инит данных. Текущее значение apiLink: ${apiLink}`,
+					`Не указан API URL получения инит данных. Неправильная переменная [window.virtualTokenApiLink]`,
 				)
 			}
 
