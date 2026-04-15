@@ -32,26 +32,34 @@ export const ConfigurationPage = () => {
 		: !virtualArticle?.some((a) => a === null)
 
 	return (
-		<Flex
-			direction={{base: 'column', lg: 'row'}}
-			gap={{base: 5, lg: 10, xl: '126px'}}
-			alignItems={{lg: 'stretch'}}
+		<Grid
+			templateColumns={{lg: '1fr 23.879%'}}
+			templateRows={{lg: 'auto 36px auto'}}
+			columnGap={{base: 5, lg: 10, xl: '126px'}}
+			rowGap={{base: 5, lg: 10}}
 		>
+			<GridItem order={{base: '2', lg: '1'}}>
+				<Configurator />
+			</GridItem>
+
 			{/* Сайдбар с картинками */}
-			<Flex
+			<GridItem
+				display="flex"
 				gap={{base: '5', lg: '4'}}
-				order={{lg: 1}}
-				direction="column"
-				align={{lg: 'center'}}
-				justify={{lg: 'space-between'}}
-				w={{lg: '23.879%'}}
-				flexShrink={0}
+				order={{base: '1', lg: '2'}}
+				flexDirection={{
+					base: 'column-reverse',
+					sm: 'row-reverse',
+					lg: 'column',
+				}}
+				alignItems={{lg: 'center'}}
+				justifyContent={{sm: 'space-between'}}
 			>
+				{/* Картинка шага + Виртуальный артикул */}
 				<Flex
 					gap={{base: '5', lg: '4'}}
-					direction={{base: 'column', sm: 'row', lg: 'column'}}
+					direction="column"
 					align={{lg: 'center'}}
-					flexShrink={0}
 					w="full"
 				>
 					{/* Картинка шага */}
@@ -60,7 +68,6 @@ export const ConfigurationPage = () => {
 						w="full"
 						aspectRatio={1}
 						pos="relative"
-						flexShrink="0"
 					>
 						<StepImageSlider />
 					</Box>
@@ -93,89 +100,101 @@ export const ConfigurationPage = () => {
 					</Flex>
 				</Flex>
 
-				<Flex
-					gap={{base: '5', lg: '4'}}
-					direction={{base: 'column', sm: 'row', lg: 'column'}}
-					align={{lg: 'center'}}
-					flexShrink={0}
-					w="full"
+				{/* Итоговая картинка */}
+				<Box
+					w={{base: 'full', sm: '40%', lg: 'full'}}
+					aspectRatio={1}
+					pos="relative"
+					flexShrink="0"
+					backgroundColor="gray.100"
 				>
-					{/* Итоговая картинка */}
-					<Box
-						// w={{base: '26.6%', lg: 'full'}}
-						w={{base: 'full', sm: '40%', lg: 'full'}}
-						aspectRatio={1}
-						pos="relative"
-						flexShrink="0"
-						backgroundColor="gray.100"
-						order={{base: '1', lg: '2'}}
-					>
-						{resultData?.image ? (
-							<Image
-								w="full"
-								h="full"
-								fit="cover"
-								loading="lazy"
-								src={resultData.image}
-							/>
-						) : (
-							<Flex
-								align="center"
-								justify="center"
-								pos="absolute"
-								w="full"
-								h="full"
-								direction="column"
-								gap="5"
-							>
-								<Box
-									display={{base: 'none', md: 'block'}}
-									w="25%"
-									aspectRatio="1"
-								>
-									<ImagePlaceholder color="#d4d4d8" />
-								</Box>
-								<Text
-									textAlign="center"
-									textWrap="balance"
-									color="gray.400"
-									lineHeight="1.3"
-									w={{base: '90%', md: '70%'}}
-									fontSize={{base: 'clamp(12px, 2vw, 18px)', lg: 'sm'}}
-								>
-									Покажем здесь картинку итоговой конфигурации
-								</Text>
-							</Flex>
-						)}
-					</Box>
-
-					{/* Кнопка перейти к Итого */}
-					{isVirtualArticleComplete && (
-						<Button
-							display={{base: 'none', lg: 'flex'}}
-							borderRadius="none"
-							variant="solid"
-							size="sm"
-							color="white"
-							textStyle="sm"
-							mt="6"
-							order="3"
+					{resultData?.image ? (
+						<Image
 							w="full"
-							onClick={() => setActiveTab({tabType: 'description'})}
+							h="full"
+							fit="cover"
+							loading="lazy"
+							src={resultData.image}
+						/>
+					) : (
+						<Flex
+							align="center"
+							justify="center"
+							pos="absolute"
+							w="full"
+							h="full"
+							direction="column"
+							gap="5"
 						>
-							Итоговая конфигурация
-						</Button>
+							<Box
+								display={{base: 'none', md: 'block'}}
+								w="25%"
+								aspectRatio="1"
+							>
+								<ImagePlaceholder color="#d4d4d8" />
+							</Box>
+							<Text
+								textAlign="center"
+								textWrap="balance"
+								color="gray.400"
+								lineHeight="1.3"
+								w={{base: '90%', md: '70%'}}
+								fontSize={{base: 'clamp(12px, 2vw, 18px)', lg: 'sm'}}
+							>
+								Покажем здесь картинку итоговой конфигурации
+							</Text>
+						</Flex>
 					)}
-				</Flex>
-			</Flex>
+				</Box>
 
-			{/* Конфигуратор */}
-			<Flex direction="column" w="full" gap="10" justify="space-between">
-				<Configurator />
+				{/* <Flex
+						gap={{base: '5', lg: '4'}}
+						direction={{base: 'column', sm: 'row', lg: 'column'}}
+						align={{lg: 'center'}}
+						flexShrink={0}
+						w="full"
+					> */}
+				{/* Кнопка перейти к Итого */}
+				{/* {isVirtualArticleComplete && (
+							<Button
+								display={{base: 'none', lg: 'flex'}}
+								borderRadius="none"
+								variant="solid"
+								size="sm"
+								color="white"
+								textStyle="sm"
+								mt="6"
+								order="3"
+								w="full"
+								onClick={() => setActiveTab({tabType: 'description'})}
+							>
+								Итоговая конфигурация
+							</Button>
+						)} */}
+				{/* </Flex> */}
+			</GridItem>
 
+			{/* Сбросить конфигурацию */}
+			<GridItem order="3" mt={{base: '5', lg: '0'}}>
+				<Button
+					borderRadius="none"
+					variant="solid"
+					size="sm"
+					color="white"
+					textStyle="sm"
+					maxW="991px"
+					w="full"
+					onClick={createModifications}
+				>
+					<Text w="full">Сбросить конфигурацию</Text>
+					<X />
+				</Button>
+			</GridItem>
+
+			{/* Итоговая конфигурация */}
+			<GridItem order="4">
 				{isVirtualArticleComplete && (
 					<Button
-						display={{lg: 'none'}}
 						borderRadius="none"
 						variant="solid"
 						size="sm"
@@ -187,21 +206,10 @@ export const ConfigurationPage = () => {
 						Итоговая конфигурация
 					</Button>
 				)}
-				<Button
-					mt={{base: '-6', lg: 'initial'}}
-					borderRadius="none"
-					variant="solid"
-					size="sm"
-					color="white"
-					textStyle="sm"
-					maxW="991px"
-					onClick={createModifications}
-				>
-					<Text w="full">Сбросить конфигурацию</Text>
-					<X />
-				</Button>
+			</GridItem>
 
-				{/* Только для Админов, показываем Выбранные значения */}
+			{/* Только для Админов, показываем Выбранные значения */}
+			<GridItem order="5">
 				{userStatus === 'admin' && (
 					<Grid gap="2" templateColumns="repeat(auto-fill, minmax(150px, 1fr))">
 						{Object.entries(selectedProducts).map(
@@ -271,7 +279,7 @@ export const ConfigurationPage = () => {
 						)}
 					</Grid>
 				)}
-			</Flex>
-		</Flex>
+			</GridItem>
+		</Grid>
 	)
 }
