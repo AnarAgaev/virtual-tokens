@@ -91,7 +91,15 @@ export const ConfigurationPage = () => {
 								: `Недостаточно выбора${'\n'}для формирования Артикула`}
 						</Text>
 					</Flex>
+				</Flex>
 
+				<Flex
+					gap={{base: '5', lg: '4'}}
+					direction={{base: 'column', sm: 'row', lg: 'column'}}
+					align={{lg: 'center'}}
+					flexShrink={0}
+					w="full"
+				>
 					{/* Итоговая картинка */}
 					<Box
 						// w={{base: '26.6%', lg: 'full'}}
@@ -140,25 +148,25 @@ export const ConfigurationPage = () => {
 							</Flex>
 						)}
 					</Box>
-				</Flex>
 
-				{/* Кнопка перейти к Итого */}
-				{isVirtualArticleComplete && (
-					<Button
-						display={{base: 'none', lg: 'flex'}}
-						borderRadius="none"
-						variant="solid"
-						size="sm"
-						color="white"
-						textStyle="sm"
-						mt="6"
-						order="3"
-						w="full"
-						onClick={() => setActiveTab({tabType: 'description'})}
-					>
-						Итоговая конфигурация
-					</Button>
-				)}
+					{/* Кнопка перейти к Итого */}
+					{isVirtualArticleComplete && (
+						<Button
+							display={{base: 'none', lg: 'flex'}}
+							borderRadius="none"
+							variant="solid"
+							size="sm"
+							color="white"
+							textStyle="sm"
+							mt="6"
+							order="3"
+							w="full"
+							onClick={() => setActiveTab({tabType: 'description'})}
+						>
+							Итоговая конфигурация
+						</Button>
+					)}
+				</Flex>
 			</Flex>
 
 			{/* Конфигуратор */}
