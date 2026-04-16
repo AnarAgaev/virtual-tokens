@@ -57,29 +57,29 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 
 			if (!safeResponse.success) {
 				const formattedErrors = safeResponse.error.format()
-				console.log(formatZodErrors(formattedErrors).join('\n'))
+				if (getUrlParam('status') === 'admin') {
+					console.log(formatZodErrors(formattedErrors).join('\n'))
+				}
 				throw new Error('Zod contract Error')
 			}
 
 			// Set init data
-			useConfiguration
-				.getState()
-				.setInitData({
-					steps: safeResponse.data.steps,
-					stepsCount: safeResponse.data.stepsCount,
-					hardFilterSteps: safeResponse.data.hardFilterSteps,
-					filters: safeResponse.data.filters,
-					characteristics: safeResponse.data.characteristics,
-					blacklist: safeResponse.data.blacklists,
-					titles: safeResponse.data.titles,
-					units: safeResponse.data.units,
-					combos: safeResponse.data.combos,
-					products: safeResponse.data.products,
-					description: safeResponse.data.description,
-					videos: safeResponse.data.videos,
-					files: safeResponse.data.files,
-					shortTitles: safeResponse.data.shortTitles,
-				})
+			useConfiguration.getState().setInitData({
+				steps: safeResponse.data.steps,
+				stepsCount: safeResponse.data.stepsCount,
+				hardFilterSteps: safeResponse.data.hardFilterSteps,
+				filters: safeResponse.data.filters,
+				characteristics: safeResponse.data.characteristics,
+				blacklist: safeResponse.data.blacklists,
+				titles: safeResponse.data.titles,
+				units: safeResponse.data.units,
+				combos: safeResponse.data.combos,
+				products: safeResponse.data.products,
+				description: safeResponse.data.description,
+				videos: safeResponse.data.videos,
+				files: safeResponse.data.files,
+				shortTitles: safeResponse.data.shortTitles,
+			})
 
 			// #region Определяем тип пользователя
 			let userStatus: T_AppSlice['userStatus'] = 'user'
@@ -103,9 +103,12 @@ const store: StateCreator<T_AppSlice> = (set) => ({
 			// #endregion
 
 			// #region Проверяем новые свойства в API данных
-			if (userStatus === 'admin') {
-				logExtraFields(safeResponse.data, InitDataContract)
-			}
+			logExtraFields(
+				safeResponse.data,
+				InitDataContract,
+				'',
+				userStatus === 'admin',
+			)
 			// #endregion
 
 			// Создаем абстракцию с селектами/кнопками для удобства работы

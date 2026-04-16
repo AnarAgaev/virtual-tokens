@@ -18,6 +18,9 @@ export const ConfigurationPage = () => {
 	const selectedProducts = useComposition((state) => state.selectedProducts)
 	const virtualArticle = useComposition((state) => state.virtualArticle)
 	const getResultData = useComposition((state) => state.getResultData)
+	const isAllRequiredSelectorsSelected = useComposition(
+		(state) => state.isAllRequiredSelectorsSelected,
+	)
 	const resultData = getResultData()
 	const createModifications = useConfiguration(
 		(state) => state.createModifications,
@@ -27,9 +30,7 @@ export const ConfigurationPage = () => {
 		? false
 		: !virtualArticle.every((a) => a === null)
 
-	const isVirtualArticleComplete = !virtualArticle
-		? false
-		: !virtualArticle?.some((a) => a === null)
+	const isConfigurationComplete = isAllRequiredSelectorsSelected()
 
 	return (
 		<Grid
@@ -193,7 +194,7 @@ export const ConfigurationPage = () => {
 
 			{/* Итоговая конфигурация */}
 			<GridItem order="4">
-				{isVirtualArticleComplete && (
+				{isConfigurationComplete && (
 					<Button
 						borderRadius="none"
 						variant="solid"

@@ -221,7 +221,7 @@ export const OrderForm = () => {
 				/>
 				<Tooltip
 					showArrow
-					content="Для упаковки комплекта в&nbsp;отдельную коробку, соберите полную конфигурацию"
+					content="Для упаковки комплекта в&nbsp;отдельную коробку, соберите полный Виртуальный артикул"
 					positioning={{placement: 'top'}}
 					disabled={isVirtualArticleComplete}
 					openDelay={100}

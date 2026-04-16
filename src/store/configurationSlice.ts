@@ -1,7 +1,7 @@
 import {nanoid} from 'nanoid'
 import {create, type StateCreator} from 'zustand'
 import {devtools} from 'zustand/middleware'
-import {useComposition} from '@/store'
+import {useApp, useComposition} from '@/store'
 import type {
 	T_ConfigurationSlice,
 	T_Modifications,
@@ -991,7 +991,9 @@ const store: StateCreator<T_ConfigurationSlice> = (set, get) => ({
 			}
 
 			if (product.filteredBy) {
-				console.log('product.filteredBy', product.filteredBy)
+				if (useApp.getState().userStatus === 'admin') {
+					console.log('product.filteredBy', product.filteredBy)
+				}
 
 				// Сохраняем фильтратора
 				product.filteredBy.forEach((filter) => {

@@ -5,6 +5,7 @@ export const logExtraFields = (
 	obj: unknown,
 	schema: z.ZodTypeAny,
 	path = '',
+	isAdmin = false,
 ): void => {
 	if (!obj || typeof obj !== 'object') return
 
@@ -15,11 +16,13 @@ export const logExtraFields = (
 		const objKeys = Object.keys(objRecord)
 
 		const extraKeys = objKeys.filter((key) => !schemaKeys.includes(key))
-		for (const key of extraKeys) {
-			console.warn(
-				`Дополнительное свойство: ${path ? `${path}.` : ''}${key}`,
-				objRecord[key],
-			)
+		if (isAdmin) {
+			for (const key of extraKeys) {
+				console.warn(
+					`Дополнительное свойство: ${path ? `${path}.` : ''}${key}`,
+					objRecord[key],
+				)
+			}
 		}
 
 		for (const key of schemaKeys) {
@@ -27,7 +30,7 @@ export const logExtraFields = (
 			const value = objRecord[key]
 
 			if (value && typeof value === 'object') {
-				logExtraFields(value, schemaField, path ? `${path}.${key}` : key)
+				logExtraFields(value, schemaField, path ? `${path}.${key}` : key, isAdmin)
 			}
 
 			// Массив объектов
@@ -40,6 +43,7 @@ export const logExtraFields = (
 							item,
 							inner,
 							`${path ? `${path}.` : ''}${key}[${idx}]`,
+							isAdmin,
 						)
 					})
 				}
@@ -55,7 +59,7 @@ export const logExtraFields = (
 				const inner = schemaField._def.valueType as any
 				Object.entries(value).forEach(([k, v]) => {
 					if (inner instanceof z.ZodObject) {
-						logExtraFields(v, inner, `${path ? `${path}.` : ''}${key}.${k}`)
+						logExtraFields(v, inner, `${path ? `${path}.` : ''}${key}.${k}`, isAdmin)
 					}
 				})
 			}

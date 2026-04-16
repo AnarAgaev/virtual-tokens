@@ -236,22 +236,28 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 
 		try {
 			if (articleArray?.length) {
-				console.log(
-					'\x1b[34m%s\x1b[0m',
-					'Запрашиваем виртуальны артикул по списку выбранных',
-					articleArray,
-				)
+				const isAdmin = useApp.getState().userStatus === 'admin'
+
+				if (isAdmin) {
+					console.log(
+						'\x1b[34m%s\x1b[0m',
+						'Запрашиваем виртуальны артикул по списку выбранных',
+						articleArray,
+					)
+				}
 
 				const articleString = generateVirtualArticle(articleArray)
 				virtualArticle = articleString
 					.split('-')
 					.map((part) => (part === 'null' ? null : part))
 
-				console.log(
-					'\x1b[32m%s\x1b[0m',
-					'Получили виртуальный артикул',
-					virtualArticle,
-				)
+				if (isAdmin) {
+					console.log(
+						'\x1b[32m%s\x1b[0m',
+						'Получили виртуальный артикул',
+						virtualArticle,
+					)
+				}
 			}
 		} catch (error) {
 			console.error(error)
@@ -525,17 +531,23 @@ const store: StateCreator<T_CompositionSlice> = (set, get) => ({
 
 	isAllRequiredSelectorsSelected: () => {
 		const modifications = useConfiguration.getState().modifications
+		const showDriverStep = useConfiguration.getState().showDriverStep
 
 		if (!modifications) return false
 
+		const driverIsHidden = !showDriverStep()
 		const allSelectors = Object.values(modifications).flat()
 
-		// Проверяем что все обязательные селекторы имеют выбранную опцию
-		return allSelectors
-			.filter((selector) => selector.selectorSelectedStatus !== 'optional')
-			.every((selector) =>
-				selector.selectorOptions.some((option) => option.selected),
-			)
+		const requiredSelectors = allSelectors.filter(
+			(selector) =>
+				selector.selectorSelectedStatus !== 'optional' &&
+				selector.selectorSelectedStatus !== 'blocked' &&
+				!(driverIsHidden && selector.stepName === 'Драйвер'),
+		)
+
+		return requiredSelectors.every((selector) =>
+			selector.selectorOptions.some((option) => option.selected),
+		)
 	},
 
 	lastChangedStepName: null,
